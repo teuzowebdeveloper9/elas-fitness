@@ -9,6 +9,8 @@ import Workouts from '@/pages/Workouts'
 import Diet from '@/pages/Diet'
 import Progress from '@/pages/Progress'
 import Profile from '@/pages/Profile'
+import CycleTracking from '@/pages/CycleTracking'
+import MenopauseTracking from '@/pages/MenopauseTracking'
 
 function AppRoutes() {
   const { userProfile } = useUser()
@@ -32,6 +34,8 @@ function AppRoutes() {
         <Route path="diet" element={<Diet />} />
         <Route path="progress" element={<Progress />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="cycle-tracking" element={<CycleTracking />} />
+        <Route path="menopause-tracking" element={<MenopauseTracking />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

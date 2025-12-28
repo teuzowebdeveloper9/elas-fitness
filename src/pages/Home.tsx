@@ -2,17 +2,56 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useUser } from '@/contexts/UserContext'
+import { useEffect } from 'react'
 
 export default function Home() {
   const { userProfile } = useUser()
+  const navigate = useNavigate()
+
   const today = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long'
   })
+
+  // Detecta se precisa redirecionar para o tracking apropriado
+  useEffect(() => {
+    const checkTrackingSetup = () => {
+      if (!userProfile) return
+
+      // Se menstrua, verifica se já configurou o ciclo
+      if (userProfile.lifePhase === 'menstrual') {
+        const cycleData = localStorage.getItem('cycleData')
+        if (!cycleData) {
+          // Primeira vez - redireciona para configurar
+          const hasVisited = localStorage.getItem('hasVisitedCycleTracking')
+          if (!hasVisited) {
+            localStorage.setItem('hasVisitedCycleTracking', 'true')
+            navigate('/cycle-tracking')
+          }
+        }
+      }
+
+      // Se está em fase de menopausa, verifica se já configurou sintomas
+      if (['pre-menopause', 'menopause', 'post-menopause'].includes(userProfile.lifePhase)) {
+        const menopauseData = localStorage.getItem('menopauseData')
+        if (!menopauseData) {
+          const hasVisited = localStorage.getItem('hasVisitedMenopauseTracking')
+          if (!hasVisited) {
+            localStorage.setItem('hasVisitedMenopauseTracking', 'true')
+            navigate('/menopause-tracking')
+          }
+        }
+      }
+    }
+
+    // Delay para não redirecionar imediatamente
+    const timer = setTimeout(checkTrackingSetup, 1000)
+    return () => clearTimeout(timer)
+  }, [userProfile, navigate])
 
   const getLifePhaseMessage = () => {
     if (!userProfile) return ''
@@ -31,6 +70,30 @@ export default function Home() {
     }
   }
 
+  const getTrackingLink = () => {
+    if (!userProfile) return null
+
+    if (userProfile.lifePhase === 'menstrual') {
+      return {
+        to: '/cycle-tracking',
+        label: 'Acompanhar Ciclo Menstrual',
+        description: 'Registre sua menstruação e sentimentos'
+      }
+    }
+
+    if (['pre-menopause', 'menopause', 'post-menopause'].includes(userProfile.lifePhase)) {
+      return {
+        to: '/menopause-tracking',
+        label: 'Acompanhar Sintomas',
+        description: 'Monitore seus sintomas e bem-estar'
+      }
+    }
+
+    return null
+  }
+
+  const trackingLink = getTrackingLink()
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
@@ -39,6 +102,25 @@ export default function Home() {
         <p className="text-pink-100 capitalize">{today}</p>
         <p className="mt-4 text-sm">{getLifePhaseMessage()}</p>
       </div>
+
+      {/* Tracking Card - Apenas se tiver tracking disponível */}
+      {trackingLink && (
+        <Link to={trackingLink.to}>
+          <Card className="border-2 border-pink-200 dark:border-pink-700 hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-pink-100 dark:bg-pink-900/30 rounded-full">
+                  <Activity className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">{trackingLink.label}</h3>
+                  <p className="text-sm text-muted-foreground">{trackingLink.description}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4">
