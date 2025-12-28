@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Calendar as CalendarIcon, Heart, Activity, Droplets, Sun, Moon, Sparkles } from 'lucide-react'
 import { format, differenceInDays, addDays } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { ptBR } from 'date-fns/locale/pt-BR'
 
 interface DailyLog {
   date: string
