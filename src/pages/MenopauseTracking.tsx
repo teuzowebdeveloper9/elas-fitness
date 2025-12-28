@@ -314,26 +314,28 @@ export default function MenopauseTracking() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {symptoms.map((symptom) => (
-            <div key={symptom.id} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Checkbox
-                    id={symptom.id}
-                    checked={symptom.active}
-                    onCheckedChange={() => toggleSymptom(symptom.id)}
-                  />
-                  <Label htmlFor={symptom.id} className="flex items-center gap-2 cursor-pointer">
-                    <symptom.icon className="h-4 w-4" />
-                    {symptom.name}
-                  </Label>
+          {symptoms.map((symptom) => {
+            const IconComponent = symptom.icon
+            return (
+              <div key={symptom.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      id={symptom.id}
+                      checked={symptom.active}
+                      onCheckedChange={() => toggleSymptom(symptom.id)}
+                    />
+                    <Label htmlFor={symptom.id} className="flex items-center gap-2 cursor-pointer">
+                      <IconComponent className="h-4 w-4" />
+                      {symptom.name}
+                    </Label>
+                  </div>
+                  {symptom.active && (
+                    <Badge variant="outline">
+                      Intensidade: {symptom.intensity}/5
+                    </Badge>
+                  )}
                 </div>
-                {symptom.active && (
-                  <Badge variant="outline">
-                    Intensidade: {symptom.intensity}/5
-                  </Badge>
-                )}
-              </div>
               {symptom.active && (
                 <div className="flex items-center gap-2 ml-9">
                   <Button
@@ -365,7 +367,8 @@ export default function MenopauseTracking() {
                 </div>
               )}
             </div>
-          ))}
+            )
+          })}
         </CardContent>
       </Card>
 
