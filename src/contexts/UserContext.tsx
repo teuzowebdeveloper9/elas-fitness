@@ -14,7 +14,8 @@ export interface UserProfile {
   hasMenstrualCycle: boolean
   cycleRegular: boolean
   fitnessLevel: FitnessLevel
-  goal: Goal
+  goals: Goal[] // Changed from single goal to array
+  challenges: string[] // New field for challenges
   exerciseFrequency: number
   dietaryRestrictions: string[]
   healthConditions: string[]
@@ -38,7 +39,8 @@ const defaultProfile: UserProfile = {
   hasMenstrualCycle: true,
   cycleRegular: true,
   fitnessLevel: 'beginner',
-  goal: 'health',
+  goals: [],
+  challenges: [],
   exerciseFrequency: 3,
   dietaryRestrictions: [],
   healthConditions: [],

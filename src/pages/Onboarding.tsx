@@ -8,9 +8,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
 import { useUser, UserProfile, LifePhase, FitnessLevel, Goal } from '@/contexts/UserContext'
-import { Heart, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react'
+import { Heart, ArrowRight, ArrowLeft, Sparkles, HeartCrack } from 'lucide-react'
 
-const TOTAL_STEPS = 7
+const TOTAL_STEPS = 8
 
 export default function Onboarding() {
   const navigate = useNavigate()
@@ -27,7 +27,8 @@ export default function Onboarding() {
     hasMenstrualCycle: true,
     cycleRegular: true,
     fitnessLevel: 'beginner' as FitnessLevel,
-    goal: 'health' as Goal,
+    goals: [] as Goal[],
+    challenges: [] as string[],
     exerciseFrequency: 3,
     dietaryRestrictions: [] as string[],
     healthConditions: [] as string[],
@@ -58,7 +59,8 @@ export default function Onboarding() {
       hasMenstrualCycle: formData.hasMenstrualCycle,
       cycleRegular: formData.cycleRegular,
       fitnessLevel: formData.fitnessLevel,
-      goal: formData.goal,
+      goals: formData.goals,
+      challenges: formData.challenges,
       exerciseFrequency: formData.exerciseFrequency,
       dietaryRestrictions: formData.dietaryRestrictions,
       healthConditions: formData.healthConditions,
@@ -322,35 +324,133 @@ export default function Onboarding() {
                 </div>
 
                 <div>
-                  <Label className="text-base mb-4 block">Qual seu principal objetivo?</Label>
-                  <RadioGroup
-                    value={formData.goal}
-                    onValueChange={(value) => setFormData({ ...formData, goal: value as Goal })}
-                    className="space-y-3"
-                  >
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg">
-                      <RadioGroupItem value="lose-weight" id="lose-weight" />
-                      <Label htmlFor="lose-weight" className="cursor-pointer">Perder peso e definir</Label>
+                  <Label className="text-base mb-4 block">Quais são seus objetivos? (Pode escolher mais de um)</Label>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="lose-weight"
+                        checked={formData.goals.includes('lose-weight')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('lose-weight')
+                              ? formData.goals.filter(g => g !== 'lose-weight')
+                              : [...formData.goals, 'lose-weight']
+                          })
+                        }
+                      />
+                      <Label htmlFor="lose-weight" className="cursor-pointer flex-1 font-medium">
+                        Perder peso e definir
+                      </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg">
-                      <RadioGroupItem value="gain-muscle" id="gain-muscle" />
-                      <Label htmlFor="gain-muscle" className="cursor-pointer">Ganhar massa muscular</Label>
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="gain-muscle"
+                        checked={formData.goals.includes('gain-muscle')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('gain-muscle')
+                              ? formData.goals.filter(g => g !== 'gain-muscle')
+                              : [...formData.goals, 'gain-muscle']
+                          })
+                        }
+                      />
+                      <Label htmlFor="gain-muscle" className="cursor-pointer flex-1 font-medium">
+                        Ganhar massa muscular
+                      </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg">
-                      <RadioGroupItem value="maintain" id="maintain" />
-                      <Label htmlFor="maintain" className="cursor-pointer">Manter forma atual</Label>
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="maintain"
+                        checked={formData.goals.includes('maintain')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('maintain')
+                              ? formData.goals.filter(g => g !== 'maintain')
+                              : [...formData.goals, 'maintain']
+                          })
+                        }
+                      />
+                      <Label htmlFor="maintain" className="cursor-pointer flex-1 font-medium">
+                        Manter forma atual
+                      </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg">
-                      <RadioGroupItem value="health" id="health" />
-                      <Label htmlFor="health" className="cursor-pointer">Saúde e bem-estar geral</Label>
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="health"
+                        checked={formData.goals.includes('health')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('health')
+                              ? formData.goals.filter(g => g !== 'health')
+                              : [...formData.goals, 'health']
+                          })
+                        }
+                      />
+                      <Label htmlFor="health" className="cursor-pointer flex-1 font-medium">
+                        Saúde e bem-estar geral
+                      </Label>
                     </div>
-                  </RadioGroup>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Step 6: Exercise Frequency */}
+            {/* Step 6: Challenges */}
             {currentStep === 6 && (
+              <div className="space-y-4">
+                <div className="text-center mb-4">
+                  <HeartCrack className="w-12 h-12 mx-auto mb-3 text-pink-500" />
+                  <h3 className="text-lg font-medium mb-2">Você não está sozinha</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Queremos entender suas dificuldades para te apoiar melhor
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-base mb-4 block">Quais são suas principais dificuldades? (Pode escolher mais de uma)</Label>
+                  <div className="space-y-3">
+                    {[
+                      'Falta de tempo para treinar',
+                      'Dificuldade em manter a constância',
+                      'Falta de motivação',
+                      'Não sei por onde começar',
+                      'Dificuldade em controlar a alimentação',
+                      'Cansaço e falta de energia',
+                      'Dores ou limitações físicas',
+                      'Ansiedade ou compulsão alimentar',
+                      'Alterações hormonais afetando o corpo',
+                      'Pressão estética ou autoestima baixa'
+                    ].map((challenge) => (
+                      <div key={challenge} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                        <Checkbox
+                          id={challenge}
+                          checked={formData.challenges.includes(challenge)}
+                          onCheckedChange={() =>
+                            setFormData({
+                              ...formData,
+                              challenges: toggleArrayItem(formData.challenges, challenge)
+                            })
+                          }
+                          className="mt-1"
+                        />
+                        <Label htmlFor={challenge} className="cursor-pointer flex-1 text-sm">{challenge}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <strong>💜 Estamos aqui para você:</strong> Vamos personalizar seu plano considerando essas dificuldades, tornando sua jornada mais leve e real.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Step 7: Exercise Frequency */}
+            {currentStep === 7 && (
               <div className="space-y-4">
                 <div>
                   <Label className="text-base mb-4 block">
@@ -379,8 +479,8 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* Step 7: Health & Restrictions */}
-            {currentStep === 7 && (
+            {/* Step 8: Health & Restrictions */}
+            {currentStep === 8 && (
               <div className="space-y-6">
                 <div>
                   <Label className="text-base mb-4 block">Você tem alguma restrição alimentar?</Label>
@@ -467,6 +567,7 @@ function getStepTitle(step: number): string {
     'Sua fase da vida',
     'Sobre seu ciclo',
     'Seus objetivos',
+    'Suas dificuldades',
     'Sua rotina',
     'Finalizando',
   ]
@@ -484,10 +585,12 @@ function isStepValid(step: number, formData: any): boolean {
     case 4:
       return true // Always valid
     case 5:
-      return formData.fitnessLevel.length > 0 && formData.goal.length > 0
+      return formData.fitnessLevel.length > 0 && formData.goals.length > 0
     case 6:
-      return formData.exerciseFrequency > 0
+      return true // Always valid (challenges are optional)
     case 7:
+      return formData.exerciseFrequency > 0
+    case 8:
       return true // Always valid
     default:
       return false
