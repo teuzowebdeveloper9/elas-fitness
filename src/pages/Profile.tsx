@@ -13,8 +13,6 @@ import { useUser } from '@/contexts/UserContext'
 import { getLifePhaseLabel } from '@/utils/workoutAdaptations'
 import {
   User,
-  Mail,
-  Phone,
   Calendar,
   Target,
   Activity,
@@ -32,7 +30,7 @@ export default function Profile() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { theme, setTheme } = useTheme()
-  const { userProfile, updateUserProfile, clearUserProfile } = useUser()
+  const { userProfile, clearUserProfile } = useUser()
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [workoutReminders, setWorkoutReminders] = useState(true)
   const [mealReminders, setMealReminders] = useState(true)

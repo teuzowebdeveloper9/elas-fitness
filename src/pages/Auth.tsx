@@ -132,10 +132,10 @@ export default function Auth() {
             <Heart className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-            FitHer
+            Elas Fit
           </h1>
           <p className="text-muted-foreground mt-2">
-            Seu app de treino personalizado
+            Treinos personalizados para você
           </p>
         </div>
 

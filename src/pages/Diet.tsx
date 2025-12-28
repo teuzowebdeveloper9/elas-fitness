@@ -4,9 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import {
   Apple,
@@ -39,7 +36,7 @@ interface Meal {
 
 export default function Diet() {
   const { toast } = useToast()
-  const [meals, setMeals] = useState<Meal[]>([
+  const [meals] = useState<Meal[]>([
     {
       id: '1',
       name: 'Café da Manhã',

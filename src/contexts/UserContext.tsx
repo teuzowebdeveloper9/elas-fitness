@@ -29,23 +29,7 @@ interface UserContextType {
   clearUserProfile: () => void
 }
 
-const defaultProfile: UserProfile = {
-  name: '',
-  age: 0,
-  weight: 0,
-  height: 0,
-  goalWeight: 0,
-  lifePhase: 'menstrual',
-  hasMenstrualCycle: true,
-  cycleRegular: true,
-  fitnessLevel: 'beginner',
-  goals: [],
-  challenges: [],
-  exerciseFrequency: 3,
-  dietaryRestrictions: [],
-  healthConditions: [],
-  onboardingCompleted: false,
-}
+// Removed unused defaultProfile
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
