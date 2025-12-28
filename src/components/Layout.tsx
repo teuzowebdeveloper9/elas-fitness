@@ -20,10 +20,10 @@ export default function Layout() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
-              FitHer
+              Elas Fit
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
-              Seu app de treinos e dieta
+              Fitness adaptado para você
             </p>
           </div>
         </div>

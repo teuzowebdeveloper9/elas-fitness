@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
 import { useTheme } from 'next-themes'
+import { useUser } from '@/contexts/UserContext'
+import { getLifePhaseLabel } from '@/utils/workoutAdaptations'
 import {
   User,
   Mail,
@@ -21,12 +24,15 @@ import {
   Lock,
   LogOut,
   Camera,
-  Save
+  Save,
+  RefreshCw
 } from 'lucide-react'
 
 export default function Profile() {
+  const navigate = useNavigate()
   const { toast } = useToast()
   const { theme, setTheme } = useTheme()
+  const { userProfile, updateUserProfile, clearUserProfile } = useUser()
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [workoutReminders, setWorkoutReminders] = useState(true)
   const [mealReminders, setMealReminders] = useState(true)
@@ -81,8 +87,13 @@ export default function Profile() {
                 <Camera className="w-4 h-4" />
               </Button>
             </div>
-            <h3 className="text-2xl font-bold mb-1">Maria Julia</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">maria.julia@email.com</p>
+            <h3 className="text-2xl font-bold mb-1">{userProfile?.name || 'Usuária'}</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-2">{userProfile?.age} anos</p>
+            {userProfile && (
+              <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-4">
+                {getLifePhaseLabel(userProfile.lifePhase)}
+              </p>
+            )}
             <div className="flex gap-4 text-center">
               <div>
                 <p className="text-2xl font-bold text-pink-600 dark:text-pink-400">34</p>
@@ -95,8 +106,10 @@ export default function Profile() {
               </div>
               <div className="w-px bg-gray-300 dark:bg-gray-600" />
               <div>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">3.1kg</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Perdidos</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                  {userProfile ? (userProfile.weight - userProfile.goalWeight).toFixed(1) : '0'}kg
+                </p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Restantes</p>
               </div>
             </div>
           </div>
@@ -124,33 +137,38 @@ export default function Profile() {
                 <Label htmlFor="name">Nome Completo</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                  <Input id="name" defaultValue="Maria Julia" className="pl-10" />
+                  <Input id="name" defaultValue={userProfile?.name} className="pl-10" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                  <Input id="email" type="email" defaultValue="maria.julia@email.com" className="pl-10" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                  <Input id="phone" defaultValue="(11) 98765-4321" className="pl-10" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="birthdate">Data de Nascimento</Label>
+                <Label htmlFor="age">Idade</Label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                  <Input id="birthdate" type="date" defaultValue="1995-05-15" className="pl-10" />
+                  <Input id="age" type="number" defaultValue={userProfile?.age} className="pl-10" />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lifePhase">Fase da Vida</Label>
+                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <p className="text-sm font-medium">
+                    {userProfile && getLifePhaseLabel(userProfile.lifePhase)}
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  clearUserProfile()
+                  navigate('/onboarding')
+                }}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refazer Quiz Inicial
+              </Button>
 
               <Button
                 className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
@@ -175,17 +193,17 @@ export default function Profile() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="current-weight">Peso Atual (kg)</Label>
-                <Input id="current-weight" type="number" defaultValue="63.9" step="0.1" />
+                <Input id="current-weight" type="number" defaultValue={userProfile?.weight} step="0.1" />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="goal-weight">Meta de Peso (kg)</Label>
-                <Input id="goal-weight" type="number" defaultValue="60.0" step="0.1" />
+                <Input id="goal-weight" type="number" defaultValue={userProfile?.goalWeight} step="0.1" />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="height">Altura (cm)</Label>
-                <Input id="height" type="number" defaultValue="165" />
+                <Input id="height" type="number" defaultValue={userProfile?.height} />
               </div>
 
               <div className="space-y-2">
@@ -200,7 +218,7 @@ export default function Profile() {
 
               <div className="space-y-2">
                 <Label htmlFor="workout-frequency">Frequência de Treino (dias/semana)</Label>
-                <Input id="workout-frequency" type="number" defaultValue="5" min="1" max="7" />
+                <Input id="workout-frequency" type="number" defaultValue={userProfile?.exerciseFrequency} min="1" max="7" />
               </div>
 
               <Button
@@ -344,7 +362,7 @@ export default function Profile() {
       {/* App Info */}
       <Card>
         <CardContent className="pt-6 text-center text-sm text-gray-500">
-          <p className="mb-1">FitHer - Seu App de Treinos e Dieta</p>
+          <p className="mb-1">Elas Fit - Fitness Adaptado Para Você</p>
           <p>Versão 1.0.0</p>
         </CardContent>
       </Card>

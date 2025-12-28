@@ -5,7 +5,10 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Play, Clock, Flame, CheckCircle2, Target } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Play, Clock, Flame, CheckCircle2, Target, Info, Heart } from 'lucide-react'
+import { useUser } from '@/contexts/UserContext'
+import { getWorkoutAdaptation, getLifePhaseLabel, getLifePhaseColor } from '@/utils/workoutAdaptations'
 
 interface Exercise {
   name: string
@@ -27,7 +30,12 @@ interface Workout {
 }
 
 export default function Workouts() {
+  const { userProfile } = useUser()
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
+
+  const adaptation = userProfile
+    ? getWorkoutAdaptation(userProfile.lifePhase, userProfile.fitnessLevel)
+    : null
 
   const workouts: Workout[] = [
     {
@@ -108,9 +116,41 @@ export default function Workouts() {
           Meus Treinos
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Escolha seu treino e comece a se exercitar
+          Treinos personalizados para sua fase da vida
         </p>
       </div>
+
+      {/* Life Phase Info */}
+      {userProfile && adaptation && (
+        <Card className={`bg-gradient-to-r ${getLifePhaseColor(userProfile.lifePhase)} text-white border-0`}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5" />
+              {getLifePhaseLabel(userProfile.lifePhase)}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <h4 className="font-medium mb-2 flex items-center gap-2">
+                <Info className="w-4 h-4" />
+                Recomendações para Você:
+              </h4>
+              <ul className="space-y-1 text-sm text-white/90">
+                {adaptation.recommendations.slice(0, 3).map((rec, index) => (
+                  <li key={index}>• {rec}</li>
+                ))}
+              </ul>
+            </div>
+            {adaptation.warnings.length > 0 && (
+              <Alert className="bg-white/10 border-white/20 text-white">
+                <AlertDescription className="text-sm">
+                  <strong>Atenção:</strong> {adaptation.warnings[0]}
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-4">

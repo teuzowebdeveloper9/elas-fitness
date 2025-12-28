@@ -4,21 +4,40 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useUser } from '@/contexts/UserContext'
 
 export default function Home() {
+  const { userProfile } = useUser()
   const today = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long'
   })
 
+  const getLifePhaseMessage = () => {
+    if (!userProfile) return ''
+
+    switch (userProfile.lifePhase) {
+      case 'menstrual':
+        return 'Treinos adaptados ao seu ciclo menstrual'
+      case 'pre-menopause':
+        return 'Treinos focados em equilíbrio hormonal'
+      case 'menopause':
+        return 'Treinos para fortalecer ossos e músculos'
+      case 'post-menopause':
+        return 'Treinos para manter vitalidade e saúde'
+      default:
+        return ''
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-        <h2 className="text-2xl font-bold mb-2">Olá, Linda! 💪</h2>
+        <h2 className="text-2xl font-bold mb-2">Olá, {userProfile?.name || 'Linda'}! 💪</h2>
         <p className="text-pink-100 capitalize">{today}</p>
-        <p className="mt-4 text-sm">Continue firme! Você está no caminho certo para alcançar seus objetivos.</p>
+        <p className="mt-4 text-sm">{getLifePhaseMessage()}</p>
       </div>
 
       {/* Quick Stats */}
