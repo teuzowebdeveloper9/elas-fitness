@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { useToast } from '@/hooks/use-toast'
 import { Camera, Image as ImageIcon, Flame, Apple, Coffee, Target, Loader2, Check, X, Utensils } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
-import { analyzeFoodImage } from '@/lib/openai'
+import { analyzeFoodImage } from '@/lib/openai-real'
 import { supabase } from '@/lib/supabase'
 import { format } from 'date-fns'
 

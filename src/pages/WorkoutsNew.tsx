@@ -14,7 +14,7 @@ import {
   Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown, Pause, CheckCircle
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
-import { generatePersonalizedWorkout, WorkoutGenerationData } from '@/lib/openai'
+import { generatePersonalizedWorkout, WorkoutGenerationData } from '@/lib/openai-real'
 import { useToast } from '@/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'

@@ -12,7 +12,7 @@ import {
   Sun, Moon, ShoppingCart, Lightbulb, Camera, ArrowRight
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
-import { generatePersonalizedDiet, calculateBioimpedance, DietGenerationData, NutritionData } from '@/lib/openai'
+import { generatePersonalizedDiet, calculateBioimpedance, DietGenerationData, NutritionData } from '@/lib/openai-real'
 import { useNavigate } from 'react-router-dom'
 
 interface GeneratedMeal {
