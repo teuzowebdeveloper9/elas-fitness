@@ -50,6 +50,26 @@ const commonSymptoms: Omit<Symptom, 'active' | 'intensity'>[] = [
 ]
 
 export default function MenopauseTracking() {
+  // Limpar dados corrompidos do localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('menopauseData')
+    if (saved) {
+      try {
+        const data = JSON.parse(saved)
+        // Verificar se os dados estão válidos
+        if (data.symptoms && Array.isArray(data.symptoms)) {
+          const hasInvalidData = data.symptoms.some((s: any) => s.icon !== undefined)
+          if (hasInvalidData) {
+            // Dados corrompidos, limpar
+            localStorage.removeItem('menopauseData')
+          }
+        }
+      } catch {
+        localStorage.removeItem('menopauseData')
+      }
+    }
+  }, [])
+
   const [phase, setPhase] = useState<'premenopausa' | 'menopausa' | 'posmenopausa'>('menopausa')
   const [symptoms, setSymptoms] = useState<Symptom[]>(
     commonSymptoms.map(s => ({ ...s, active: false, intensity: 3 }))
@@ -60,22 +80,28 @@ export default function MenopauseTracking() {
   const [logs, setLogs] = useState<DailyLog[]>([])
 
   useEffect(() => {
-    const saved = localStorage.getItem('menopauseData')
-    if (saved) {
-      const data = JSON.parse(saved)
-      if (data.phase) setPhase(data.phase)
-      if (data.symptoms) {
-        // Restaurar sintomas mas manter os ícones do commonSymptoms
-        const restoredSymptoms = data.symptoms.map((savedSymptom: any) => {
-          const baseSymptom = commonSymptoms.find(cs => cs.id === savedSymptom.id)
-          return {
-            ...savedSymptom,
-            icon: baseSymptom?.icon || Flame
-          }
-        })
-        setSymptoms(restoredSymptoms)
+    try {
+      const saved = localStorage.getItem('menopauseData')
+      if (saved) {
+        const data = JSON.parse(saved)
+        if (data.phase) setPhase(data.phase)
+        if (data.symptoms && Array.isArray(data.symptoms)) {
+          // Restaurar sintomas mas sempre usar os ícones do commonSymptoms
+          const restoredSymptoms = commonSymptoms.map(baseSymptom => {
+            const savedSymptom = data.symptoms.find((s: any) => s.id === baseSymptom.id)
+            return {
+              ...baseSymptom,
+              active: savedSymptom?.active || false,
+              intensity: savedSymptom?.intensity || 3
+            }
+          })
+          setSymptoms(restoredSymptoms)
+        }
+        if (data.logs) setLogs(data.logs)
       }
-      if (data.logs) setLogs(data.logs)
+    } catch (error) {
+      // Se houver erro ao carregar, limpar localStorage
+      localStorage.removeItem('menopauseData')
     }
   }, [])
 
