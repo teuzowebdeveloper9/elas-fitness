@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Play, Clock, Flame, Dumbbell, Home, Zap, Music,
-  Heart, Sparkles, Loader2
+  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, Shuffle
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { generatePersonalizedWorkout, WorkoutGenerationData } from '@/lib/openai'
