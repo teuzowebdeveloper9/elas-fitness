@@ -1,10 +1,5 @@
-import OpenAI from 'openai'
-
-// Initialize OpenAI client
-export const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY || 'your_openai_api_key_here',
-  dangerouslyAllowBrowser: true // Necessário para uso no navegador
-})
+// OpenAI integration removed - using local templates for workouts and diets
+// If you need AI generation in the future, configure VITE_OPENAI_API_KEY in your .env file
 
 export interface BioimpedanceData {
   weight: number
