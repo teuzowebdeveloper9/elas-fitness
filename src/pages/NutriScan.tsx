@@ -184,7 +184,7 @@ export default function NutriScan() {
   }
 
   const saveMeal = async () => {
-    if (!analysisResult || !user) return
+    if (!analysisResult || !userProfile) return
 
     try {
       const today = format(new Date(), 'yyyy-MM-dd')
