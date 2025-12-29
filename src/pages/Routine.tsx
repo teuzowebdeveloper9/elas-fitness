@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Droplets, Pill, Bell, Plus, Trash2, Check, Clock } from 'lucide-react'
+import { Droplets, Pill, Bell, Plus, Trash2, Clock } from 'lucide-react'
 
 interface Supplement {
   id: string
@@ -393,7 +393,7 @@ export default function Routine() {
                       <div className="space-y-2">
                         <Label>Dias da semana (opcional)</Label>
                         <div className="grid grid-cols-7 gap-2">
-                          {weekDays.map((day, index) => {
+                          {weekDays.map((day) => {
                             const isSelected = newReminder.days.includes(day)
                             return (
                               <button
