@@ -79,7 +79,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('user_id', user!.id)
+        .eq('id', user!.id)
         .single()
 
       if (error) {
@@ -155,11 +155,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
     try {
       if (!user) return
 
+      // Obter email do usuário
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (!authUser?.email) throw new Error('Email não encontrado')
+
       // Salvar no banco de dados
       const { error: profileError } = await supabase
         .from('user_profiles')
         .upsert({
-          user_id: user.id,
+          id: user.id,
+          email: authUser.email,
           name: profile.name,
           age: profile.age,
           weight: profile.weight,
@@ -183,8 +188,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
           hips: profile.hips,
           activity_level: profile.activityLevel,
           onboarding_completed: profile.onboardingCompleted,
-        }, {
-          onConflict: 'user_id'
         })
 
       if (profileError) throw profileError
