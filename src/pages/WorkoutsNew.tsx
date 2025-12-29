@@ -168,6 +168,14 @@ export default function WorkoutsNew() {
       setGeneratedWorkout(workout)
       setShowWorkoutDialog(true)
 
+      // Rolar para o fim da página para visualizar o dialog completo
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth'
+        })
+      }, 100)
+
       toast({
         title: '✨ Treino gerado!',
         description: 'Seu treino personalizado está pronto!',
@@ -434,7 +442,14 @@ function WorkoutDialog({
   const handleStartWorkout = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) {
+        toast({
+          title: 'Erro',
+          description: 'Usuário não autenticado',
+          variant: 'destructive'
+        })
+        return
+      }
 
       // Primeiro, salvar o treino gerado
       const { data: generatedWorkout, error: genError } = await supabase
@@ -452,7 +467,10 @@ function WorkoutDialog({
         .select()
         .single()
 
-      if (genError) throw genError
+      if (genError) {
+        console.error('Erro ao salvar treino:', genError)
+        throw genError
+      }
 
       // Criar sessão de treino
       const { data: sessionData, error: sessionError } = await supabase
@@ -468,7 +486,10 @@ function WorkoutDialog({
         .select()
         .single()
 
-      if (sessionError) throw sessionError
+      if (sessionError) {
+        console.error('Erro ao criar sessão:', sessionError)
+        throw sessionError
+      }
 
       setWorkoutId(sessionData.id)
       setStartTime(Date.now())
@@ -478,11 +499,16 @@ function WorkoutDialog({
       setCompletedWarmups(new Set())
       setCompletedCooldowns(new Set())
       setExerciseWeights({})
-    } catch (error) {
+
+      toast({
+        title: '🎉 Treino iniciado!',
+        description: 'Bom treino! Marque os exercícios conforme completar.',
+      })
+    } catch (error: any) {
       console.error('Erro ao iniciar treino:', error)
       toast({
         title: 'Erro ao iniciar',
-        description: 'Não foi possível iniciar o treino',
+        description: error?.message || 'Não foi possível iniciar o treino. Verifique sua conexão.',
         variant: 'destructive'
       })
     }
