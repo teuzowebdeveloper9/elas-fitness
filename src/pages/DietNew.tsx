@@ -6,14 +6,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import {
   Apple, Flame, Target, Loader2, Sparkles, Coffee, Sunrise,
-  Sun, Moon, ShoppingCart, Lightbulb, Camera, ArrowRight
+  Sun, Moon, ShoppingCart, Lightbulb, Camera, ArrowRight,
+  RefreshCw, Edit2, ThumbsUp, ThumbsDown, MessageSquare
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { generatePersonalizedDiet, calculateBioimpedance, DietGenerationData, NutritionData } from '@/lib/openai-real'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 
 interface GeneratedMeal {
   name: string
@@ -54,14 +58,49 @@ export default function DietNew() {
 
   const [isCalculating, setIsCalculating] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isLoadingSavedDiet, setIsLoadingSavedDiet] = useState(true)
   const [nutritionData, setNutritionData] = useState<NutritionData | null>(null)
   const [generatedDiet, setGeneratedDiet] = useState<GeneratedDiet | null>(null)
+  const [savedDietId, setSavedDietId] = useState<string | null>(null)
   const [showDietDialog, setShowDietDialog] = useState(false)
   const [selectedDay, setSelectedDay] = useState<keyof GeneratedDiet['meal_plan']>('monday')
 
+  // Carregar dieta salva
   useEffect(() => {
-    // Se o usuário já tem dados nutricionais calculados, usa-os
-    if (userProfile?.dailyCalories) {
+    async function loadSavedDiet() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data, error } = await supabase
+          .from('saved_diets')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        if (data && !error) {
+          setGeneratedDiet(data.diet_data)
+          setSavedDietId(data.id)
+          if (data.nutrition_data) {
+            setNutritionData(data.nutrition_data)
+          }
+        }
+      } catch (error) {
+        console.log('Nenhuma dieta salva encontrada')
+      } finally {
+        setIsLoadingSavedDiet(false)
+      }
+    }
+
+    loadSavedDiet()
+  }, [])
+
+  // Carregar dados nutricionais do perfil
+  useEffect(() => {
+    if (userProfile?.dailyCalories && !nutritionData) {
       setNutritionData({
         idealWeight: userProfile.idealWeight || 0,
         dailyCalories: userProfile.dailyCalories,
@@ -72,7 +111,7 @@ export default function DietNew() {
         bodyFatPercentage: userProfile.bodyFatPercentage
       })
     }
-  }, [userProfile])
+  }, [userProfile, nutritionData])
 
   const handleCalculateBioimpedance = async () => {
     if (!userProfile) return
@@ -150,6 +189,14 @@ export default function DietNew() {
       setGeneratedDiet(diet)
       setShowDietDialog(true)
 
+      // Rolar para o fim da página para visualizar o dialog completo
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth'
+        })
+      }, 100)
+
       toast({
         title: '🎉 Dieta gerada!',
         description: 'Seu plano alimentar personalizado está pronto!'
@@ -163,6 +210,53 @@ export default function DietNew() {
       })
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleSaveDiet = async () => {
+    if (!generatedDiet || !nutritionData) return
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Se já existe uma dieta salva, desativar a anterior
+      if (savedDietId) {
+        await supabase
+          .from('saved_diets')
+          .update({ is_active: false })
+          .eq('id', savedDietId)
+      }
+
+      // Salvar nova dieta
+      const { data, error } = await supabase
+        .from('saved_diets')
+        .insert({
+          user_id: user.id,
+          diet_name: generatedDiet.diet_name,
+          description: generatedDiet.description,
+          diet_data: generatedDiet,
+          nutrition_data: nutritionData,
+          is_active: true
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      setSavedDietId(data.id)
+
+      toast({
+        title: '✅ Dieta salva!',
+        description: 'Sua dieta foi salva e estará disponível sempre que você voltar.'
+      })
+    } catch (error) {
+      console.error('Erro ao salvar dieta:', error)
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar a dieta.',
+        variant: 'destructive'
+      })
     }
   }
 
@@ -209,6 +303,59 @@ export default function DietNew() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dieta Salva */}
+      {!isLoadingSavedDiet && generatedDiet && (
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-500" />
+                Sua Dieta Personalizada
+              </span>
+              <Badge variant="secondary">Salva</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-lg mb-1">{generatedDiet.diet_name}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{generatedDiet.description}</p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowDietDialog(true)}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+              >
+                <Apple className="w-4 h-4 mr-2" />
+                Ver Minha Dieta
+              </Button>
+              <Button
+                onClick={handleGenerateDiet}
+                disabled={isGenerating}
+                variant="outline"
+                className="flex-1"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Gerar Nova Dieta
+                  </>
+                )}
+              </Button>
+            </div>
+            <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20">
+              <AlertDescription className="text-sm">
+                💡 <strong>Dica:</strong> Você pode solicitar ajustes específicos na sua dieta usando o botão de feedback dentro do plano alimentar.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Bioimpedância e Metas Nutricionais */}
       <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-emerald-900/20 border-2">
@@ -342,6 +489,10 @@ export default function DietNew() {
           selectedDay={selectedDay}
           onDayChange={setSelectedDay}
           daysOfWeek={daysOfWeek}
+          onSave={handleSaveDiet}
+          isSaved={!!savedDietId}
+          dietId={savedDietId}
+          onRegenerateDiet={handleGenerateDiet}
         />
       )}
     </div>
@@ -355,7 +506,11 @@ function DietDialog({
   onClose,
   selectedDay,
   onDayChange,
-  daysOfWeek
+  daysOfWeek,
+  onSave,
+  isSaved,
+  dietId,
+  onRegenerateDiet
 }: {
   diet: GeneratedDiet
   nutritionData: NutritionData | null
@@ -364,13 +519,68 @@ function DietDialog({
   selectedDay: keyof GeneratedDiet['meal_plan']
   onDayChange: (day: keyof GeneratedDiet['meal_plan']) => void
   daysOfWeek: Array<{key: keyof GeneratedDiet['meal_plan']; label: string}>
+  onSave: () => void
+  isSaved: boolean
+  dietId: string | null
+  onRegenerateDiet: () => void
 }) {
+  const { toast } = useToast()
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false)
+  const [feedbackText, setFeedbackText] = useState('')
+  const [selectedMealForFeedback, setSelectedMealForFeedback] = useState<{
+    day: string
+    type: string
+    meal: string
+  } | null>(null)
   const dayPlan = diet.meal_plan[selectedDay]
   const totalCalories = dayPlan.breakfast.calories + dayPlan.lunch.calories + dayPlan.dinner.calories +
     dayPlan.snacks.reduce((sum, snack) => sum + snack.calories, 0)
   const totalProtein = dayPlan.breakfast.protein + dayPlan.lunch.protein + dayPlan.dinner.protein
   const totalCarbs = dayPlan.breakfast.carbs + dayPlan.lunch.carbs + dayPlan.dinner.carbs
   const totalFats = dayPlan.breakfast.fats + dayPlan.lunch.fats + dayPlan.dinner.fats
+
+  const handleMealFeedback = (day: string, type: string, meal: string, feedbackType: 'like' | 'dislike') => {
+    setSelectedMealForFeedback({ day, type, meal })
+    setShowFeedbackDialog(true)
+  }
+
+  const handleSubmitFeedback = async () => {
+    if (!feedbackText.trim() || !selectedMealForFeedback || !dietId) return
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { error } = await supabase
+        .from('diet_feedback')
+        .insert({
+          user_id: user.id,
+          diet_id: dietId,
+          feedback_type: 'change_request',
+          meal_day: selectedMealForFeedback.day,
+          meal_type: selectedMealForFeedback.type,
+          feedback_text: feedbackText
+        })
+
+      if (error) throw error
+
+      toast({
+        title: '✅ Feedback enviado!',
+        description: 'Suas sugestões foram salvas. Você pode gerar uma nova dieta considerando este feedback.'
+      })
+
+      setShowFeedbackDialog(false)
+      setFeedbackText('')
+      setSelectedMealForFeedback(null)
+    } catch (error) {
+      console.error('Erro ao enviar feedback:', error)
+      toast({
+        title: 'Erro ao enviar',
+        description: 'Não foi possível salvar seu feedback.',
+        variant: 'destructive'
+      })
+    }
+  }
 
   const getMealIcon = (mealType: string) => {
     switch (mealType) {
@@ -381,7 +591,7 @@ function DietDialog({
     }
   }
 
-  const renderMeal = (meal: GeneratedMeal, mealType: string, mealName: string) => {
+  const renderMeal = (meal: GeneratedMeal, mealType: string, mealName: string, dayKey: string) => {
     const Icon = getMealIcon(mealType)
     return (
       <Card className="hover:shadow-md transition-shadow">
@@ -391,7 +601,17 @@ function DietDialog({
               <Icon className="w-5 h-5 text-orange-500" />
               {mealName}
             </span>
-            <Badge variant="secondary">{meal.calories} kcal</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{meal.calories} kcal</Badge>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 w-8 p-0"
+                onClick={() => handleMealFeedback(dayKey, mealType, meal.name, 'dislike')}
+              >
+                <MessageSquare className="w-4 h-4 text-gray-500" />
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -471,9 +691,9 @@ function DietDialog({
             {daysOfWeek.map((day) => (
               <TabsContent key={day.key} value={day.key} className="space-y-4 mt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {renderMeal(diet.meal_plan[day.key].breakfast, 'breakfast', 'Café da Manhã')}
-                  {renderMeal(diet.meal_plan[day.key].lunch, 'lunch', 'Almoço')}
-                  {renderMeal(diet.meal_plan[day.key].dinner, 'dinner', 'Jantar')}
+                  {renderMeal(diet.meal_plan[day.key].breakfast, 'breakfast', 'Café da Manhã', day.label)}
+                  {renderMeal(diet.meal_plan[day.key].lunch, 'lunch', 'Almoço', day.label)}
+                  {renderMeal(diet.meal_plan[day.key].dinner, 'dinner', 'Jantar', day.label)}
 
                   {/* Lanches */}
                   {diet.meal_plan[day.key].snacks.length > 0 && (
@@ -550,18 +770,87 @@ function DietDialog({
           <Button variant="outline" onClick={onClose} className="flex-1">
             Fechar
           </Button>
-          <Button
-            className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-            onClick={() => {
-              alert('Dieta salva! Em breve você poderá acompanhar seu progresso.')
-              onClose()
-            }}
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Salvar Dieta
-          </Button>
+          {!isSaved && (
+            <Button
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+              onClick={() => {
+                onSave()
+                onClose()
+              }}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Salvar Dieta
+            </Button>
+          )}
+          {isSaved && (
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => {
+                if (confirm('Deseja gerar uma nova dieta considerando seus feedbacks?')) {
+                  onRegenerateDiet()
+                  onClose()
+                }
+              }}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Gerar Nova Versão
+            </Button>
+          )}
         </div>
       </DialogContent>
+
+      {/* Dialog de Feedback */}
+      <Dialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Enviar Feedback sobre Refeição</DialogTitle>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {selectedMealForFeedback && (
+                <>Sugerindo alteração para <strong>{selectedMealForFeedback.meal}</strong> ({selectedMealForFeedback.day})</>
+              )}
+            </p>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="feedback">O que você gostaria de mudar?</Label>
+              <Textarea
+                id="feedback"
+                placeholder="Ex: Não gosto de frango, prefiro peixe. Ou: Esta refeição tem muita gordura, gostaria de algo mais leve."
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                rows={4}
+                className="mt-2"
+              />
+            </div>
+            <Alert className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20">
+              <AlertDescription className="text-sm">
+                💡 Seu feedback será considerado ao gerar uma nova versão da dieta. Quanto mais específico, melhor!
+              </AlertDescription>
+            </Alert>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowFeedbackDialog(false)
+                  setFeedbackText('')
+                }}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSubmitFeedback}
+                disabled={!feedbackText.trim()}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Enviar Feedback
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   )
 }
