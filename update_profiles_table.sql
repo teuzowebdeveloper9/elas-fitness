@@ -1,5 +1,3 @@
--- Adiciona colunas que podem estar faltando na tabela user_profiles
-
 ALTER TABLE user_profiles
 ADD COLUMN IF NOT EXISTS protein_goal INTEGER,
 ADD COLUMN IF NOT EXISTS carbs_goal INTEGER,
