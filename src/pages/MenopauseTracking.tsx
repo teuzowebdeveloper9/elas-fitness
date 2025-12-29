@@ -336,37 +336,37 @@ export default function MenopauseTracking() {
                     </Badge>
                   )}
                 </div>
-              {symptom.active && (
-                <div className="flex items-center gap-2 ml-9">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => updateIntensity(symptom.id, Math.max(1, symptom.intensity - 1))}
-                  >
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <div className="flex gap-1 flex-1">
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <div
-                        key={level}
-                        className={`h-2 flex-1 rounded ${
-                          level <= symptom.intensity
-                            ? 'bg-primary'
-                            : 'bg-muted'
-                        }`}
-                      />
-                    ))}
+                {symptom.active && (
+                  <div className="flex items-center gap-2 ml-9">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateIntensity(symptom.id, Math.max(1, symptom.intensity - 1))}
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <div className="flex gap-1 flex-1">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-2 flex-1 rounded ${
+                            level <= symptom.intensity
+                              ? 'bg-primary'
+                              : 'bg-muted'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateIntensity(symptom.id, Math.min(5, symptom.intensity + 1))}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => updateIntensity(symptom.id, Math.min(5, symptom.intensity + 1))}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             )
           })}
         </CardContent>
