@@ -184,15 +184,23 @@ export default function NutriScan() {
   }
 
   const saveMeal = async () => {
-    if (!analysisResult) return
+    if (!analysisResult || !user) return
 
     try {
       const today = format(new Date(), 'yyyy-MM-dd')
+
+      // Buscar user_id do auth
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+
+      if (!authUser) {
+        throw new Error('Usuário não autenticado')
+      }
 
       // Salvar refeição no banco
       const { error } = await supabase
         .from('meals')
         .insert({
+          user_id: authUser.id,
           meal_name: analysisResult.meal_name,
           meal_type: analysisResult.meal_type,
           calories: analysisResult.nutrition.calories,
