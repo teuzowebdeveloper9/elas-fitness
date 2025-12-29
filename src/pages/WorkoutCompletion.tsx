@@ -10,7 +10,7 @@ import { Camera, Star, Share2, Clock, TrendingUp, Check } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 
 interface WorkoutCompletionState {
-  workoutId: string
+  sessionId: string
   startTime: number
   exercisesCompleted: number
   totalExercises: number
@@ -34,7 +34,7 @@ export default function WorkoutCompletion() {
     : 0
 
   useEffect(() => {
-    if (!state?.workoutId) {
+    if (!state?.sessionId) {
       navigate('/dashboard')
     }
   }, [state, navigate])
@@ -97,26 +97,16 @@ export default function WorkoutCompletion() {
       // Upload da foto (se houver)
       const photoUrl = await uploadPhoto()
 
-      // Salvar finalização do treino
-      const { error: completionError } = await supabase
-        .from('workout_completions')
-        .insert({
-          user_id: user.id,
-          workout_id: state.workoutId,
-          duration_minutes: durationMinutes,
+      // Atualizar sessão com foto, avaliação e feedback
+      const { error: updateError } = await supabase
+        .from('workout_sessions')
+        .update({
           photo_url: photoUrl,
           feedback_rating: rating,
           feedback_text: feedback,
           published_to_feed: publishToFeed
         })
-
-      if (completionError) throw completionError
-
-      // Atualizar status do treino para completed
-      const { error: updateError } = await supabase
-        .from('workouts')
-        .update({ status: 'completed' })
-        .eq('id', state.workoutId)
+        .eq('id', state.sessionId)
 
       if (updateError) throw updateError
 
@@ -143,7 +133,7 @@ export default function WorkoutCompletion() {
     }
   }
 
-  if (!state?.workoutId) {
+  if (!state?.sessionId) {
     return null
   }
 

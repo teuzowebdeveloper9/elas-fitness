@@ -436,27 +436,41 @@ function WorkoutDialog({
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Criar registro do treino no banco
-      const { data: workoutData, error } = await supabase
-        .from('workouts')
+      // Primeiro, salvar o treino gerado
+      const { data: generatedWorkout, error: genError } = await supabase
+        .from('ai_generated_workouts')
         .insert({
           user_id: user.id,
           workout_name: workout.workout_name,
+          description: workout.description,
+          workout_type: 'personalized',
+          estimated_duration_minutes: workout.duration_minutes,
+          estimated_calories: workout.estimated_calories,
           workout_data: workout,
-          status: 'in_progress',
-          duration_minutes: workout.duration_minutes,
-          calories_burned: workout.estimated_calories
+          is_active: true
         })
         .select()
         .single()
 
-      if (error) throw error
+      if (genError) throw genError
 
-      // Salvar grupos musculares detectados
-      const { saveWorkoutMuscleGroups } = await import('@/lib/workout-intelligence')
-      await saveWorkoutMuscleGroups(workoutData.id, workout.workout_plan.main_exercises)
+      // Criar sessão de treino
+      const { data: sessionData, error: sessionError } = await supabase
+        .from('workout_sessions')
+        .insert({
+          user_id: user.id,
+          workout_id: generatedWorkout.id,
+          available_time_minutes: workout.duration_minutes,
+          status: 'in_progress',
+          total_exercises: workout.workout_plan.main_exercises.length,
+          exercises_completed: 0
+        })
+        .select()
+        .single()
 
-      setWorkoutId(workoutData.id)
+      if (sessionError) throw sessionError
+
+      setWorkoutId(sessionData.id)
       setStartTime(Date.now())
       setIsWorkoutStarted(true)
       setElapsedTime(0)
@@ -510,10 +524,25 @@ function WorkoutDialog({
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
+      // Atualizar sessão com dados de conclusão
+      const durationMinutes = Math.round((Date.now() - startTime) / 1000 / 60)
+
+      const { error: updateError } = await supabase
+        .from('workout_sessions')
+        .update({
+          status: 'completed',
+          exercises_completed: completedExercises.size,
+          actual_duration_minutes: durationMinutes,
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', workoutId)
+
+      if (updateError) throw updateError
+
       // Salvar pesos dos exercícios
       const weightRecords = Object.entries(exerciseWeights).map(([index, data]) => ({
         user_id: user.id,
-        workout_id: workoutId,
+        session_id: workoutId,
         exercise_name: workout.workout_plan.main_exercises[parseInt(index)].name,
         weight_kg: data.weight ? parseFloat(data.weight) : null,
         reps: data.reps ? parseInt(data.reps) : null,
@@ -532,7 +561,7 @@ function WorkoutDialog({
       onClose()
       navigate('/workout-completion', {
         state: {
-          workoutId,
+          sessionId: workoutId,
           startTime,
           exercisesCompleted: completedExercises.size,
           totalExercises: workout.workout_plan.main_exercises.length

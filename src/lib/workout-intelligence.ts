@@ -34,11 +34,12 @@ export function detectMuscleGroups(exerciseName: string): MuscleGroup[] {
 // Buscar treinos recentes do usuário
 export async function getRecentWorkouts(userId: string, days: number = 7) {
   const { data, error } = await supabase
-    .from('workouts')
-    .select('id, workout_name, workout_data, muscle_groups, created_at, status')
+    .from('workout_sessions')
+    .select('id, workout_id, session_date, status, created_at')
     .eq('user_id', userId)
-    .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
-    .order('created_at', { ascending: false })
+    .gte('session_date', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+    .eq('status', 'completed')
+    .order('session_date', { ascending: false })
 
   if (error) {
     console.error('Erro ao buscar treinos recentes:', error)
@@ -50,16 +51,11 @@ export async function getRecentWorkouts(userId: string, days: number = 7) {
 
 // Verificar quais grupos musculares foram trabalhados recentemente
 export async function getTrainedMuscleGroups(userId: string, days: number = 7): Promise<MuscleGroup[]> {
-  const workouts = await getRecentWorkouts(userId, days)
-  const trainedGroups = new Set<MuscleGroup>()
+  const sessions = await getRecentWorkouts(userId, days)
 
-  workouts.forEach(workout => {
-    if (workout.muscle_groups && Array.isArray(workout.muscle_groups)) {
-      workout.muscle_groups.forEach((group: string) => trainedGroups.add(group as MuscleGroup))
-    }
-  })
-
-  return Array.from(trainedGroups)
+  // Por enquanto, retorna array vazio até implementarmos o rastreamento de grupos
+  // A lógica será implementada quando adicionarmos os campos na tabela
+  return []
 }
 
 // Sugerir foco para o próximo treino (evitar repetir grupos musculares)
@@ -158,7 +154,7 @@ export async function generateIntelligentWorkoutPrompt(
   return prompt
 }
 
-// Salvar grupos musculares no treino gerado
+// Salvar grupos musculares no treino gerado (simplificado)
 export async function saveWorkoutMuscleGroups(
   workoutId: string,
   exercises: Array<{ name: string }>
@@ -170,17 +166,7 @@ export async function saveWorkoutMuscleGroups(
     groups.forEach(g => muscleGroups.add(g))
   })
 
-  const { error } = await supabase
-    .from('workouts')
-    .update({
-      muscle_groups: Array.from(muscleGroups),
-      week_day: new Date().getDay() // 0 = domingo, 1 = segunda, etc
-    })
-    .eq('id', workoutId)
-
-  if (error) {
-    console.error('Erro ao salvar grupos musculares:', error)
-  }
-
+  // Por enquanto só retorna os grupos detectados
+  // No futuro vamos salvar em uma coluna dedicada
   return Array.from(muscleGroups)
 }
