@@ -21,10 +21,10 @@ import Routine from '@/pages/Routine'
 
 function AppRoutes() {
   const { user, loading: authLoading } = useAuth()
-  const { userProfile } = useUser()
+  const { userProfile, loading: profileLoading } = useUser()
 
-  // Show loading while checking auth
-  if (authLoading) {
+  // Show loading while checking auth or loading profile
+  if (authLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

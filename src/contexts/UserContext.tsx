@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from './AuthContext'
 
 export type LifePhase = 'menstrual' | 'pre-menopause' | 'menopause' | 'post-menopause'
 export type FitnessLevel = 'beginner' | 'intermediate' | 'advanced'
@@ -48,42 +50,188 @@ export interface UserProfile {
 
 interface UserContextType {
   userProfile: UserProfile | null
-  setUserProfile: (profile: UserProfile) => void
-  updateUserProfile: (updates: Partial<UserProfile>) => void
+  setUserProfile: (profile: UserProfile) => Promise<void>
+  updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>
   clearUserProfile: () => void
+  loading: boolean
 }
-
-// Removed unused defaultProfile
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [userProfile, setUserProfileState] = useState<UserProfile | null>(() => {
-    const stored = localStorage.getItem('userProfile')
-    return stored ? JSON.parse(stored) : null
-  })
+  const { user } = useAuth()
+  const [userProfile, setUserProfileState] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
 
+  // Carregar perfil do Supabase quando o usuário fizer login
   useEffect(() => {
-    if (userProfile) {
-      localStorage.setItem('userProfile', JSON.stringify(userProfile))
+    if (user) {
+      loadUserProfile()
+    } else {
+      setUserProfileState(null)
+      setLoading(false)
     }
-  }, [userProfile])
+  }, [user])
 
-  const setUserProfile = (profile: UserProfile) => {
-    setUserProfileState(profile)
+  const loadUserProfile = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', user!.id)
+        .single()
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Perfil não existe ainda
+          setUserProfileState(null)
+        } else {
+          console.error('Erro ao carregar perfil:', error)
+        }
+        return
+      }
+
+      if (data) {
+        // Converter os dados do banco para o formato do UserProfile
+        const profile: UserProfile = {
+          name: data.name,
+          age: data.age,
+          weight: data.weight,
+          height: data.height,
+          goalWeight: data.goal_weight,
+          lifePhase: data.life_phase,
+          hasMenstrualCycle: data.has_menstrual_cycle ?? true,
+          cycleRegular: data.cycle_regular ?? true,
+          fitnessLevel: data.fitness_level,
+          goals: data.goals || [],
+          challenges: data.challenges || [],
+          exerciseFrequency: data.exercise_frequency || 3,
+          dietaryRestrictions: data.dietary_restrictions || [],
+          healthConditions: data.health_conditions || [],
+          idealWeight: data.ideal_weight,
+          bmi: data.bmi,
+          bodyFatPercentage: data.body_fat_percentage,
+          dailyCalories: data.daily_calories,
+          proteinGoal: data.protein_goal,
+          carbsGoal: data.carbs_goal,
+          fatsGoal: data.fats_goal,
+          neck: data.neck,
+          waist: data.waist,
+          hips: data.hips,
+          activityLevel: data.activity_level,
+          onboardingCompleted: data.onboarding_completed || false,
+        }
+
+        // Buscar preferências alimentares
+        const { data: foodPrefs } = await supabase
+          .from('food_preferences')
+          .select('*')
+          .eq('user_id', user!.id)
+          .single()
+
+        if (foodPrefs) {
+          profile.favoriteFoods = foodPrefs.favorite_foods || []
+          profile.dislikedFoods = foodPrefs.disliked_foods || []
+          profile.mealsPerDay = foodPrefs.meals_per_day || 3
+          profile.cookingSkill = foodPrefs.cooking_skill || 'intermediate'
+          profile.timeForCooking = foodPrefs.time_for_cooking || 30
+          profile.eatsOutFrequency = foodPrefs.eats_out_frequency || 'sometimes'
+          profile.proteinGoal = foodPrefs.protein_goal_grams
+          profile.carbsGoal = foodPrefs.carbs_goal_grams
+          profile.fatsGoal = foodPrefs.fats_goal_grams
+        }
+
+        setUserProfileState(profile)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar perfil:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const updateUserProfile = (updates: Partial<UserProfile>) => {
-    setUserProfileState(prev => prev ? { ...prev, ...updates } : null)
+  const setUserProfile = async (profile: UserProfile) => {
+    try {
+      if (!user) return
+
+      // Salvar no banco de dados
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .upsert({
+          user_id: user.id,
+          name: profile.name,
+          age: profile.age,
+          weight: profile.weight,
+          height: profile.height,
+          goal_weight: profile.goalWeight,
+          life_phase: profile.lifePhase,
+          has_menstrual_cycle: profile.hasMenstrualCycle,
+          cycle_regular: profile.cycleRegular,
+          fitness_level: profile.fitnessLevel,
+          goals: profile.goals,
+          challenges: profile.challenges,
+          exercise_frequency: profile.exerciseFrequency,
+          dietary_restrictions: profile.dietaryRestrictions,
+          health_conditions: profile.healthConditions,
+          ideal_weight: profile.idealWeight,
+          bmi: profile.bmi,
+          body_fat_percentage: profile.bodyFatPercentage,
+          daily_calories: profile.dailyCalories,
+          neck: profile.neck,
+          waist: profile.waist,
+          hips: profile.hips,
+          activity_level: profile.activityLevel,
+          onboarding_completed: profile.onboardingCompleted,
+        }, {
+          onConflict: 'user_id'
+        })
+
+      if (profileError) throw profileError
+
+      // Salvar preferências alimentares separadamente
+      if (profile.favoriteFoods || profile.dislikedFoods || profile.mealsPerDay) {
+        const { error: foodPrefsError } = await supabase
+          .from('food_preferences')
+          .upsert({
+            user_id: user.id,
+            favorite_foods: profile.favoriteFoods || [],
+            disliked_foods: profile.dislikedFoods || [],
+            meals_per_day: profile.mealsPerDay || 3,
+            cooking_skill: profile.cookingSkill || 'intermediate',
+            time_for_cooking: profile.timeForCooking || 30,
+            eats_out_frequency: profile.eatsOutFrequency || 'sometimes',
+            protein_goal_grams: profile.proteinGoal,
+            carbs_goal_grams: profile.carbsGoal,
+            fats_goal_grams: profile.fatsGoal,
+          }, {
+            onConflict: 'user_id'
+          })
+
+        if (foodPrefsError) throw foodPrefsError
+      }
+
+      // Atualizar estado local
+      setUserProfileState(profile)
+    } catch (error) {
+      console.error('Erro ao salvar perfil:', error)
+      throw error
+    }
+  }
+
+  const updateUserProfile = async (updates: Partial<UserProfile>) => {
+    if (!userProfile || !user) return
+
+    const updatedProfile = { ...userProfile, ...updates }
+    await setUserProfile(updatedProfile)
   }
 
   const clearUserProfile = () => {
     setUserProfileState(null)
-    localStorage.removeItem('userProfile')
   }
 
   return (
-    <UserContext.Provider value={{ userProfile, setUserProfile, updateUserProfile, clearUserProfile }}>
+    <UserContext.Provider value={{ userProfile, setUserProfile, updateUserProfile, clearUserProfile, loading }}>
       {children}
     </UserContext.Provider>
   )

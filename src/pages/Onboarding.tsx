@@ -44,11 +44,13 @@ export default function Onboarding() {
     eatsOutFrequency: 'sometimes' as 'never' | 'rarely' | 'sometimes' | 'often' | 'daily',
   })
 
-  const handleNext = () => {
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleNext = async () => {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1)
     } else {
-      completeOnboarding()
+      await completeOnboarding()
     }
   }
 
@@ -58,36 +60,44 @@ export default function Onboarding() {
     }
   }
 
-  const completeOnboarding = () => {
-    const profile: UserProfile = {
-      name: formData.name,
-      age: parseInt(formData.age),
-      weight: parseFloat(formData.weight),
-      height: parseFloat(formData.height),
-      goalWeight: parseFloat(formData.goalWeight),
-      neck: formData.neck ? parseFloat(formData.neck) : undefined,
-      waist: formData.waist ? parseFloat(formData.waist) : undefined,
-      hips: formData.hips ? parseFloat(formData.hips) : undefined,
-      activityLevel: formData.activityLevel,
-      lifePhase: formData.lifePhase,
-      hasMenstrualCycle: formData.hasMenstrualCycle,
-      cycleRegular: formData.cycleRegular,
-      fitnessLevel: formData.fitnessLevel,
-      goals: formData.goals,
-      challenges: formData.challenges,
-      exerciseFrequency: formData.exerciseFrequency,
-      dietaryRestrictions: formData.dietaryRestrictions,
-      healthConditions: formData.healthConditions,
-      favoriteFoods: formData.favoriteFoods,
-      dislikedFoods: formData.dislikedFoods,
-      mealsPerDay: formData.mealsPerDay,
-      cookingSkill: formData.cookingSkill,
-      timeForCooking: formData.timeForCooking,
-      eatsOutFrequency: formData.eatsOutFrequency,
-      onboardingCompleted: true,
+  const completeOnboarding = async () => {
+    try {
+      setIsSaving(true)
+      const profile: UserProfile = {
+        name: formData.name,
+        age: parseInt(formData.age),
+        weight: parseFloat(formData.weight),
+        height: parseFloat(formData.height),
+        goalWeight: parseFloat(formData.goalWeight),
+        neck: formData.neck ? parseFloat(formData.neck) : undefined,
+        waist: formData.waist ? parseFloat(formData.waist) : undefined,
+        hips: formData.hips ? parseFloat(formData.hips) : undefined,
+        activityLevel: formData.activityLevel,
+        lifePhase: formData.lifePhase,
+        hasMenstrualCycle: formData.hasMenstrualCycle,
+        cycleRegular: formData.cycleRegular,
+        fitnessLevel: formData.fitnessLevel,
+        goals: formData.goals,
+        challenges: formData.challenges,
+        exerciseFrequency: formData.exerciseFrequency,
+        dietaryRestrictions: formData.dietaryRestrictions,
+        healthConditions: formData.healthConditions,
+        favoriteFoods: formData.favoriteFoods,
+        dislikedFoods: formData.dislikedFoods,
+        mealsPerDay: formData.mealsPerDay,
+        cookingSkill: formData.cookingSkill,
+        timeForCooking: formData.timeForCooking,
+        eatsOutFrequency: formData.eatsOutFrequency,
+        onboardingCompleted: true,
+      }
+      await setUserProfile(profile)
+      navigate('/')
+    } catch (error) {
+      console.error('Erro ao salvar perfil:', error)
+      alert('Erro ao salvar seu perfil. Tente novamente.')
+    } finally {
+      setIsSaving(false)
     }
-    setUserProfile(profile)
-    navigate('/')
   }
 
   const toggleArrayItem = (array: string[], item: string) => {
@@ -1055,10 +1065,19 @@ export default function Onboarding() {
               <Button
                 onClick={handleNext}
                 className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
-                disabled={!isStepValid(currentStep, formData)}
+                disabled={!isStepValid(currentStep, formData) || isSaving}
               >
-                {currentStep === TOTAL_STEPS ? 'Finalizar' : 'Próximo'}
-                {currentStep < TOTAL_STEPS && <ArrowRight className="w-4 h-4 ml-2" />}
+                {isSaving ? (
+                  <>
+                    <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    {currentStep === TOTAL_STEPS ? 'Finalizar' : 'Próximo'}
+                    {currentStep < TOTAL_STEPS && <ArrowRight className="w-4 h-4 ml-2" />}
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
