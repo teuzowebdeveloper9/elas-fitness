@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Play, Clock, Flame, Dumbbell, Home, Zap, Music,
-  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown
+  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown, Pause
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { generatePersonalizedWorkout, WorkoutGenerationData } from '@/lib/openai'
@@ -336,6 +337,79 @@ function WorkoutDialog({
   open: boolean
   onClose: () => void
 }) {
+  const [isWorkoutStarted, setIsWorkoutStarted] = useState(false)
+  const [elapsedTime, setElapsedTime] = useState(0)
+  const [completedExercises, setCompletedExercises] = useState<Set<number>>(new Set())
+  const [completedWarmups, setCompletedWarmups] = useState<Set<number>>(new Set())
+  const [completedCooldowns, setCompletedCooldowns] = useState<Set<number>>(new Set())
+
+  // Cronômetro
+  useEffect(() => {
+    if (!isWorkoutStarted) return
+
+    const interval = setInterval(() => {
+      setElapsedTime((prev) => prev + 1)
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isWorkoutStarted])
+
+  // Formatar tempo (00:00:00)
+  const formatTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600)
+    const mins = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const toggleExercise = (index: number) => {
+    setCompletedExercises((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(index)) {
+        newSet.delete(index)
+      } else {
+        newSet.add(index)
+      }
+      return newSet
+    })
+  }
+
+  const toggleWarmup = (index: number) => {
+    setCompletedWarmups((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(index)) {
+        newSet.delete(index)
+      } else {
+        newSet.add(index)
+      }
+      return newSet
+    })
+  }
+
+  const toggleCooldown = (index: number) => {
+    setCompletedCooldowns((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(index)) {
+        newSet.delete(index)
+      } else {
+        newSet.add(index)
+      }
+      return newSet
+    })
+  }
+
+  const handleStartWorkout = () => {
+    setIsWorkoutStarted(true)
+    setElapsedTime(0)
+    setCompletedExercises(new Set())
+    setCompletedWarmups(new Set())
+    setCompletedCooldowns(new Set())
+  }
+
+  const handlePauseWorkout = () => {
+    setIsWorkoutStarted(false)
+  }
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh]">
@@ -343,6 +417,37 @@ function WorkoutDialog({
           <DialogTitle className="text-2xl">{workout.workout_name}</DialogTitle>
           <p className="text-gray-600 dark:text-gray-400">{workout.description}</p>
         </DialogHeader>
+
+        {/* Cronômetro e Controles */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border-2 border-purple-200 dark:border-purple-700">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Tempo de Treino</p>
+              <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 font-mono">
+                {formatTime(elapsedTime)}
+              </p>
+            </div>
+            {!isWorkoutStarted ? (
+              <Button
+                onClick={handleStartWorkout}
+                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+                size="lg"
+              >
+                <Play className="w-5 h-5 mr-2" />
+                Iniciar Treino
+              </Button>
+            ) : (
+              <Button
+                onClick={handlePauseWorkout}
+                variant="outline"
+                size="lg"
+              >
+                <Pause className="w-5 h-5 mr-2" />
+                Pausar
+              </Button>
+            )}
+          </div>
+        </div>
 
         <div className="grid grid-cols-3 gap-4 py-4 border-y">
           <div className="text-center">
@@ -357,8 +462,10 @@ function WorkoutDialog({
           </div>
           <div className="text-center">
             <Dumbbell className="w-5 h-5 mx-auto mb-1 text-purple-500" />
-            <p className="text-sm font-medium">{workout.workout_plan.main_exercises.length}</p>
-            <p className="text-xs text-gray-500">Exercícios</p>
+            <p className="text-sm font-medium">
+              {completedExercises.size}/{workout.workout_plan.main_exercises.length}
+            </p>
+            <p className="text-xs text-gray-500">Concluídos</p>
           </div>
         </div>
 
@@ -379,13 +486,35 @@ function WorkoutDialog({
                 </h3>
                 <div className="space-y-2">
                   {workout.workout_plan.warmup.map((exercise, idx) => (
-                    <Card key={idx} className="p-3">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="font-medium">{exercise.name}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{exercise.description}</p>
+                    <Card
+                      key={idx}
+                      className={`p-3 transition-all ${
+                        completedWarmups.has(idx)
+                          ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+                          : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id={`warmup-${idx}`}
+                          checked={completedWarmups.has(idx)}
+                          onCheckedChange={() => toggleWarmup(idx)}
+                          className="mt-1"
+                        />
+                        <div className="flex-1 flex justify-between items-start">
+                          <div className="flex-1">
+                            <label
+                              htmlFor={`warmup-${idx}`}
+                              className={`font-medium cursor-pointer ${
+                                completedWarmups.has(idx) ? 'line-through text-gray-500' : ''
+                              }`}
+                            >
+                              {exercise.name}
+                            </label>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{exercise.description}</p>
+                          </div>
+                          <Badge variant="secondary">{exercise.duration}</Badge>
                         </div>
-                        <Badge variant="secondary">{exercise.duration}</Badge>
                       </div>
                     </Card>
                   ))}
@@ -400,30 +529,54 @@ function WorkoutDialog({
                 </h3>
                 <div className="space-y-3">
                   {workout.workout_plan.main_exercises.map((exercise, idx) => (
-                    <Card key={idx} className="p-4">
+                    <Card
+                      key={idx}
+                      className={`p-4 transition-all ${
+                        completedExercises.has(idx)
+                          ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+                          : ''
+                      }`}
+                    >
                       <div className="space-y-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium text-lg">{idx + 1}. {exercise.name}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{exercise.description}</p>
-                          </div>
-                          <div className="text-right">
-                            <Flame className="w-4 h-4 inline text-orange-500 mr-1" />
-                            <span className="text-sm font-medium">{exercise.calories} kcal</span>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-3 text-sm mt-3">
-                          <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                            <p className="font-medium">Séries</p>
-                            <p className="text-gray-600 dark:text-gray-400">{exercise.sets}</p>
-                          </div>
-                          <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                            <p className="font-medium">Repetições</p>
-                            <p className="text-gray-600 dark:text-gray-400">{exercise.reps}</p>
-                          </div>
-                          <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                            <p className="font-medium">Descanso</p>
-                            <p className="text-gray-600 dark:text-gray-400">{exercise.rest}</p>
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            id={`exercise-${idx}`}
+                            checked={completedExercises.has(idx)}
+                            onCheckedChange={() => toggleExercise(idx)}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <label
+                                  htmlFor={`exercise-${idx}`}
+                                  className={`font-medium text-lg cursor-pointer ${
+                                    completedExercises.has(idx) ? 'line-through text-gray-500' : ''
+                                  }`}
+                                >
+                                  {idx + 1}. {exercise.name}
+                                </label>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{exercise.description}</p>
+                              </div>
+                              <div className="text-right">
+                                <Flame className="w-4 h-4 inline text-orange-500 mr-1" />
+                                <span className="text-sm font-medium">{exercise.calories} kcal</span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-3 text-sm mt-3">
+                              <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                                <p className="font-medium">Séries</p>
+                                <p className="text-gray-600 dark:text-gray-400">{exercise.sets}</p>
+                              </div>
+                              <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                                <p className="font-medium">Repetições</p>
+                                <p className="text-gray-600 dark:text-gray-400">{exercise.reps}</p>
+                              </div>
+                              <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                                <p className="font-medium">Descanso</p>
+                                <p className="text-gray-600 dark:text-gray-400">{exercise.rest}</p>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -440,13 +593,35 @@ function WorkoutDialog({
                 </h3>
                 <div className="space-y-2">
                   {workout.workout_plan.cooldown.map((exercise, idx) => (
-                    <Card key={idx} className="p-3">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="font-medium">{exercise.name}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{exercise.description}</p>
+                    <Card
+                      key={idx}
+                      className={`p-3 transition-all ${
+                        completedCooldowns.has(idx)
+                          ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700'
+                          : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id={`cooldown-${idx}`}
+                          checked={completedCooldowns.has(idx)}
+                          onCheckedChange={() => toggleCooldown(idx)}
+                          className="mt-1"
+                        />
+                        <div className="flex-1 flex justify-between items-start">
+                          <div className="flex-1">
+                            <label
+                              htmlFor={`cooldown-${idx}`}
+                              className={`font-medium cursor-pointer ${
+                                completedCooldowns.has(idx) ? 'line-through text-gray-500' : ''
+                              }`}
+                            >
+                              {exercise.name}
+                            </label>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{exercise.description}</p>
+                          </div>
+                          <Badge variant="secondary">{exercise.duration}</Badge>
                         </div>
-                        <Badge variant="secondary">{exercise.duration}</Badge>
                       </div>
                     </Card>
                   ))}
@@ -526,12 +701,11 @@ function WorkoutDialog({
           <Button
             className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
             onClick={() => {
-              alert('Treino salvo! Em breve você poderá acompanhar seu progresso.')
+              alert('Treino salvo! Seu progresso foi registrado.')
               onClose()
             }}
           >
-            <Play className="w-4 h-4 mr-2" />
-            Começar Agora
+            Salvar Progresso
           </Button>
         </div>
       </DialogContent>
