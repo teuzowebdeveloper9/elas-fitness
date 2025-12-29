@@ -9,10 +9,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useToast } from '@/hooks/use-toast'
 import {
   Apple, Flame, Target, Loader2, Sparkles, Coffee, Sunrise,
-  Sun, Moon, ShoppingCart, Lightbulb
+  Sun, Moon, ShoppingCart, Lightbulb, Camera, ArrowRight
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { generatePersonalizedDiet, calculateBioimpedance, DietGenerationData, NutritionData } from '@/lib/openai'
+import { useNavigate } from 'react-router-dom'
 
 interface GeneratedMeal {
   name: string
@@ -49,6 +50,7 @@ interface GeneratedDiet {
 export default function DietNew() {
   const { userProfile, updateUserProfile } = useUser()
   const { toast } = useToast()
+  const navigate = useNavigate()
 
   const [isCalculating, setIsCalculating] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -184,6 +186,29 @@ export default function DietNew() {
           Crie uma dieta personalizada com inteligência artificial
         </p>
       </div>
+
+      {/* Nutri Scan Quick Access */}
+      <Card
+        className="bg-gradient-to-br from-orange-500 to-red-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all hover:scale-[1.02]"
+        onClick={() => navigate('/nutri-scan')}
+      >
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/20 rounded-full">
+                <Camera className="w-8 h-8" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-1">Nutri Scan</h3>
+                <p className="text-white/90 text-sm">
+                  Tire foto da sua refeição e registre os nutrientes automaticamente
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="w-6 h-6" />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Bioimpedância e Metas Nutricionais */}
       <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-800 dark:to-emerald-900/20 border-2">

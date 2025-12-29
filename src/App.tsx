@@ -9,6 +9,7 @@ import Onboarding from '@/pages/Onboarding'
 import Home from '@/pages/Home'
 import Workouts from '@/pages/WorkoutsNew'
 import Diet from '@/pages/DietNew'
+import NutriScan from '@/pages/NutriScan'
 import Progress from '@/pages/Progress'
 import Profile from '@/pages/Profile'
 import CycleTracking from '@/pages/CycleTracking'
@@ -59,6 +60,7 @@ function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="workouts" element={<Workouts />} />
         <Route path="diet" element={<Diet />} />
+        <Route path="nutri-scan" element={<NutriScan />} />
         <Route path="progress" element={<Progress />} />
         <Route path="profile" element={<Profile />} />
         <Route path="cycle-tracking" element={<CycleTracking />} />

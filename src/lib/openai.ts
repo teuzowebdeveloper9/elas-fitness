@@ -339,6 +339,85 @@ export async function generatePersonalizedDiet(data: DietGenerationData) {
   }
 }
 
+/**
+ * Analisa uma imagem de refeição e retorna informações nutricionais
+ */
+export async function analyzeFoodImage(imageBase64: string) {
+  // Simulação de análise de imagem com dados realistas
+  // Em produção, isso usaria uma API de visão computacional
+
+  const foodExamples = [
+    {
+      meal_name: "Arroz com Frango e Salada",
+      meal_type: "lunch",
+      foods_detected: ["Arroz branco", "Peito de frango grelhado", "Alface", "Tomate", "Cenoura"],
+      nutrition: {
+        calories: 520,
+        protein: 42,
+        carbs: 58,
+        fats: 10,
+        fiber: 6
+      }
+    },
+    {
+      meal_name: "Omelete com Pão Integral",
+      meal_type: "breakfast",
+      foods_detected: ["Ovos", "Pão integral", "Queijo branco", "Tomate"],
+      nutrition: {
+        calories: 380,
+        protein: 28,
+        carbs: 35,
+        fats: 14,
+        fiber: 5
+      }
+    },
+    {
+      meal_name: "Salada com Atum",
+      meal_type: "dinner",
+      foods_detected: ["Atum", "Alface", "Tomate", "Pepino", "Azeite", "Limão"],
+      nutrition: {
+        calories: 280,
+        protein: 32,
+        carbs: 12,
+        fats: 12,
+        fiber: 4
+      }
+    },
+    {
+      meal_name: "Banana com Aveia",
+      meal_type: "snack",
+      foods_detected: ["Banana", "Aveia", "Mel"],
+      nutrition: {
+        calories: 220,
+        protein: 6,
+        carbs: 42,
+        fats: 3,
+        fiber: 5
+      }
+    },
+    {
+      meal_name: "Batata Doce com Carne",
+      meal_type: "lunch",
+      foods_detected: ["Batata doce", "Carne moída", "Brócolis", "Cenoura"],
+      nutrition: {
+        calories: 480,
+        protein: 38,
+        carbs: 52,
+        fats: 12,
+        fiber: 8
+      }
+    }
+  ]
+
+  // Simulação de delay de processamento
+  await new Promise(resolve => setTimeout(resolve, 2000))
+
+  // Retorna um exemplo aleatório
+  const result = foodExamples[Math.floor(Math.random() * foodExamples.length)]
+
+  return result
+}
+
 export interface WorkoutGenerationData {
   userProfile: {
     name: string

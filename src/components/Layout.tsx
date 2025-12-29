@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Home, Dumbbell, Apple, TrendingUp, User, Users, Calendar } from 'lucide-react'
+import { Home, Dumbbell, Apple, TrendingUp, User, Users, Calendar, Camera } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -15,6 +15,7 @@ export default function Layout() {
   ]
 
   const secondaryNavItems = [
+    { path: '/nutri-scan', icon: Camera, label: 'Nutri Scan', highlight: true },
     { path: '/community', icon: Users, label: 'Comunidade' },
     { path: '/routine', icon: Calendar, label: 'Rotina' },
   ]
@@ -38,7 +39,8 @@ export default function Layout() {
                       variant={isActive ? "default" : "ghost"}
                       size="sm"
                       className={cn(
-                        isActive && "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
+                        isActive && "bg-gradient-to-r from-pink-500 to-purple-600 text-white",
+                        item.highlight && !isActive && "bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700"
                       )}
                     >
                       <Icon className="w-4 h-4 mr-2" />
