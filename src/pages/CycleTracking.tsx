@@ -121,8 +121,35 @@ export default function CycleTracking() {
       symptoms: []
     }
 
-    setLogs([newLog, ...logs].slice(0, 30))
-    setDailyFeeling('')
+    const updatedLogs = [newLog, ...logs].slice(0, 30)
+    setLogs(updatedLogs)
+
+    // Salvar no localStorage antes de recarregar
+    if (lastPeriod) {
+      localStorage.setItem('cycleData', JSON.stringify({
+        lastPeriod: lastPeriod.toISOString(),
+        cycleLength,
+        logs: updatedLogs
+      }))
+    }
+
+    // Recarregar a página para voltar ao início
+    window.location.reload()
+  }
+
+  const startNewPeriod = () => {
+    const today = new Date()
+    setLastPeriod(today)
+
+    // Salvar no localStorage
+    localStorage.setItem('cycleData', JSON.stringify({
+      lastPeriod: today.toISOString(),
+      cycleLength,
+      logs
+    }))
+
+    // Recarregar a página para atualizar tudo
+    window.location.reload()
   }
 
   const phase = getCurrentPhase()
@@ -232,6 +259,28 @@ export default function CycleTracking() {
                   ))}
                 </ul>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Botão para registrar nova menstruação */}
+          <Card className="border-2 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Droplets className="h-5 w-5 text-red-500" />
+                Sua menstruação desceu?
+              </CardTitle>
+              <CardDescription>
+                Clique abaixo para registrar o início de um novo ciclo
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={startNewPeriod}
+                variant="destructive"
+                className="w-full bg-red-600 hover:bg-red-700"
+              >
+                Registrar Menstruação de Hoje
+              </Button>
             </CardContent>
           </Card>
 
