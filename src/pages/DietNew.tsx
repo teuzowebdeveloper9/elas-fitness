@@ -65,7 +65,7 @@ export default function DietNew() {
   const [showDietDialog, setShowDietDialog] = useState(false)
   const [selectedDay, setSelectedDay] = useState<keyof GeneratedDiet['meal_plan']>('monday')
 
-  // Carregar dieta salva
+  // Carregar dieta salva e abrir automaticamente
   useEffect(() => {
     async function loadSavedDiet() {
       try {
@@ -87,6 +87,8 @@ export default function DietNew() {
           if (data.nutrition_data) {
             setNutritionData(data.nutrition_data)
           }
+          // Abrir automaticamente o dialog da dieta
+          setShowDietDialog(true)
         }
       } catch (error) {
         console.log('Nenhuma dieta salva encontrada')
@@ -304,7 +306,7 @@ export default function DietNew() {
         </CardContent>
       </Card>
 
-      {/* Dieta Salva */}
+      {/* Botão para gerar nova dieta (apenas se já tiver uma salva) */}
       {!isLoadingSavedDiet && generatedDiet && (
         <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200">
           <CardHeader>
@@ -313,46 +315,32 @@ export default function DietNew() {
                 <Sparkles className="w-5 h-5 text-purple-500" />
                 Sua Dieta Personalizada
               </span>
-              <Badge variant="secondary">Salva</Badge>
+              <Badge variant="secondary">Ativa</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-lg mb-1">{generatedDiet.diet_name}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{generatedDiet.description}</p>
-            </div>
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setShowDietDialog(true)}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
-              >
-                <Apple className="w-4 h-4 mr-2" />
-                Ver Minha Dieta
-              </Button>
-              <Button
-                onClick={handleGenerateDiet}
-                disabled={isGenerating}
-                variant="outline"
-                className="flex-1"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Gerando...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Gerar Nova Dieta
-                  </>
-                )}
-              </Button>
-            </div>
             <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20">
               <AlertDescription className="text-sm">
-                💡 <strong>Dica:</strong> Você pode solicitar ajustes específicos na sua dieta usando o botão de feedback dentro do plano alimentar.
+                💡 <strong>Dica:</strong> Use o ícone de mensagem em cada refeição para sugerir alterações. Depois, gere uma nova versão da dieta considerando seus feedbacks.
               </AlertDescription>
             </Alert>
+            <Button
+              onClick={handleGenerateDiet}
+              disabled={isGenerating}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Gerando nova versão...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Gerar Nova Versão da Dieta
+                </>
+              )}
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -603,14 +591,17 @@ function DietDialog({
             </span>
             <div className="flex items-center gap-2">
               <Badge variant="secondary">{meal.calories} kcal</Badge>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-8 w-8 p-0"
-                onClick={() => handleMealFeedback(dayKey, mealType, meal.name, 'dislike')}
-              >
-                <MessageSquare className="w-4 h-4 text-gray-500" />
-              </Button>
+              {isSaved && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1 text-xs"
+                  onClick={() => handleMealFeedback(dayKey, mealType, meal.name, 'dislike')}
+                >
+                  <MessageSquare className="w-3 h-3" />
+                  Feedback
+                </Button>
+              )}
             </div>
           </CardTitle>
         </CardHeader>
@@ -767,34 +758,28 @@ function DietDialog({
         </ScrollArea>
 
         <div className="flex gap-3 mt-4">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Fechar
-          </Button>
-          {!isSaved && (
-            <Button
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-              onClick={() => {
-                onSave()
-                onClose()
-              }}
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Salvar Dieta
-            </Button>
-          )}
-          {isSaved && (
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => {
-                if (confirm('Deseja gerar uma nova dieta considerando seus feedbacks?')) {
-                  onRegenerateDiet()
-                  onClose()
-                }
-              }}
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Gerar Nova Versão
+          {!isSaved ? (
+            <>
+              <Button variant="outline" onClick={onClose} className="flex-1">
+                Fechar
+              </Button>
+              <Button
+                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                onClick={() => {
+                  onSave()
+                  toast({
+                    title: '✅ Dieta salva!',
+                    description: 'Sua dieta está pronta e será exibida sempre que você acessar.'
+                  })
+                }}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Salvar Dieta
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" onClick={onClose} className="w-full">
+              Fechar
             </Button>
           )}
         </div>
