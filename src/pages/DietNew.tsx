@@ -165,6 +165,16 @@ export default function DietNew() {
     setIsGenerating(true)
 
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast({
+          title: 'Erro',
+          description: 'Usuário não autenticado',
+          variant: 'destructive'
+        })
+        return
+      }
+
       const dietData: DietGenerationData = {
         userProfile: {
           name: userProfile.name,
@@ -189,6 +199,35 @@ export default function DietNew() {
 
       const diet = await generatePersonalizedDiet(dietData)
       setGeneratedDiet(diet)
+
+      // Desativar dieta anterior se existir
+      if (savedDietId) {
+        await supabase
+          .from('saved_diets')
+          .update({ is_active: false })
+          .eq('id', savedDietId)
+      }
+
+      // Salvar automaticamente a nova dieta
+      const { data: savedDiet, error: saveError } = await supabase
+        .from('saved_diets')
+        .insert({
+          user_id: user.id,
+          diet_name: diet.diet_name,
+          description: diet.description,
+          diet_data: diet,
+          nutrition_data: nutritionData,
+          is_active: true
+        })
+        .select()
+        .single()
+
+      if (saveError) {
+        console.error('Erro ao salvar dieta:', saveError)
+      } else {
+        setSavedDietId(savedDiet.id)
+      }
+
       setShowDietDialog(true)
 
       // Rolar para o fim da página para visualizar o dialog completo
@@ -200,8 +239,8 @@ export default function DietNew() {
       }, 100)
 
       toast({
-        title: '🎉 Dieta gerada!',
-        description: 'Seu plano alimentar personalizado está pronto!'
+        title: '🎉 Dieta gerada e salva!',
+        description: 'Sua dieta personalizada está pronta e salva automaticamente!'
       })
     } catch (error) {
       console.error('Erro ao gerar dieta:', error)
@@ -591,17 +630,15 @@ function DietDialog({
             </span>
             <div className="flex items-center gap-2">
               <Badge variant="secondary">{meal.calories} kcal</Badge>
-              {isSaved && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 gap-1 text-xs"
-                  onClick={() => handleMealFeedback(dayKey, mealType, meal.name, 'dislike')}
-                >
-                  <MessageSquare className="w-3 h-3" />
-                  Feedback
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 gap-1 text-xs"
+                onClick={() => handleMealFeedback(dayKey, mealType, meal.name, 'dislike')}
+              >
+                <MessageSquare className="w-3 h-3" />
+                Feedback
+              </Button>
             </div>
           </CardTitle>
         </CardHeader>
@@ -758,30 +795,9 @@ function DietDialog({
         </ScrollArea>
 
         <div className="flex gap-3 mt-4">
-          {!isSaved ? (
-            <>
-              <Button variant="outline" onClick={onClose} className="flex-1">
-                Fechar
-              </Button>
-              <Button
-                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                onClick={() => {
-                  onSave()
-                  toast({
-                    title: '✅ Dieta salva!',
-                    description: 'Sua dieta está pronta e será exibida sempre que você acessar.'
-                  })
-                }}
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Salvar Dieta
-              </Button>
-            </>
-          ) : (
-            <Button variant="outline" onClick={onClose} className="w-full">
-              Fechar
-            </Button>
-          )}
+          <Button variant="outline" onClick={onClose} className="w-full">
+            Fechar
+          </Button>
         </div>
       </DialogContent>
 
