@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Camera } from 'lucide-react'
+import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Camera, Dumbbell } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUser } from '@/contexts/UserContext'
 import { useEffect } from 'react'
@@ -263,13 +263,13 @@ export default function Home() {
           </Card>
         </Link>
 
-        <Link to="/diet">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Link to="/weight-progress">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-700">
             <CardContent className="pt-6 text-center">
-              <div className="inline-flex p-3 bg-green-100 dark:bg-green-900/30 rounded-full mb-3">
-                <Flame className="w-6 h-6 text-green-600 dark:text-green-400" />
+              <div className="inline-flex p-3 bg-purple-500 rounded-full mb-3">
+                <Dumbbell className="w-6 h-6 text-white" />
               </div>
-              <p className="font-medium">Ver Dieta</p>
+              <p className="font-medium text-purple-700 dark:text-purple-300">Evolução</p>
             </CardContent>
           </Card>
         </Link>

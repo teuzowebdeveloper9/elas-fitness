@@ -11,11 +11,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Play, Clock, Flame, Dumbbell, Home, Zap, Music,
-  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown, Pause
+  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown, Pause, CheckCircle
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { generatePersonalizedWorkout, WorkoutGenerationData } from '@/lib/openai'
 import { useToast } from '@/hooks/use-toast'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 
 type WorkoutType = 'musculacao' | 'casa' | 'abdominal' | 'funcional' | 'danca'
 type MobilityType = 'inferior' | 'superior' | 'completa' | 'none'
@@ -46,6 +48,24 @@ export default function WorkoutsNew() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedWorkout, setGeneratedWorkout] = useState<GeneratedWorkout | null>(null)
   const [showWorkoutDialog, setShowWorkoutDialog] = useState(false)
+  const [workoutSuggestion, setWorkoutSuggestion] = useState<string | null>(null)
+
+  // Buscar sugestão de treino ao carregar
+  useEffect(() => {
+    async function fetchSuggestion() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { suggestWorkoutFocus } = await import('@/lib/workout-intelligence')
+        const suggestion = await suggestWorkoutFocus(user.id)
+        setWorkoutSuggestion(suggestion.reasoning)
+      } catch (error) {
+        console.error('Erro ao buscar sugestão:', error)
+      }
+    }
+    fetchSuggestion()
+  }, [])
 
   const workoutTypes = [
     {
@@ -305,6 +325,14 @@ export default function WorkoutsNew() {
             )}
           </Button>
 
+          {workoutSuggestion && (
+            <Alert className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 dark:from-purple-900/20 dark:to-pink-900/20">
+              <AlertDescription className="text-sm">
+                <strong>💡 Sugestão Inteligente:</strong> {workoutSuggestion}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {userProfile && (
             <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20">
               <AlertDescription className="text-sm">
@@ -337,11 +365,16 @@ function WorkoutDialog({
   open: boolean
   onClose: () => void
 }) {
+  const navigate = useNavigate()
+  const { toast } = useToast()
   const [isWorkoutStarted, setIsWorkoutStarted] = useState(false)
+  const [startTime, setStartTime] = useState<number>(0)
+  const [workoutId, setWorkoutId] = useState<string | null>(null)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [completedExercises, setCompletedExercises] = useState<Set<number>>(new Set())
   const [completedWarmups, setCompletedWarmups] = useState<Set<number>>(new Set())
   const [completedCooldowns, setCompletedCooldowns] = useState<Set<number>>(new Set())
+  const [exerciseWeights, setExerciseWeights] = useState<Record<number, { weight: string; reps: string; notes: string }>>({})
 
   // Cronômetro
   useEffect(() => {
@@ -398,16 +431,121 @@ function WorkoutDialog({
     })
   }
 
-  const handleStartWorkout = () => {
-    setIsWorkoutStarted(true)
-    setElapsedTime(0)
-    setCompletedExercises(new Set())
-    setCompletedWarmups(new Set())
-    setCompletedCooldowns(new Set())
+  const handleStartWorkout = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Criar registro do treino no banco
+      const { data: workoutData, error } = await supabase
+        .from('workouts')
+        .insert({
+          user_id: user.id,
+          workout_name: workout.workout_name,
+          workout_data: workout,
+          status: 'in_progress',
+          duration_minutes: workout.duration_minutes,
+          calories_burned: workout.estimated_calories
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // Salvar grupos musculares detectados
+      const { saveWorkoutMuscleGroups } = await import('@/lib/workout-intelligence')
+      await saveWorkoutMuscleGroups(workoutData.id, workout.workout_plan.main_exercises)
+
+      setWorkoutId(workoutData.id)
+      setStartTime(Date.now())
+      setIsWorkoutStarted(true)
+      setElapsedTime(0)
+      setCompletedExercises(new Set())
+      setCompletedWarmups(new Set())
+      setCompletedCooldowns(new Set())
+      setExerciseWeights({})
+    } catch (error) {
+      console.error('Erro ao iniciar treino:', error)
+      toast({
+        title: 'Erro ao iniciar',
+        description: 'Não foi possível iniciar o treino',
+        variant: 'destructive'
+      })
+    }
   }
 
   const handlePauseWorkout = () => {
     setIsWorkoutStarted(false)
+  }
+
+  const updateExerciseWeight = (index: number, field: 'weight' | 'reps' | 'notes', value: string) => {
+    setExerciseWeights(prev => ({
+      ...prev,
+      [index]: {
+        ...prev[index],
+        weight: prev[index]?.weight || '',
+        reps: prev[index]?.reps || '',
+        notes: prev[index]?.notes || '',
+        [field]: value
+      }
+    }))
+  }
+
+  const allExercisesCompleted =
+    completedWarmups.size === workout.workout_plan.warmup.length &&
+    completedExercises.size === workout.workout_plan.main_exercises.length &&
+    completedCooldowns.size === workout.workout_plan.cooldown.length
+
+  const handleFinishWorkout = async () => {
+    if (!workoutId) {
+      toast({
+        title: 'Erro',
+        description: 'ID do treino não encontrado',
+        variant: 'destructive'
+      })
+      return
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Salvar pesos dos exercícios
+      const weightRecords = Object.entries(exerciseWeights).map(([index, data]) => ({
+        user_id: user.id,
+        workout_id: workoutId,
+        exercise_name: workout.workout_plan.main_exercises[parseInt(index)].name,
+        weight_kg: data.weight ? parseFloat(data.weight) : null,
+        reps: data.reps ? parseInt(data.reps) : null,
+        notes: data.notes
+      })).filter(record => record.weight_kg !== null || record.reps !== null || record.notes)
+
+      if (weightRecords.length > 0) {
+        const { error: weightsError } = await supabase
+          .from('exercise_weights')
+          .insert(weightRecords)
+
+        if (weightsError) throw weightsError
+      }
+
+      // Navegar para tela de conclusão
+      onClose()
+      navigate('/workout-completion', {
+        state: {
+          workoutId,
+          startTime,
+          exercisesCompleted: completedExercises.size,
+          totalExercises: workout.workout_plan.main_exercises.length
+        }
+      })
+    } catch (error) {
+      console.error('Erro ao finalizar treino:', error)
+      toast({
+        title: 'Erro ao finalizar',
+        description: 'Não foi possível salvar os dados do treino',
+        variant: 'destructive'
+      })
+    }
   }
 
   return (
@@ -537,7 +675,7 @@ function WorkoutDialog({
                           : ''
                       }`}
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex items-start gap-3">
                           <Checkbox
                             id={`exercise-${idx}`}
@@ -577,6 +715,50 @@ function WorkoutDialog({
                                 <p className="text-gray-600 dark:text-gray-400">{exercise.rest}</p>
                               </div>
                             </div>
+
+                            {/* Campos de registro de peso */}
+                            {isWorkoutStarted && (
+                              <div className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                                <p className="text-sm font-medium mb-2 text-purple-900 dark:text-purple-100">
+                                  Registre sua carga:
+                                </p>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <Label htmlFor={`weight-${idx}`} className="text-xs">Peso (kg)</Label>
+                                    <Input
+                                      id={`weight-${idx}`}
+                                      type="number"
+                                      step="0.5"
+                                      placeholder="Ex: 15"
+                                      value={exerciseWeights[idx]?.weight || ''}
+                                      onChange={(e) => updateExerciseWeight(idx, 'weight', e.target.value)}
+                                      className="h-8 text-sm"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label htmlFor={`reps-${idx}`} className="text-xs">Repetições</Label>
+                                    <Input
+                                      id={`reps-${idx}`}
+                                      type="number"
+                                      placeholder="Ex: 12"
+                                      value={exerciseWeights[idx]?.reps || ''}
+                                      onChange={(e) => updateExerciseWeight(idx, 'reps', e.target.value)}
+                                      className="h-8 text-sm"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="mt-2">
+                                  <Label htmlFor={`notes-${idx}`} className="text-xs">Observações (opcional)</Label>
+                                  <Input
+                                    id={`notes-${idx}`}
+                                    placeholder="Como foi? Fácil/difícil?"
+                                    value={exerciseWeights[idx]?.notes || ''}
+                                    onChange={(e) => updateExerciseWeight(idx, 'notes', e.target.value)}
+                                    className="h-8 text-sm"
+                                  />
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -698,15 +880,31 @@ function WorkoutDialog({
           <Button variant="outline" onClick={onClose} className="flex-1">
             Fechar
           </Button>
-          <Button
-            className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
-            onClick={() => {
-              alert('Treino salvo! Seu progresso foi registrado.')
-              onClose()
-            }}
-          >
-            Salvar Progresso
-          </Button>
+          {isWorkoutStarted && allExercisesCompleted ? (
+            <Button
+              onClick={handleFinishWorkout}
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-12"
+            >
+              <CheckCircle className="w-5 h-5 mr-2" />
+              Finalizar Treino
+            </Button>
+          ) : isWorkoutStarted ? (
+            <Button
+              disabled
+              variant="secondary"
+              className="flex-1 h-12"
+            >
+              Complete todos os exercícios para finalizar
+            </Button>
+          ) : (
+            <Button
+              disabled
+              variant="secondary"
+              className="flex-1 h-12"
+            >
+              Inicie o treino primeiro
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

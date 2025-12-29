@@ -440,7 +440,7 @@ export interface WorkoutGenerationData {
 /**
  * Gera um treino personalizado
  */
-export async function generatePersonalizedWorkout(data: WorkoutGenerationData) {
+export async function generatePersonalizedWorkout(data: WorkoutGenerationData, userId?: string) {
   const estimatedCalories = Math.round((data.workoutPreferences.availableTime / 60) * 300)
 
   const workoutTemplates = {
