@@ -92,9 +92,10 @@ export default function Onboarding() {
       }
       await setUserProfile(profile)
       navigate('/')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar perfil:', error)
-      alert('Erro ao salvar seu perfil. Tente novamente.')
+      const errorMessage = error?.message || 'Erro desconhecido'
+      alert(`Erro ao salvar: ${errorMessage}`)
     } finally {
       setIsSaving(false)
     }

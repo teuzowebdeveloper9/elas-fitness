@@ -89,6 +89,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         } else {
           console.error('Erro ao carregar perfil:', error)
         }
+        setLoading(false)
         return
       }
 
