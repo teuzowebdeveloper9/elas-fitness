@@ -749,48 +749,170 @@ export default function Onboarding() {
               <div className="space-y-6">
                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg mb-4">
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <strong>😋 Suas preferências:</strong> Conte o que você AMA comer e o que não gosta. Vamos criar uma dieta deliciosa!
+                    <strong>😋 Suas preferências:</strong> Selecione os alimentos que você AMA comer em cada categoria!
                   </p>
                 </div>
 
-                <div>
-                  <Label htmlFor="favoriteFoods" className="text-base mb-2 block">
-                    Quais alimentos você ADORA? (separe por vírgula)
+                {/* Categoria: Grãos e Carboidratos */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-2">
+                    🌾 Grãos e Carboidratos
                   </Label>
-                  <p className="text-sm text-gray-500 mb-2">Ex: frango, batata doce, abacate, chocolate amargo</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {['Arroz integral', 'Batata doce', 'Aveia', 'Quinoa', 'Pão integral', 'Tapioca', 'Macarrão integral', 'Inhame', 'Mandioca'].map((food) => (
+                      <div
+                        key={food}
+                        onClick={() => setFormData({
+                          ...formData,
+                          favoriteFoods: toggleArrayItem(formData.favoriteFoods, food)
+                        })}
+                        className={`p-3 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                          formData.favoriteFoods.includes(food)
+                            ? 'bg-amber-100 border-amber-500 dark:bg-amber-900/40 dark:border-amber-600'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-amber-300'
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-center">{food}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Categoria: Proteínas */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold text-red-700 dark:text-red-400 flex items-center gap-2">
+                    🍗 Proteínas
+                  </Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {['Frango', 'Carne vermelha', 'Peixe', 'Ovo', 'Atum', 'Salmão', 'Peito de peru', 'Tofu', 'Queijo cottage'].map((food) => (
+                      <div
+                        key={food}
+                        onClick={() => setFormData({
+                          ...formData,
+                          favoriteFoods: toggleArrayItem(formData.favoriteFoods, food)
+                        })}
+                        className={`p-3 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                          formData.favoriteFoods.includes(food)
+                            ? 'bg-red-100 border-red-500 dark:bg-red-900/40 dark:border-red-600'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-red-300'
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-center">{food}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Categoria: Legumes e Verduras */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold text-green-700 dark:text-green-400 flex items-center gap-2">
+                    🥬 Legumes e Verduras
+                  </Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {['Brócolis', 'Couve-flor', 'Espinafre', 'Alface', 'Tomate', 'Cenoura', 'Abobrinha', 'Beterraba', 'Pepino'].map((food) => (
+                      <div
+                        key={food}
+                        onClick={() => setFormData({
+                          ...formData,
+                          favoriteFoods: toggleArrayItem(formData.favoriteFoods, food)
+                        })}
+                        className={`p-3 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                          formData.favoriteFoods.includes(food)
+                            ? 'bg-green-100 border-green-500 dark:bg-green-900/40 dark:border-green-600'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-green-300'
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-center">{food}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Categoria: Frutas */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold text-pink-700 dark:text-pink-400 flex items-center gap-2">
+                    🍎 Frutas
+                  </Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {['Banana', 'Maçã', 'Morango', 'Abacate', 'Melancia', 'Uva', 'Laranja', 'Mamão', 'Abacaxi'].map((food) => (
+                      <div
+                        key={food}
+                        onClick={() => setFormData({
+                          ...formData,
+                          favoriteFoods: toggleArrayItem(formData.favoriteFoods, food)
+                        })}
+                        className={`p-3 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                          formData.favoriteFoods.includes(food)
+                            ? 'bg-pink-100 border-pink-500 dark:bg-pink-900/40 dark:border-pink-600'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-pink-300'
+                        }`}
+                      >
+                        <p className="text-sm font-medium text-center">{food}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Campo adicional para outros alimentos */}
+                <div className="space-y-3">
+                  <Label htmlFor="additionalFoods" className="text-base flex items-center gap-2">
+                    ➕ Outros alimentos favoritos (opcional)
+                  </Label>
+                  <p className="text-sm text-gray-500">Adicione outros alimentos que você ama e não estão listados acima</p>
                   <Input
-                    id="favoriteFoods"
-                    placeholder="Digite os alimentos que você ama..."
-                    value={formData.favoriteFoods.join(', ')}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      favoriteFoods: e.target.value.split(',').map(f => f.trim()).filter(f => f.length > 0)
-                    })}
-                    className="mt-2"
+                    id="additionalFoods"
+                    placeholder="Ex: chocolate amargo, pasta de amendoim, iogurte grego..."
+                    onBlur={(e) => {
+                      if (e.target.value.trim()) {
+                        const newFoods = e.target.value.split(',').map(f => f.trim()).filter(f => f.length > 0)
+                        setFormData({
+                          ...formData,
+                          favoriteFoods: [...new Set([...formData.favoriteFoods, ...newFoods])]
+                        })
+                        e.target.value = ''
+                      }
+                    }}
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="dislikedFoods" className="text-base mb-2 block">
-                    Quais alimentos você NÃO GOSTA? (separe por vírgula)
+                {/* Alimentos que não gosta */}
+                <div className="space-y-3 pt-4 border-t">
+                  <Label htmlFor="dislikedFoods" className="text-base flex items-center gap-2">
+                    ❌ Alimentos que você NÃO gosta (opcional)
                   </Label>
-                  <p className="text-sm text-gray-500 mb-2">Ex: brócolis, peixe, iogurte</p>
+                  <p className="text-sm text-gray-500">Digite separado por vírgula</p>
                   <Input
                     id="dislikedFoods"
-                    placeholder="Digite os alimentos que você não gosta..."
+                    placeholder="Ex: brócolis, peixe, iogurte..."
                     value={formData.dislikedFoods.join(', ')}
                     onChange={(e) => setFormData({
                       ...formData,
                       dislikedFoods: e.target.value.split(',').map(f => f.trim()).filter(f => f.length > 0)
                     })}
-                    className="mt-2"
                   />
                 </div>
+
+                {/* Resumo das seleções */}
+                {formData.favoriteFoods.length > 0 && (
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p className="text-sm font-medium mb-2">✨ Você selecionou {formData.favoriteFoods.length} alimentos favoritos:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {formData.favoriteFoods.slice(0, 10).map((food, idx) => (
+                        <span key={idx} className="text-xs bg-white dark:bg-gray-800 px-2 py-1 rounded">
+                          {food}
+                        </span>
+                      ))}
+                      {formData.favoriteFoods.length > 10 && (
+                        <span className="text-xs text-gray-500">+{formData.favoriteFoods.length - 10} mais</span>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
                   <Sparkles className="w-8 h-8 mx-auto mb-2 text-pink-500" />
                   <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
-                    <strong>Quase lá!</strong> Com todas essas informações, vamos criar um plano completamente personalizado para você, usando inteligência artificial para gerar dietas e treinos reais e eficazes!
+                    <strong>Quase lá!</strong> Com todas essas informações, vamos criar um plano completamente personalizado para você!
                   </p>
                 </div>
               </div>
