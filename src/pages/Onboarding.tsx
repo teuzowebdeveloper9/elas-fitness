@@ -183,7 +183,7 @@ export default function Onboarding() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="goalWeight">Qual seu peso ideal? (kg)</Label>
+                  <Label htmlFor="goalWeight">Qual seu peso desejado? (kg)</Label>
                   <Input
                     id="goalWeight"
                     type="number"
@@ -193,6 +193,7 @@ export default function Onboarding() {
                     onChange={(e) => setFormData({ ...formData, goalWeight: e.target.value })}
                     className="mt-2"
                   />
+                  <p className="text-xs text-gray-500 mt-1">Após a bioimpedância, você terá mais clareza sobre seu peso ideal</p>
                 </div>
               </div>
             )}
@@ -382,19 +383,19 @@ export default function Onboarding() {
                     </div>
                     <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
-                        id="maintain"
-                        checked={formData.goals.includes('maintain')}
+                        id="tone"
+                        checked={formData.goals.includes('tone')}
                         onCheckedChange={() =>
                           setFormData({
                             ...formData,
-                            goals: formData.goals.includes('maintain')
-                              ? formData.goals.filter(g => g !== 'maintain')
-                              : [...formData.goals, 'maintain']
+                            goals: formData.goals.includes('tone')
+                              ? formData.goals.filter(g => g !== 'tone')
+                              : [...formData.goals, 'tone']
                           })
                         }
                       />
-                      <Label htmlFor="maintain" className="cursor-pointer flex-1 font-medium">
-                        Manter forma atual
+                      <Label htmlFor="tone" className="cursor-pointer flex-1 font-medium">
+                        Tonificar o corpo
                       </Label>
                     </div>
                     <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
@@ -412,6 +413,91 @@ export default function Onboarding() {
                       />
                       <Label htmlFor="health" className="cursor-pointer flex-1 font-medium">
                         Saúde e bem-estar geral
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="flexibility"
+                        checked={formData.goals.includes('flexibility')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('flexibility')
+                              ? formData.goals.filter(g => g !== 'flexibility')
+                              : [...formData.goals, 'flexibility']
+                          })
+                        }
+                      />
+                      <Label htmlFor="flexibility" className="cursor-pointer flex-1 font-medium">
+                        Melhorar flexibilidade e mobilidade
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="energy"
+                        checked={formData.goals.includes('energy')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('energy')
+                              ? formData.goals.filter(g => g !== 'energy')
+                              : [...formData.goals, 'energy']
+                          })
+                        }
+                      />
+                      <Label htmlFor="energy" className="cursor-pointer flex-1 font-medium">
+                        Aumentar energia e disposição
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="reduce-stress"
+                        checked={formData.goals.includes('reduce-stress')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('reduce-stress')
+                              ? formData.goals.filter(g => g !== 'reduce-stress')
+                              : [...formData.goals, 'reduce-stress']
+                          })
+                        }
+                      />
+                      <Label htmlFor="reduce-stress" className="cursor-pointer flex-1 font-medium">
+                        Reduzir estresse e ansiedade
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="posture"
+                        checked={formData.goals.includes('posture')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('posture')
+                              ? formData.goals.filter(g => g !== 'posture')
+                              : [...formData.goals, 'posture']
+                          })
+                        }
+                      />
+                      <Label htmlFor="posture" className="cursor-pointer flex-1 font-medium">
+                        Melhorar postura
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                      <Checkbox
+                        id="maintain"
+                        checked={formData.goals.includes('maintain')}
+                        onCheckedChange={() =>
+                          setFormData({
+                            ...formData,
+                            goals: formData.goals.includes('maintain')
+                              ? formData.goals.filter(g => g !== 'maintain')
+                              : [...formData.goals, 'maintain']
+                          })
+                        }
+                      />
+                      <Label htmlFor="maintain" className="cursor-pointer flex-1 font-medium">
+                        Manter forma atual
                       </Label>
                     </div>
                   </div>
@@ -612,6 +698,24 @@ export default function Onboarding() {
                       </div>
                     ))}
                   </div>
+                  <div className="mt-3">
+                    <Label htmlFor="customRestrictions" className="text-sm">Outras restrições (opcional)</Label>
+                    <Input
+                      id="customRestrictions"
+                      placeholder="Ex: alergia a frutos do mar, intolerância a ovo..."
+                      className="mt-2"
+                      onBlur={(e) => {
+                        if (e.target.value.trim()) {
+                          const newRestrictions = e.target.value.split(',').map(r => r.trim()).filter(r => r.length > 0)
+                          setFormData({
+                            ...formData,
+                            dietaryRestrictions: [...new Set([...formData.dietaryRestrictions, ...newRestrictions])]
+                          })
+                          e.target.value = ''
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -632,6 +736,24 @@ export default function Onboarding() {
                         <Label htmlFor={condition} className="cursor-pointer flex-1">{condition}</Label>
                       </div>
                     ))}
+                  </div>
+                  <div className="mt-3">
+                    <Label htmlFor="customConditions" className="text-sm">Outras condições (opcional)</Label>
+                    <Input
+                      id="customConditions"
+                      placeholder="Ex: hipotireoidismo, asma, fibromialgia..."
+                      className="mt-2"
+                      onBlur={(e) => {
+                        if (e.target.value.trim()) {
+                          const newConditions = e.target.value.split(',').map(c => c.trim()).filter(c => c.length > 0)
+                          setFormData({
+                            ...formData,
+                            healthConditions: [...new Set([...formData.healthConditions, ...newConditions])]
+                          })
+                          e.target.value = ''
+                        }
+                      }}
+                    />
                   </div>
                 </div>
 

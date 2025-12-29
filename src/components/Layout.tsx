@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Home, Dumbbell, Apple, TrendingUp, User } from 'lucide-react'
+import { Home, Dumbbell, Apple, TrendingUp, User, Users, Calendar } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 export default function Layout() {
   const location = useLocation()
@@ -13,18 +14,40 @@ export default function Layout() {
     { path: '/profile', icon: User, label: 'Perfil' },
   ]
 
+  const secondaryNavItems = [
+    { path: '/community', icon: Users, label: 'Comunidade' },
+    { path: '/routine', icon: Calendar, label: 'Rotina' },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900 dark:to-gray-900">
       {/* Header */}
       <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-pink-100 dark:border-gray-700 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
               Elas Fit
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
-              Fitness adaptado para você
-            </p>
+            <div className="flex items-center gap-2">
+              {secondaryNavItems.map((item) => {
+                const Icon = item.icon
+                const isActive = location.pathname === item.path
+                return (
+                  <Link key={item.path} to={item.path}>
+                    <Button
+                      variant={isActive ? "default" : "ghost"}
+                      size="sm"
+                      className={cn(
+                        isActive && "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
+                      )}
+                    >
+                      <Icon className="w-4 h-4 mr-2" />
+                      {item.label}
+                    </Button>
+                  </Link>
+                )
+              })}
+            </div>
           </div>
         </div>
       </header>

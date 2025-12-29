@@ -13,6 +13,8 @@ import Progress from '@/pages/Progress'
 import Profile from '@/pages/Profile'
 import CycleTracking from '@/pages/CycleTracking'
 import MenopauseTracking from '@/pages/MenopauseTracking'
+import Community from '@/pages/Community'
+import Routine from '@/pages/Routine'
 
 function AppRoutes() {
   const { user, loading: authLoading } = useAuth()
@@ -61,6 +63,8 @@ function AppRoutes() {
         <Route path="profile" element={<Profile />} />
         <Route path="cycle-tracking" element={<CycleTracking />} />
         <Route path="menopause-tracking" element={<MenopauseTracking />} />
+        <Route path="community" element={<Community />} />
+        <Route path="routine" element={<Routine />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

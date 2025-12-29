@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 
 export type LifePhase = 'menstrual' | 'pre-menopause' | 'menopause' | 'post-menopause'
 export type FitnessLevel = 'beginner' | 'intermediate' | 'advanced'
-export type Goal = 'lose-weight' | 'gain-muscle' | 'maintain' | 'health'
+export type Goal = 'lose-weight' | 'gain-muscle' | 'tone' | 'health' | 'flexibility' | 'energy' | 'reduce-stress' | 'posture' | 'maintain'
 
 export interface UserProfile {
   name: string

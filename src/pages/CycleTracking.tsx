@@ -247,16 +247,58 @@ export default function CycleTracking() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <Label className="text-base">Selecione seus sentimentos e sintomas de hoje:</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    'Energizada', 'Cansada', 'Animada', 'Desmotivada',
+                    'Feliz', 'Irritada', 'Ansiosa', 'Calma',
+                    'Com foco', 'Dispersa', 'Confiante', 'Insegura',
+                    'Dor de cabeça', 'Cólica', 'Dor nas costas', 'Inchaço',
+                    'Fome excessiva', 'Sem apetite', 'Insônia', 'Sono normal'
+                  ].map((feeling) => {
+                    const isSelected = dailyFeeling.includes(feeling)
+                    return (
+                      <button
+                        key={feeling}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setDailyFeeling(dailyFeeling.split(', ').filter(f => f !== feeling).join(', '))
+                          } else {
+                            setDailyFeeling(dailyFeeling ? `${dailyFeeling}, ${feeling}` : feeling)
+                          }
+                        }}
+                        className={`p-3 text-sm rounded-lg border-2 transition-all ${
+                          isSelected
+                            ? 'bg-pink-100 border-pink-500 dark:bg-pink-900/40 dark:border-pink-600 font-medium'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-pink-300'
+                        }`}
+                      >
+                        {feeling}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="feeling">Sentimentos e sintomas de hoje</Label>
+                <Label htmlFor="additionalNotes">Observações adicionais (opcional)</Label>
                 <Textarea
-                  id="feeling"
-                  placeholder="Ex: Estou me sentindo cansada, com dor de cabeça leve, mas animada para treinar..."
-                  value={dailyFeeling}
-                  onChange={(e) => setDailyFeeling(e.target.value)}
-                  rows={3}
+                  id="additionalNotes"
+                  placeholder="Adicione qualquer outra informação que queira registrar..."
+                  rows={2}
+                  onChange={(e) => {
+                    const base = dailyFeeling.split('|')[0] || ''
+                    if (e.target.value.trim()) {
+                      setDailyFeeling(`${base} | ${e.target.value}`)
+                    } else {
+                      setDailyFeeling(base)
+                    }
+                  }}
                 />
               </div>
+
               <Button onClick={saveDailyLog} disabled={!dailyFeeling.trim()} className="w-full">
                 Salvar Registro de Hoje
               </Button>
