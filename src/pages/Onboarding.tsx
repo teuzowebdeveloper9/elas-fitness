@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress'
 import { useUser, UserProfile, LifePhase, FitnessLevel, Goal } from '@/contexts/UserContext'
 import { Heart, ArrowRight, ArrowLeft, Sparkles, HeartCrack } from 'lucide-react'
 
-const TOTAL_STEPS = 8
+const TOTAL_STEPS = 11
 
 export default function Onboarding() {
   const navigate = useNavigate()
@@ -23,6 +23,10 @@ export default function Onboarding() {
     weight: '',
     height: '',
     goalWeight: '',
+    neck: '',
+    waist: '',
+    hips: '',
+    activityLevel: 'moderate' as 'sedentary' | 'light' | 'moderate' | 'active' | 'very-active',
     lifePhase: 'menstrual' as LifePhase,
     hasMenstrualCycle: true,
     cycleRegular: true,
@@ -32,6 +36,12 @@ export default function Onboarding() {
     exerciseFrequency: 3,
     dietaryRestrictions: [] as string[],
     healthConditions: [] as string[],
+    favoriteFoods: [] as string[],
+    dislikedFoods: [] as string[],
+    mealsPerDay: 3,
+    cookingSkill: 'intermediate' as 'beginner' | 'intermediate' | 'advanced',
+    timeForCooking: 30,
+    eatsOutFrequency: 'sometimes' as 'never' | 'rarely' | 'sometimes' | 'often' | 'daily',
   })
 
   const handleNext = () => {
@@ -55,6 +65,10 @@ export default function Onboarding() {
       weight: parseFloat(formData.weight),
       height: parseFloat(formData.height),
       goalWeight: parseFloat(formData.goalWeight),
+      neck: formData.neck ? parseFloat(formData.neck) : undefined,
+      waist: formData.waist ? parseFloat(formData.waist) : undefined,
+      hips: formData.hips ? parseFloat(formData.hips) : undefined,
+      activityLevel: formData.activityLevel,
       lifePhase: formData.lifePhase,
       hasMenstrualCycle: formData.hasMenstrualCycle,
       cycleRegular: formData.cycleRegular,
@@ -64,6 +78,12 @@ export default function Onboarding() {
       exerciseFrequency: formData.exerciseFrequency,
       dietaryRestrictions: formData.dietaryRestrictions,
       healthConditions: formData.healthConditions,
+      favoriteFoods: formData.favoriteFoods,
+      dislikedFoods: formData.dislikedFoods,
+      mealsPerDay: formData.mealsPerDay,
+      cookingSkill: formData.cookingSkill,
+      timeForCooking: formData.timeForCooking,
+      eatsOutFrequency: formData.eatsOutFrequency,
       onboardingCompleted: true,
     }
     setUserProfile(profile)
@@ -479,8 +499,99 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* Step 8: Health & Restrictions */}
+            {/* Step 8: Bioimpedância - Medidas Adicionais */}
             {currentStep === 8 && (
+              <div className="space-y-4">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-4">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <strong>📊 Dados para Bioimpedância:</strong> Essas medidas nos ajudam a calcular sua composição corporal ideal e criar um plano mais preciso.
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="neck">Circunferência do pescoço (cm) - Opcional</Label>
+                  <Input
+                    id="neck"
+                    type="number"
+                    step="0.1"
+                    placeholder="Ex: 32"
+                    value={formData.neck}
+                    onChange={(e) => setFormData({ ...formData, neck: e.target.value })}
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="waist">Circunferência da cintura (cm)</Label>
+                  <Input
+                    id="waist"
+                    type="number"
+                    step="0.1"
+                    placeholder="Ex: 75"
+                    value={formData.waist}
+                    onChange={(e) => setFormData({ ...formData, waist: e.target.value })}
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="hips">Circunferência do quadril (cm)</Label>
+                  <Input
+                    id="hips"
+                    type="number"
+                    step="0.1"
+                    placeholder="Ex: 95"
+                    value={formData.hips}
+                    onChange={(e) => setFormData({ ...formData, hips: e.target.value })}
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label className="text-base mb-4 block">Qual seu nível de atividade diária?</Label>
+                  <RadioGroup
+                    value={formData.activityLevel}
+                    onValueChange={(value: any) => setFormData({ ...formData, activityLevel: value })}
+                    className="space-y-3"
+                  >
+                    <div className="flex items-start space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="sedentary" id="sedentary" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="sedentary" className="font-medium cursor-pointer">Sedentária</Label>
+                        <p className="text-sm text-gray-500">Pouco ou nenhum exercício</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="light" id="light" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="light" className="font-medium cursor-pointer">Levemente ativa</Label>
+                        <p className="text-sm text-gray-500">Exercício leve 1-3 dias/semana</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="moderate" id="moderate" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="moderate" className="font-medium cursor-pointer">Moderadamente ativa</Label>
+                        <p className="text-sm text-gray-500">Exercício moderado 3-5 dias/semana</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="active" id="active" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="active" className="font-medium cursor-pointer">Muito ativa</Label>
+                        <p className="text-sm text-gray-500">Exercício intenso 6-7 dias/semana</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="very-active" id="very-active" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="very-active" className="font-medium cursor-pointer">Extremamente ativa</Label>
+                        <p className="text-sm text-gray-500">Exercício muito intenso diariamente ou trabalho físico</p>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+            )}
+
+            {/* Step 9: Restrições Alimentares */}
+            {currentStep === 9 && (
               <div className="space-y-6">
                 <div>
                   <Label className="text-base mb-4 block">Você tem alguma restrição alimentar?</Label>
@@ -532,6 +643,159 @@ export default function Onboarding() {
               </div>
             )}
 
+            {/* Step 10: Hábitos Alimentares */}
+            {currentStep === 10 && (
+              <div className="space-y-6">
+                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg mb-4">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <strong>🍽️ Sobre sua alimentação:</strong> Vamos entender seus hábitos para criar uma dieta que funcione para VOCÊ!
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-base mb-4 block">Quantas refeições você faz por dia?</Label>
+                  <RadioGroup
+                    value={formData.mealsPerDay.toString()}
+                    onValueChange={(value) => setFormData({ ...formData, mealsPerDay: parseInt(value) })}
+                    className="space-y-3"
+                  >
+                    {[3, 4, 5, 6].map((meals) => (
+                      <div key={meals} className="flex items-center space-x-3 p-3 border-2 rounded-lg">
+                        <RadioGroupItem value={meals.toString()} id={`meals-${meals}`} />
+                        <Label htmlFor={`meals-${meals}`} className="cursor-pointer">
+                          {meals} refeições por dia
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label className="text-base mb-4 block">Como você classifica sua habilidade na cozinha?</Label>
+                  <RadioGroup
+                    value={formData.cookingSkill}
+                    onValueChange={(value: any) => setFormData({ ...formData, cookingSkill: value })}
+                    className="space-y-3"
+                  >
+                    <div className="flex items-start space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="beginner" id="cook-beginner" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="cook-beginner" className="font-medium cursor-pointer">Iniciante</Label>
+                        <p className="text-sm text-gray-500">Prefiro receitas simples e rápidas</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="intermediate" id="cook-intermediate" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="cook-intermediate" className="font-medium cursor-pointer">Intermediário</Label>
+                        <p className="text-sm text-gray-500">Me viro bem na cozinha</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="advanced" id="cook-advanced" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="cook-advanced" className="font-medium cursor-pointer">Avançado</Label>
+                        <p className="text-sm text-gray-500">Adoro cozinhar e fazer receitas elaboradas</p>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label htmlFor="timeForCooking">Quanto tempo tem disponível para cozinhar cada refeição? (minutos)</Label>
+                  <Input
+                    id="timeForCooking"
+                    type="number"
+                    placeholder="Ex: 30"
+                    value={formData.timeForCooking}
+                    onChange={(e) => setFormData({ ...formData, timeForCooking: parseInt(e.target.value) || 30 })}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-base mb-4 block">Com que frequência você come fora?</Label>
+                  <RadioGroup
+                    value={formData.eatsOutFrequency}
+                    onValueChange={(value: any) => setFormData({ ...formData, eatsOutFrequency: value })}
+                    className="space-y-3"
+                  >
+                    <div className="flex items-center space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="never" id="never" />
+                      <Label htmlFor="never" className="cursor-pointer">Nunca ou quase nunca</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="rarely" id="rarely" />
+                      <Label htmlFor="rarely" className="cursor-pointer">Raramente (1-2x por mês)</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="sometimes" id="sometimes" />
+                      <Label htmlFor="sometimes" className="cursor-pointer">Às vezes (1-2x por semana)</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="often" id="often" />
+                      <Label htmlFor="often" className="cursor-pointer">Frequentemente (3-4x por semana)</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 border-2 rounded-lg">
+                      <RadioGroupItem value="daily" id="daily" />
+                      <Label htmlFor="daily" className="cursor-pointer">Diariamente</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+            )}
+
+            {/* Step 11: Preferências Alimentares */}
+            {currentStep === 11 && (
+              <div className="space-y-6">
+                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg mb-4">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <strong>😋 Suas preferências:</strong> Conte o que você AMA comer e o que não gosta. Vamos criar uma dieta deliciosa!
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="favoriteFoods" className="text-base mb-2 block">
+                    Quais alimentos você ADORA? (separe por vírgula)
+                  </Label>
+                  <p className="text-sm text-gray-500 mb-2">Ex: frango, batata doce, abacate, chocolate amargo</p>
+                  <Input
+                    id="favoriteFoods"
+                    placeholder="Digite os alimentos que você ama..."
+                    value={formData.favoriteFoods.join(', ')}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      favoriteFoods: e.target.value.split(',').map(f => f.trim()).filter(f => f.length > 0)
+                    })}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="dislikedFoods" className="text-base mb-2 block">
+                    Quais alimentos você NÃO GOSTA? (separe por vírgula)
+                  </Label>
+                  <p className="text-sm text-gray-500 mb-2">Ex: brócolis, peixe, iogurte</p>
+                  <Input
+                    id="dislikedFoods"
+                    placeholder="Digite os alimentos que você não gosta..."
+                    value={formData.dislikedFoods.join(', ')}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      dislikedFoods: e.target.value.split(',').map(f => f.trim()).filter(f => f.length > 0)
+                    })}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+                  <Sparkles className="w-8 h-8 mx-auto mb-2 text-pink-500" />
+                  <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
+                    <strong>Quase lá!</strong> Com todas essas informações, vamos criar um plano completamente personalizado para você, usando inteligência artificial para gerar dietas e treinos reais e eficazes!
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Navigation Buttons */}
             <div className="flex gap-3 mt-8 pt-6 border-t">
               {currentStep > 1 && (
@@ -569,7 +833,10 @@ function getStepTitle(step: number): string {
     'Seus objetivos',
     'Suas dificuldades',
     'Sua rotina',
-    'Finalizando',
+    'Dados de bioimpedância',
+    'Restrições alimentares',
+    'Hábitos alimentares',
+    'Preferências alimentares',
   ]
   return titles[step - 1]
 }
@@ -591,7 +858,13 @@ function isStepValid(step: number, formData: any): boolean {
     case 7:
       return formData.exerciseFrequency > 0
     case 8:
-      return true // Always valid
+      return formData.waist.length > 0 && formData.hips.length > 0 && formData.activityLevel.length > 0
+    case 9:
+      return true // Always valid (restrictions are optional)
+    case 10:
+      return formData.mealsPerDay > 0 && formData.cookingSkill.length > 0 && formData.timeForCooking > 0
+    case 11:
+      return true // Always valid (preferences are optional)
     default:
       return false
   }

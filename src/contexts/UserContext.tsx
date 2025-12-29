@@ -14,11 +14,35 @@ export interface UserProfile {
   hasMenstrualCycle: boolean
   cycleRegular: boolean
   fitnessLevel: FitnessLevel
-  goals: Goal[] // Changed from single goal to array
-  challenges: string[] // New field for challenges
+  goals: Goal[]
+  challenges: string[]
   exerciseFrequency: number
   dietaryRestrictions: string[]
   healthConditions: string[]
+
+  // Dados de bioimpedância (calculados pela IA)
+  idealWeight?: number
+  bmi?: number
+  bodyFatPercentage?: number
+  dailyCalories?: number
+  proteinGoal?: number
+  carbsGoal?: number
+  fatsGoal?: number
+
+  // Preferências alimentares
+  favoriteFoods?: string[]
+  dislikedFoods?: string[]
+  mealsPerDay?: number
+  cookingSkill?: 'beginner' | 'intermediate' | 'advanced'
+  timeForCooking?: number
+  eatsOutFrequency?: 'never' | 'rarely' | 'sometimes' | 'often' | 'daily'
+
+  // Dados adicionais
+  neck?: number // circunferência do pescoço
+  waist?: number // circunferência da cintura
+  hips?: number // circunferência do quadril
+  activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very-active'
+
   onboardingCompleted: boolean
 }
 
