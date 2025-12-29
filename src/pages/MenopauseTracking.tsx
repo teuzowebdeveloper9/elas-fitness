@@ -64,15 +64,27 @@ export default function MenopauseTracking() {
     if (saved) {
       const data = JSON.parse(saved)
       if (data.phase) setPhase(data.phase)
-      if (data.symptoms) setSymptoms(data.symptoms)
+      if (data.symptoms) {
+        // Restaurar sintomas mas manter os ícones do commonSymptoms
+        const restoredSymptoms = data.symptoms.map((savedSymptom: any) => {
+          const baseSymptom = commonSymptoms.find(cs => cs.id === savedSymptom.id)
+          return {
+            ...savedSymptom,
+            icon: baseSymptom?.icon || Flame
+          }
+        })
+        setSymptoms(restoredSymptoms)
+      }
       if (data.logs) setLogs(data.logs)
     }
   }, [])
 
   useEffect(() => {
+    // Salvar sintomas sem os ícones (que não podem ser serializados)
+    const symptomsToSave = symptoms.map(({ icon, ...rest }) => rest)
     localStorage.setItem('menopauseData', JSON.stringify({
       phase,
-      symptoms,
+      symptoms: symptomsToSave,
       logs
     }))
   }, [phase, symptoms, logs])
@@ -316,7 +328,7 @@ export default function MenopauseTracking() {
         </CardHeader>
         <CardContent className="space-y-4">
           {symptoms.map((symptom) => {
-            const IconComponent = symptom.icon
+            const Icon = symptom.icon
             return (
               <div key={symptom.id} className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -327,7 +339,7 @@ export default function MenopauseTracking() {
                       onCheckedChange={() => toggleSymptom(symptom.id)}
                     />
                     <Label htmlFor={symptom.id} className="flex items-center gap-2 cursor-pointer">
-                      <IconComponent className="h-4 w-4" />
+                      <Icon className="h-4 w-4" />
                       {symptom.name}
                     </Label>
                   </div>
