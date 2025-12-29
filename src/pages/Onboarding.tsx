@@ -881,7 +881,7 @@ export default function Onboarding() {
                     🌾 Grãos e Carboidratos
                   </Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {['Arroz integral', 'Batata doce', 'Aveia', 'Quinoa', 'Pão integral', 'Tapioca', 'Macarrão integral', 'Inhame', 'Mandioca'].map((food) => (
+                    {['Arroz branco', 'Arroz integral', 'Feijão carioca', 'Feijão preto', 'Feijão fradinho', 'Lentilha', 'Grão-de-bico', 'Milho', 'Cuscuz de milho', 'Aveia', 'Trigo (farinha de trigo)', 'Pão francês', 'Macarrão', 'Batata inglesa', 'Batata-doce', 'Mandioca (aipim/macaxeira)', 'Tapioca', 'Quinoa', 'Inhame', 'Fubá (farinha de milho)'].map((food) => (
                       <div
                         key={food}
                         onClick={() => setFormData({
@@ -906,7 +906,7 @@ export default function Onboarding() {
                     🍗 Proteínas
                   </Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {['Frango', 'Carne vermelha', 'Peixe', 'Ovo', 'Atum', 'Salmão', 'Peito de peru', 'Tofu', 'Queijo cottage'].map((food) => (
+                    {['Ovo', 'Peito de frango', 'Frango desfiado', 'Carne bovina (patinho)', 'Carne bovina (acém)', 'Carne moída', 'Peixe', 'Sardinha', 'Atum', 'Salmão', 'Carne suína (lombo)', 'Presunto', 'Peito de peru', 'Queijo branco (minas/ricota)', 'Queijo muçarela', 'Leite', 'Iogurte natural', 'Grão-de-bico (proteína vegetal)', 'Lentilha (proteína vegetal)', 'Feijão (proteína vegetal)'].map((food) => (
                       <div
                         key={food}
                         onClick={() => setFormData({
@@ -931,7 +931,7 @@ export default function Onboarding() {
                     🥬 Legumes e Verduras
                   </Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {['Brócolis', 'Couve-flor', 'Espinafre', 'Alface', 'Tomate', 'Cenoura', 'Abobrinha', 'Beterraba', 'Pepino'].map((food) => (
+                    {['Alface', 'Tomate', 'Cenoura', 'Batata', 'Cebola', 'Brócolis', 'Couve', 'Abobrinha', 'Berinjela', 'Chuchu', 'Pepino', 'Pimentão', 'Beterraba', 'Repolho', 'Espinafre', 'Vagem', 'Quiabo', 'Abóbora', 'Couve-flor', 'Agrião'].map((food) => (
                       <div
                         key={food}
                         onClick={() => setFormData({
@@ -956,7 +956,7 @@ export default function Onboarding() {
                     🍎 Frutas
                   </Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {['Banana', 'Maçã', 'Morango', 'Abacate', 'Melancia', 'Uva', 'Laranja', 'Mamão', 'Abacaxi'].map((food) => (
+                    {['Banana', 'Maçã', 'Laranja', 'Mamão', 'Manga', 'Abacaxi', 'Uva', 'Melancia', 'Melão', 'Pera', 'Morango', 'Limão', 'Acerola', 'Goiaba', 'Abacate', 'Tangerina (mexerica/bergamota)', 'Maracujá', 'Kiwi', 'Ameixa', 'Coco'].map((food) => (
                       <div
                         key={food}
                         onClick={() => setFormData({
