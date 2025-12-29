@@ -135,68 +135,291 @@ export interface DietGenerationData {
 }
 
 /**
- * Gera plano alimentar personalizado usando OpenAI
+ * Gera plano alimentar personalizado usando OpenAI com fallback
  */
 export async function generatePersonalizedDiet(data: DietGenerationData) {
-  const prompt = `Você é uma nutricionista especializada em saúde feminina. Crie um plano alimentar semanal completo para:
-
-**PERFIL:**
-- Nome: ${data.userProfile.name}
-- Idade: ${data.userProfile.age} anos
-- Peso atual: ${data.userProfile.weight}kg → Meta: ${data.userProfile.goalWeight}kg
-- Fase da vida: ${data.userProfile.lifePhase}
-- Objetivos: ${data.userProfile.goals.join(', ')}
-
-**NECESSIDADES NUTRICIONAIS:**
-- Calorias diárias: ${data.nutritionData.dailyCalories} kcal
+  // Tentar gerar com IA
+  try {
+    const prompt = `Crie um plano alimentar de 7 dias em JSON para:
+- Calorias: ${data.nutritionData.dailyCalories} kcal/dia
 - Proteína: ${data.nutritionData.protein}g
-- Carboidratos: ${data.nutritionData.carbs}g
-- Gorduras: ${data.nutritionData.fats}g
-
-**PREFERÊNCIAS:**
 - Restrições: ${data.foodPreferences.dietaryRestrictions.join(', ') || 'Nenhuma'}
-- Alimentos favoritos: ${data.foodPreferences.favoriteFoods?.join(', ') || 'Não especificado'}
-- Alimentos evitados: ${data.foodPreferences.dislikedFoods?.join(', ') || 'Nenhum'}
-- Refeições por dia: ${data.foodPreferences.mealsPerDay}
-- Tempo para cozinhar: ${data.foodPreferences.timeForCooking || 30} minutos
 
-Crie um plano de 7 dias com café da manhã, almoço, jantar e lanches. Use alimentos brasileiros, receitas práticas e inclua variedade.
-
-Responda em JSON com esta estrutura exata:
+Formato JSON (sem texto extra):
 {
-  "diet_name": "Nome do Plano",
-  "description": "Descrição em 1 linha",
+  "diet_name": "string",
+  "description": "string",
   "meal_plan": {
     "monday": {
-      "breakfast": {"name": "...", "foods": ["..."], "calories": 0, "protein": 0, "carbs": 0, "fats": 0},
-      "lunch": {"name": "...", "foods": ["..."], "calories": 0, "protein": 0, "carbs": 0, "fats": 0},
-      "dinner": {"name": "...", "foods": ["..."], "calories": 0, "protein": 0, "carbs": 0, "fats": 0},
-      "snacks": [{"name": "...", "calories": 0}]
-    },
-    "tuesday": {...},
-    "wednesday": {...},
-    "thursday": {...},
-    "friday": {...},
-    "saturday": {...},
-    "sunday": {...}
+      "breakfast": {"name": "string", "foods": ["string"], "calories": number, "protein": number, "carbs": number, "fats": number},
+      "lunch": {"name": "string", "foods": ["string"], "calories": number, "protein": number, "carbs": number, "fats": number},
+      "dinner": {"name": "string", "foods": ["string"], "calories": number, "protein": number, "carbs": number, "fats": number},
+      "snacks": [{"name": "string", "calories": number}]
+    }
   },
-  "shopping_list": ["item1", "item2"],
-  "tips": ["dica1", "dica2"]
-}`
+  "shopping_list": ["string"],
+  "tips": ["string"]
+}
+Repita para tuesday, wednesday, thursday, friday, saturday, sunday.`
 
-  try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.8,
-      max_tokens: 4000
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'Você é nutricionista. Responda APENAS com JSON válido.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 3500,
+      response_format: { type: 'json_object' }
     })
 
-    const response = JSON.parse(completion.choices[0].message.content || '{}')
+    const content = completion.choices[0].message.content || '{}'
+    const response = JSON.parse(content)
+
+    if (!response.meal_plan) {
+      throw new Error('Resposta inválida')
+    }
+
     return response
   } catch (error) {
-    console.error('Erro ao gerar dieta com IA:', error)
-    throw new Error('Não foi possível gerar o plano alimentar. Tente novamente.')
+    console.error('Erro ao gerar dieta com IA, usando fallback:', error)
+    return generateDietFallback(data)
+  }
+}
+
+/**
+ * Fallback para geração de dieta
+ */
+function generateDietFallback(data: DietGenerationData) {
+  const caloriesPerMeal = Math.round(data.nutritionData.dailyCalories / 3)
+  const proteinPerMeal = Math.round(data.nutritionData.protein / 3)
+
+  return {
+    diet_name: `Plano ${data.userProfile.name}`,
+    description: `${data.nutritionData.dailyCalories} kcal • ${data.nutritionData.protein}g proteína`,
+    meal_plan: {
+      monday: {
+        breakfast: {
+          name: "Omelete com Aveia",
+          foods: ["2 ovos", "3 col aveia", "Frutas"],
+          calories: Math.round(caloriesPerMeal * 0.3),
+          protein: Math.round(proteinPerMeal * 0.3),
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        lunch: {
+          name: "Frango Grelhado com Arroz Integral",
+          foods: ["150g frango", "1 xíc arroz integral", "Salada", "Legumes"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.4),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        dinner: {
+          name: "Salmão com Batata Doce",
+          foods: ["150g salmão", "150g batata doce", "Brócolis"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.4)
+        },
+        snacks: [
+          { name: "Iogurte grego", calories: 150 },
+          { name: "Castanhas", calories: 100 }
+        ]
+      },
+      tuesday: {
+        breakfast: {
+          name: "Tapioca com Queijo",
+          foods: ["2 col tapioca", "Queijo branco", "Mamão"],
+          calories: Math.round(caloriesPerMeal * 0.3),
+          protein: Math.round(proteinPerMeal * 0.3),
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        lunch: {
+          name: "Carne Moída com Quinoa",
+          foods: ["150g carne moída", "1 xíc quinoa", "Salada"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.4),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        dinner: {
+          name: "Tilápia com Legumes",
+          foods: ["150g tilápia", "Legumes assados", "Salada"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.4)
+        },
+        snacks: [
+          { name: "Whey protein", calories: 120 },
+          { name: "Banana", calories: 90 }
+        ]
+      },
+      wednesday: {
+        breakfast: {
+          name: "Panqueca Proteica",
+          foods: ["2 ovos", "Banana", "Aveia"],
+          calories: Math.round(caloriesPerMeal * 0.3),
+          protein: Math.round(proteinPerMeal * 0.3),
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        lunch: {
+          name: "Frango com Batata Doce",
+          foods: ["150g frango", "200g batata doce", "Salada"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.4),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        dinner: {
+          name: "Omelete com Salada",
+          foods: ["3 ovos", "Queijo", "Salada verde"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.4)
+        },
+        snacks: [
+          { name: "Maçã com pasta amendoim", calories: 180 },
+          { name: "Queijo cottage", calories: 90 }
+        ]
+      },
+      thursday: {
+        breakfast: {
+          name: "Vitamina Proteica",
+          foods: ["Whey", "Banana", "Aveia", "Leite"],
+          calories: Math.round(caloriesPerMeal * 0.3),
+          protein: Math.round(proteinPerMeal * 0.3),
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        lunch: {
+          name: "Carne com Arroz e Feijão",
+          foods: ["150g carne", "Arroz", "Feijão", "Salada"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.4),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        dinner: {
+          name: "Frango com Legumes",
+          foods: ["150g frango", "Mix de legumes", "Salada"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.4)
+        },
+        snacks: [
+          { name: "Iogurte com granola", calories: 150 },
+          { name: "Frutas", calories: 80 }
+        ]
+      },
+      friday: {
+        breakfast: {
+          name: "Pão Integral com Ovo",
+          foods: ["2 fatias pão integral", "2 ovos", "Abacate"],
+          calories: Math.round(caloriesPerMeal * 0.3),
+          protein: Math.round(proteinPerMeal * 0.3),
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        lunch: {
+          name: "Salmão com Arroz",
+          foods: ["150g salmão", "Arroz integral", "Brócolis"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.4),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        dinner: {
+          name: "Wrap de Frango",
+          foods: ["Wrap integral", "Frango", "Salada"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.4)
+        },
+        snacks: [
+          { name: "Castanhas", calories: 140 },
+          { name: "Iogurte", calories: 100 }
+        ]
+      },
+      saturday: {
+        breakfast: {
+          name: "Açaí Bowl",
+          foods: ["100g açaí", "Banana", "Granola", "Mel"],
+          calories: Math.round(caloriesPerMeal * 0.3),
+          protein: Math.round(proteinPerMeal * 0.3),
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        lunch: {
+          name: "Frango Assado com Mandioca",
+          foods: ["150g frango", "Mandioca", "Salada"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.4),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        dinner: {
+          name: "Pizza Fit",
+          foods: ["Massa integral", "Frango", "Queijo", "Vegetais"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.4)
+        },
+        snacks: [
+          { name: "Pipoca", calories: 100 },
+          { name: "Chocolate 70%", calories: 100 }
+        ]
+      },
+      sunday: {
+        breakfast: {
+          name: "Crepioca",
+          foods: ["1 ovo", "Tapioca", "Queijo", "Peito peru"],
+          calories: Math.round(caloriesPerMeal * 0.3),
+          protein: Math.round(proteinPerMeal * 0.3),
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        lunch: {
+          name: "Churrasco Fit",
+          foods: ["150g carne magra", "Farofa", "Vinagrete"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.4),
+          fats: Math.round(data.nutritionData.fats * 0.3)
+        },
+        dinner: {
+          name: "Sopa de Legumes",
+          foods: ["Frango", "Legumes", "Batata", "Caldo"],
+          calories: caloriesPerMeal,
+          protein: proteinPerMeal,
+          carbs: Math.round(data.nutritionData.carbs * 0.3),
+          fats: Math.round(data.nutritionData.fats * 0.4)
+        },
+        snacks: [
+          { name: "Frutas variadas", calories: 120 },
+          { name: "Queijo cottage", calories: 90 }
+        ]
+      }
+    },
+    shopping_list: [
+      "Frango (1kg)", "Ovos (dúzia)", "Salmão (500g)", "Carne moída (500g)",
+      "Arroz integral", "Batata doce", "Aveia", "Tapioca", "Quinoa",
+      "Frutas variadas", "Vegetais", "Saladas", "Queijo branco", "Iogurte grego"
+    ],
+    tips: [
+      "Beba 2-3L de água por dia",
+      "Faça refeições a cada 3-4 horas",
+      "Prepare as marmitas no domingo",
+      "Ajuste porções conforme sua fome"
+    ]
   }
 }
 
@@ -220,66 +443,174 @@ export interface WorkoutGenerationData {
 }
 
 /**
- * Gera treino personalizado usando OpenAI
+ * Gera treino personalizado usando OpenAI com fallback
  */
 export async function generatePersonalizedWorkout(data: WorkoutGenerationData, userId?: string) {
-  const prompt = `Você é uma personal trainer especializada em treinos femininos. Crie um treino completo personalizado para:
+  // Tentar gerar com IA primeiro
+  try {
+    const prompt = `Você é uma personal trainer especializada em treinos femininos. Crie um treino completo personalizado.
 
-**PERFIL:**
+PERFIL:
 - Nome: ${data.userProfile.name}
 - Idade: ${data.userProfile.age} anos
 - Nível: ${data.userProfile.fitnessLevel}
 - Fase da vida: ${data.userProfile.lifePhase}
 - Objetivos: ${data.userProfile.goals.join(', ')}
-- Frequência: ${data.userProfile.exerciseFrequency}
-- Desafios: ${data.userProfile.challenges.join(', ') || 'Nenhum'}
-- Condições de saúde: ${data.userProfile.healthConditions.join(', ') || 'Nenhuma'}
 
-**PREFERÊNCIAS DO TREINO:**
+TREINO:
 - Tipo: ${data.workoutPreferences.workoutType}
-- Mobilidade adicional: ${data.workoutPreferences.mobilityType}
-- Tempo disponível: ${data.workoutPreferences.availableTime} minutos
-- Equipamentos: ${data.workoutPreferences.equipmentAvailable?.join(', ') || 'Academia completa'}
+- Tempo: ${data.workoutPreferences.availableTime} minutos
 
-IMPORTANTE:
-- Adapte para a fase hormonal feminina (${data.userProfile.lifePhase})
-- Se iniciante, priorize forma correta e cargas leves
-- Inclua aquecimento, exercícios principais e alongamento
-- Para mulheres: foco em glúteos, pernas, core e postura
-- Exercícios funcionais e práticos
-
-Responda em JSON com esta estrutura:
+Responda APENAS com JSON válido (sem texto adicional):
 {
-  "workout_name": "Nome do Treino",
-  "description": "Descrição breve",
-  "duration_minutes": ${data.workoutPreferences.availableTime},
-  "estimated_calories": número,
+  "workout_name": "string",
+  "description": "string",
+  "duration_minutes": number,
+  "estimated_calories": number,
   "workout_plan": {
-    "warmup": [{"name": "...", "duration": "...", "description": "..."}],
-    "main_exercises": [
-      {"name": "...", "sets": "...", "reps": "...", "rest": "...", "description": "...", "calories": número}
-    ],
-    "mobility_exercises": [{"name": "...", "duration": "...", "description": "...", "focus_area": "..."}],
-    "cooldown": [{"name": "...", "duration": "...", "description": "..."}]
+    "warmup": [{"name": "string", "duration": "string", "description": "string"}],
+    "main_exercises": [{"name": "string", "sets": "string", "reps": "string", "rest": "string", "description": "string", "calories": number}],
+    "mobility_exercises": [],
+    "cooldown": [{"name": "string", "duration": "string", "description": "string"}]
   },
-  "equipment_needed": ["..."],
-  "tips": ["..."],
-  "adaptations": ["..."]
+  "equipment_needed": ["string"],
+  "tips": ["string"],
+  "adaptations": ["string"]
 }`
 
-  try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.8,
-      max_tokens: 3000
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'Você é uma personal trainer especializada. Responda APENAS com JSON válido, sem texto adicional.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 2500,
+      response_format: { type: 'json_object' }
     })
 
-    const response = JSON.parse(completion.choices[0].message.content || '{}')
+    const content = completion.choices[0].message.content || '{}'
+    const response = JSON.parse(content)
+
+    // Validar resposta
+    if (!response.workout_name || !response.workout_plan) {
+      throw new Error('Resposta inválida da IA')
+    }
+
     return response
   } catch (error) {
-    console.error('Erro ao gerar treino com IA:', error)
-    throw new Error('Não foi possível gerar o treino. Tente novamente.')
+    console.error('Erro ao gerar treino com IA, usando fallback:', error)
+
+    // FALLBACK: Usar templates locais
+    return generateWorkoutFallback(data)
+  }
+}
+
+/**
+ * Fallback para geração de treino quando IA falha
+ */
+function generateWorkoutFallback(data: WorkoutGenerationData) {
+  const estimatedCalories = Math.round((data.workoutPreferences.availableTime / 60) * 300)
+
+  const workoutTemplates: Record<string, any> = {
+    musculacao: {
+      warmup: [
+        { name: "Esteira leve", duration: "5 min", description: "Caminhar ou correr leve" },
+        { name: "Alongamento dinâmico", duration: "3 min", description: "Movimentos amplos" }
+      ],
+      main_exercises: [
+        { name: "Agachamento livre", sets: "4", reps: "12-15", rest: "60s", description: "Pés na largura dos ombros", calories: 50 },
+        { name: "Leg Press 45°", sets: "3", reps: "15", rest: "60s", description: "Empurrar com calcanhares", calories: 45 },
+        { name: "Stiff", sets: "3", reps: "12", rest: "60s", description: "Trabalha posterior de coxa", calories: 40 },
+        { name: "Remada curvada", sets: "4", reps: "12", rest: "60s", description: "Costas retas", calories: 35 },
+        { name: "Supino reto", sets: "3", reps: "12", rest: "60s", description: "Trabalha peitoral", calories: 40 }
+      ],
+      cooldown: [
+        { name: "Alongamento posterior", duration: "2 min", description: "Alongar pernas e costas" },
+        { name: "Alongamento superior", duration: "2 min", description: "Braços e ombros" }
+      ]
+    },
+    casa: {
+      warmup: [
+        { name: "Polichinelos", duration: "2 min", description: "Saltar abrindo pernas" },
+        { name: "Joelho alto", duration: "2 min", description: "Correr no lugar" }
+      ],
+      main_exercises: [
+        { name: "Agachamento", sets: "4", reps: "15-20", rest: "45s", description: "Peso corporal", calories: 40 },
+        { name: "Flexão", sets: "3", reps: "10-15", rest: "45s", description: "Pode ser no joelho", calories: 35 },
+        { name: "Afundo", sets: "3", reps: "12 cada", rest: "45s", description: "Passos largos", calories: 40 },
+        { name: "Prancha", sets: "3", reps: "30-45s", rest: "30s", description: "Posição estática", calories: 30 }
+      ],
+      cooldown: [
+        { name: "Alongamento geral", duration: "5 min", description: "Todas as articulações" }
+      ]
+    },
+    abdominal: {
+      warmup: [
+        { name: "Rotação de tronco", duration: "2 min", description: "Girar o corpo" },
+        { name: "Prancha leve", duration: "1 min", description: "Aquecer o core" }
+      ],
+      main_exercises: [
+        { name: "Abdominal tradicional", sets: "4", reps: "20", rest: "30s", description: "Subir o tronco", calories: 25 },
+        { name: "Prancha frontal", sets: "3", reps: "45s", rest: "30s", description: "Posição estática", calories: 20 },
+        { name: "Bicicleta", sets: "4", reps: "20x", rest: "30s", description: "Cotovelo toca joelho", calories: 35 }
+      ],
+      cooldown: [
+        { name: "Gato e vaca", duration: "2 min", description: "Mobilidade da coluna" }
+      ]
+    },
+    funcional: {
+      warmup: [
+        { name: "Caminhada rápida", duration: "3 min", description: "Aumentar frequência" },
+        { name: "Mobilidade articular", duration: "2 min", description: "Círculos nas articulações" }
+      ],
+      main_exercises: [
+        { name: "Burpee", sets: "3", reps: "10", rest: "60s", description: "Movimento completo", calories: 50 },
+        { name: "Agachamento com salto", sets: "3", reps: "12", rest: "60s", description: "Explosivo", calories: 45 },
+        { name: "Mountain climbers", sets: "3", reps: "20x", rest: "45s", description: "Escalador", calories: 40 }
+      ],
+      cooldown: [
+        { name: "Caminhada leve", duration: "3 min", description: "Baixar frequência" }
+      ]
+    },
+    danca: {
+      warmup: [
+        { name: "Marcha no lugar", duration: "2 min", description: "Aquecer corpo" },
+        { name: "Giros suaves", duration: "2 min", description: "Soltar articulações" }
+      ],
+      main_exercises: [
+        { name: "Sequência de dança", sets: "3", reps: "5 min", rest: "60s", description: "Coreografia", calories: 60 },
+        { name: "Passos laterais", sets: "4", reps: "20x", rest: "30s", description: "Movimentos ritmados", calories: 40 }
+      ],
+      cooldown: [
+        { name: "Alongamento dinâmico", duration: "3 min", description: "Movimentos suaves" }
+      ]
+    }
+  }
+
+  const template = workoutTemplates[data.workoutPreferences.workoutType] || workoutTemplates.musculacao
+
+  return {
+    workout_name: `Treino ${data.workoutPreferences.workoutType.charAt(0).toUpperCase() + data.workoutPreferences.workoutType.slice(1)} - ${data.userProfile.name}`,
+    description: `Treino personalizado para ${data.userProfile.fitnessLevel === 'beginner' ? 'iniciante' : data.userProfile.fitnessLevel === 'intermediate' ? 'intermediário' : 'avançado'}`,
+    duration_minutes: data.workoutPreferences.availableTime,
+    estimated_calories: estimatedCalories,
+    workout_plan: {
+      warmup: template.warmup,
+      main_exercises: template.main_exercises.slice(0, Math.ceil(data.workoutPreferences.availableTime / 10)),
+      mobility_exercises: [],
+      cooldown: template.cooldown
+    },
+    equipment_needed: data.workoutPreferences.workoutType === 'casa' ? ['Nenhum'] : ['Academia completa'],
+    tips: [
+      'Mantenha a forma correta em todos os exercícios',
+      'Hidrate-se durante o treino',
+      'Respeite seus limites e descanse quando necessário'
+    ],
+    adaptations: [
+      data.userProfile.fitnessLevel === 'beginner' ? 'Comece com cargas leves e foque na técnica' : 'Aumente a intensidade gradualmente',
+      'Ajuste o peso conforme sua evolução'
+    ]
   }
 }
 
