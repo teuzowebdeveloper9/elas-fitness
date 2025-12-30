@@ -62,10 +62,10 @@ export default function DietNew() {
   const [nutritionData, setNutritionData] = useState<NutritionData | null>(null)
   const [generatedDiet, setGeneratedDiet] = useState<GeneratedDiet | null>(null)
   const [savedDietId, setSavedDietId] = useState<string | null>(null)
-  const [showDietDialog, setShowDietDialog] = useState(false)
+  const [showConfigScreen, setShowConfigScreen] = useState(false)
   const [selectedDay, setSelectedDay] = useState<keyof GeneratedDiet['meal_plan']>('monday')
 
-  // Carregar dieta salva e abrir automaticamente
+  // Carregar dieta salva
   useEffect(() => {
     async function loadSavedDiet() {
       try {
@@ -87,11 +87,15 @@ export default function DietNew() {
           if (data.nutrition_data) {
             setNutritionData(data.nutrition_data)
           }
-          // Abrir automaticamente o dialog da dieta
-          setShowDietDialog(true)
+          // Não mostrar tela de configuração se já tem dieta
+          setShowConfigScreen(false)
+        } else {
+          // Mostrar tela de configuração se não tem dieta
+          setShowConfigScreen(true)
         }
       } catch (error) {
         console.log('Nenhuma dieta salva encontrada')
+        setShowConfigScreen(true)
       } finally {
         setIsLoadingSavedDiet(false)
       }
@@ -229,19 +233,18 @@ export default function DietNew() {
         setSavedDietId(savedDiet.id)
       }
 
-      setShowDietDialog(true)
+      // Ocultar tela de configuração e mostrar a dieta
+      setShowConfigScreen(false)
 
-      // Rolar para o fim da página para visualizar o dialog completo
-      setTimeout(() => {
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth'
-        })
-      }, 100)
+      // Rolar para o topo
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })
 
       toast({
         title: '🎉 Dieta gerada e salva!',
-        description: 'Sua dieta personalizada está pronta e salva automaticamente!'
+        description: 'Sua dieta personalizada está pronta!'
       })
     } catch (error) {
       console.error('Erro ao gerar dieta:', error)
@@ -265,6 +268,65 @@ export default function DietNew() {
     { key: 'sunday' as const, label: 'Domingo' }
   ]
 
+  // Se tem dieta gerada, mostrar a dieta
+  if (!isLoadingSavedDiet && generatedDiet && !showConfigScreen) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">
+              {generatedDiet.diet_name}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              {generatedDiet.description}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowConfigScreen(true)}
+            className="gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Nova Dieta
+          </Button>
+        </div>
+
+        {/* Nutri Scan Quick Access */}
+        <Card
+          className="bg-gradient-to-br from-orange-500 to-red-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all hover:scale-[1.02]"
+          onClick={() => navigate('/nutri-scan')}
+        >
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/20 rounded-full">
+                  <Camera className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">Nutri Scan</h3>
+                  <p className="text-white/90 text-sm">
+                    Tire foto da sua refeição e registre os nutrientes automaticamente
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-6 h-6" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <DietView
+          diet={generatedDiet}
+          nutritionData={nutritionData}
+          selectedDay={selectedDay}
+          onDayChange={setSelectedDay}
+          daysOfWeek={daysOfWeek}
+          dietId={savedDietId}
+        />
+      </div>
+    )
+  }
+
+  // Senão, mostrar tela de configuração
   return (
     <div className="space-y-6">
       <div>
@@ -299,7 +361,7 @@ export default function DietNew() {
         </CardContent>
       </Card>
 
-      {/* Botão para gerar nova dieta (apenas se já tiver uma salva) */}
+      {/* Aviso se já tem dieta mas está editando */}
       {!isLoadingSavedDiet && generatedDiet && (
         <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200">
           <CardHeader>
@@ -460,28 +522,13 @@ export default function DietNew() {
         </CardContent>
       </Card>
 
-      {/* Dialog com Dieta Gerada */}
-      {generatedDiet && (
-        <DietDialog
-          diet={generatedDiet}
-          nutritionData={nutritionData}
-          open={showDietDialog}
-          onClose={() => setShowDietDialog(false)}
-          selectedDay={selectedDay}
-          onDayChange={setSelectedDay}
-          daysOfWeek={daysOfWeek}
-          dietId={savedDietId}
-        />
-      )}
     </div>
   )
 }
 
-function DietDialog({
+function DietView({
   diet,
   nutritionData,
-  open,
-  onClose,
   selectedDay,
   onDayChange,
   daysOfWeek,
@@ -489,8 +536,6 @@ function DietDialog({
 }: {
   diet: GeneratedDiet
   nutritionData: NutritionData | null
-  open: boolean
-  onClose: () => void
   selectedDay: keyof GeneratedDiet['meal_plan']
   onDayChange: (day: keyof GeneratedDiet['meal_plan']) => void
   daysOfWeek: Array<{key: keyof GeneratedDiet['meal_plan']; label: string}>
@@ -619,39 +664,46 @@ function DietDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">{diet.diet_name}</DialogTitle>
-          <p className="text-gray-600 dark:text-gray-400">{diet.description}</p>
-        </DialogHeader>
+    <>
+      {/* Metas Nutricionais do Dia */}
+      {nutritionData && (
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-green-600" />
+              Resumo Nutricional do Dia
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
+                <Flame className="w-5 h-5 mx-auto mb-2 text-orange-500" />
+                <p className="text-2xl font-bold">{totalCalories}</p>
+                <p className="text-xs text-gray-500">Meta: {nutritionData.dailyCalories} kcal</p>
+              </div>
+              <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
+                <Apple className="w-5 h-5 mx-auto mb-2 text-red-500" />
+                <p className="text-2xl font-bold">{totalProtein}g</p>
+                <p className="text-xs text-gray-500">Meta: {nutritionData.protein}g</p>
+              </div>
+              <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
+                <Coffee className="w-5 h-5 mx-auto mb-2 text-amber-500" />
+                <p className="text-2xl font-bold">{totalCarbs}g</p>
+                <p className="text-xs text-gray-500">Meta: {nutritionData.carbs}g</p>
+              </div>
+              <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
+                <Target className="w-5 h-5 mx-auto mb-2 text-blue-500" />
+                <p className="text-2xl font-bold">{totalFats}g</p>
+                <p className="text-xs text-gray-500">Meta: {nutritionData.fats}g</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        {nutritionData && (
-          <div className="grid grid-cols-4 gap-3 py-3 border-y">
-            <div className="text-center">
-              <Flame className="w-4 h-4 mx-auto mb-1 text-orange-500" />
-              <p className="text-sm font-medium">{totalCalories}</p>
-              <p className="text-xs text-gray-500">Meta: {nutritionData.dailyCalories}</p>
-            </div>
-            <div className="text-center">
-              <Apple className="w-4 h-4 mx-auto mb-1 text-red-500" />
-              <p className="text-sm font-medium">{totalProtein}g</p>
-              <p className="text-xs text-gray-500">Meta: {nutritionData.protein}g</p>
-            </div>
-            <div className="text-center">
-              <Coffee className="w-4 h-4 mx-auto mb-1 text-amber-500" />
-              <p className="text-sm font-medium">{totalCarbs}g</p>
-              <p className="text-xs text-gray-500">Meta: {nutritionData.carbs}g</p>
-            </div>
-            <div className="text-center">
-              <Target className="w-4 h-4 mx-auto mb-1 text-blue-500" />
-              <p className="text-sm font-medium">{totalFats}g</p>
-              <p className="text-xs text-gray-500">Meta: {nutritionData.fats}g</p>
-            </div>
-          </div>
-        )}
-
-        <ScrollArea className="h-[550px] pr-4">
+      {/* Plano de Refeições */}
+      <Card>
+        <CardContent className="pt-6">
           <Tabs value={selectedDay} onValueChange={(value) => onDayChange(value as keyof GeneratedDiet['meal_plan'])} className="w-full">
             <TabsList className="grid w-full grid-cols-7 mb-4">
               {daysOfWeek.map((day) => (
@@ -737,14 +789,8 @@ function DietDialog({
               </CardContent>
             </Card>
           </div>
-        </ScrollArea>
-
-        <div className="flex gap-3 mt-4">
-          <Button variant="outline" onClick={onClose} className="w-full">
-            Fechar
-          </Button>
-        </div>
-      </DialogContent>
+        </CardContent>
+      </Card>
 
       {/* Dialog de Feedback */}
       <Dialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
@@ -797,6 +843,6 @@ function DietDialog({
           </div>
         </DialogContent>
       </Dialog>
-    </Dialog>
+    </>
   )
 }
