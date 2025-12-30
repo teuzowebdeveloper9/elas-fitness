@@ -51,7 +51,7 @@ export async function getRecentWorkouts(userId: string, days: number = 7) {
 
 // Verificar quais grupos musculares foram trabalhados recentemente
 export async function getTrainedMuscleGroups(userId: string, days: number = 7): Promise<MuscleGroup[]> {
-  const sessions = await getRecentWorkouts(userId, days)
+  await getRecentWorkouts(userId, days)
 
   // Por enquanto, retorna array vazio até implementarmos o rastreamento de grupos
   // A lógica será implementada quando adicionarmos os campos na tabela
@@ -119,7 +119,7 @@ export async function calculateTrainingCycle(userId: string): Promise<{
 export async function generateIntelligentWorkoutPrompt(
   userId: string,
   baseWorkoutType: string,
-  userPreferences: any
+  _userPreferences: any
 ): Promise<string> {
   const { focusGroups, avoidGroups, reasoning } = await suggestWorkoutFocus(userId)
   const { currentCycle, needsProgression, daysUntilProgression } = await calculateTrainingCycle(userId)
@@ -156,7 +156,7 @@ export async function generateIntelligentWorkoutPrompt(
 
 // Salvar grupos musculares no treino gerado (simplificado)
 export async function saveWorkoutMuscleGroups(
-  workoutId: string,
+  _workoutId: string,
   exercises: Array<{ name: string }>
 ) {
   const muscleGroups = new Set<MuscleGroup>()

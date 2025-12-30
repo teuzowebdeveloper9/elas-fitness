@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast'
 import {
   Apple, Flame, Target, Loader2, Sparkles, Coffee, Sunrise,
   Sun, Moon, ShoppingCart, Lightbulb, Camera, ArrowRight,
-  RefreshCw, Edit2, ThumbsUp, ThumbsDown, MessageSquare
+  RefreshCw, MessageSquare
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { generatePersonalizedDiet, calculateBioimpedance, DietGenerationData, NutritionData } from '@/lib/openai-real'
@@ -254,53 +254,6 @@ export default function DietNew() {
     }
   }
 
-  const handleSaveDiet = async () => {
-    if (!generatedDiet || !nutritionData) return
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Se já existe uma dieta salva, desativar a anterior
-      if (savedDietId) {
-        await supabase
-          .from('saved_diets')
-          .update({ is_active: false })
-          .eq('id', savedDietId)
-      }
-
-      // Salvar nova dieta
-      const { data, error } = await supabase
-        .from('saved_diets')
-        .insert({
-          user_id: user.id,
-          diet_name: generatedDiet.diet_name,
-          description: generatedDiet.description,
-          diet_data: generatedDiet,
-          nutrition_data: nutritionData,
-          is_active: true
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-
-      setSavedDietId(data.id)
-
-      toast({
-        title: '✅ Dieta salva!',
-        description: 'Sua dieta foi salva e estará disponível sempre que você voltar.'
-      })
-    } catch (error) {
-      console.error('Erro ao salvar dieta:', error)
-      toast({
-        title: 'Erro ao salvar',
-        description: 'Não foi possível salvar a dieta.',
-        variant: 'destructive'
-      })
-    }
-  }
-
   const daysOfWeek = [
     { key: 'monday' as const, label: 'Segunda' },
     { key: 'tuesday' as const, label: 'Terça' },
@@ -516,10 +469,7 @@ export default function DietNew() {
           selectedDay={selectedDay}
           onDayChange={setSelectedDay}
           daysOfWeek={daysOfWeek}
-          onSave={handleSaveDiet}
-          isSaved={!!savedDietId}
           dietId={savedDietId}
-          onRegenerateDiet={handleGenerateDiet}
         />
       )}
     </div>
@@ -534,10 +484,7 @@ function DietDialog({
   selectedDay,
   onDayChange,
   daysOfWeek,
-  onSave,
-  isSaved,
-  dietId,
-  onRegenerateDiet
+  dietId
 }: {
   diet: GeneratedDiet
   nutritionData: NutritionData | null
@@ -546,10 +493,7 @@ function DietDialog({
   selectedDay: keyof GeneratedDiet['meal_plan']
   onDayChange: (day: keyof GeneratedDiet['meal_plan']) => void
   daysOfWeek: Array<{key: keyof GeneratedDiet['meal_plan']; label: string}>
-  onSave: () => void
-  isSaved: boolean
   dietId: string | null
-  onRegenerateDiet: () => void
 }) {
   const { toast } = useToast()
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false)
@@ -566,7 +510,7 @@ function DietDialog({
   const totalCarbs = dayPlan.breakfast.carbs + dayPlan.lunch.carbs + dayPlan.dinner.carbs
   const totalFats = dayPlan.breakfast.fats + dayPlan.lunch.fats + dayPlan.dinner.fats
 
-  const handleMealFeedback = (day: string, type: string, meal: string, feedbackType: 'like' | 'dislike') => {
+  const handleMealFeedback = (day: string, type: string, meal: string, _feedbackType: 'like' | 'dislike') => {
     setSelectedMealForFeedback({ day, type, meal })
     setShowFeedbackDialog(true)
   }

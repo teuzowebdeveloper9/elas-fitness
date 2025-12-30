@@ -430,7 +430,7 @@ export interface WorkoutGenerationData {
     fitnessLevel: string
     goals: string[]
     lifePhase: string
-    exerciseFrequency: string
+    exerciseFrequency: number
     challenges: string[]
     healthConditions: string[]
   }
@@ -445,7 +445,7 @@ export interface WorkoutGenerationData {
 /**
  * Gera treino personalizado usando OpenAI com fallback
  */
-export async function generatePersonalizedWorkout(data: WorkoutGenerationData, userId?: string) {
+export async function generatePersonalizedWorkout(data: WorkoutGenerationData, _userId?: string) {
   // Tentar gerar com IA primeiro
   try {
     const prompt = `Você é uma personal trainer especializada em treinos femininos. Crie um treino completo personalizado.

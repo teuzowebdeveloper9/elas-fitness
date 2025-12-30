@@ -61,7 +61,7 @@ export default function WorkoutCompletion() {
       const fileExt = photoFile.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}.${fileExt}`
 
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('workout-photos')
         .upload(fileName, photoFile)
 

@@ -342,7 +342,7 @@ export async function generatePersonalizedDiet(data: DietGenerationData) {
 /**
  * Analisa uma imagem de refeição e retorna informações nutricionais
  */
-export async function analyzeFoodImage(imageBase64: string) {
+export async function analyzeFoodImage(_imageBase64: string) {
   // Simulação de análise de imagem com dados realistas
   // Em produção, isso usaria uma API de visão computacional
 
@@ -440,7 +440,7 @@ export interface WorkoutGenerationData {
 /**
  * Gera um treino personalizado
  */
-export async function generatePersonalizedWorkout(data: WorkoutGenerationData, userId?: string) {
+export async function generatePersonalizedWorkout(data: WorkoutGenerationData, _userId?: string) {
   const estimatedCalories = Math.round((data.workoutPreferences.availableTime / 60) * 300)
 
   const workoutTemplates = {
