@@ -460,6 +460,7 @@ export interface WorkoutGenerationData {
     workoutType: string
     mobilityType: string
     availableTime: number
+    muscleGroup?: string
     equipmentAvailable?: string[]
   }
 }
@@ -470,6 +471,10 @@ export interface WorkoutGenerationData {
 export async function generatePersonalizedWorkout(data: WorkoutGenerationData, _userId?: string) {
   // Tentar gerar com IA primeiro
   try {
+    const muscleGroupText = data.workoutPreferences.muscleGroup && data.workoutPreferences.muscleGroup !== 'nenhum'
+      ? `\n- Foco muscular: ${data.workoutPreferences.muscleGroup}`
+      : ''
+
     const prompt = `Você é uma personal trainer especializada em treinos femininos. Crie um treino completo personalizado.
 
 PERFIL:
@@ -481,7 +486,9 @@ PERFIL:
 
 TREINO:
 - Tipo: ${data.workoutPreferences.workoutType}
-- Tempo: ${data.workoutPreferences.availableTime} minutos
+- Tempo: ${data.workoutPreferences.availableTime} minutos${muscleGroupText}
+
+${muscleGroupText ? 'IMPORTANTE: Priorize exercícios para o grupo muscular escolhido, mas mantenha o treino balanceado.' : ''}
 
 Responda APENAS com JSON válido (sem texto adicional):
 {

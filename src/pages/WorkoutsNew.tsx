@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Clock, Flame, Dumbbell, Home, Zap, Music,
-  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown
+  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown,
+  Target
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { generatePersonalizedWorkout, WorkoutGenerationData } from '@/lib/openai-real'
@@ -16,6 +17,7 @@ import { supabase } from '@/lib/supabase'
 
 type WorkoutType = 'musculacao' | 'casa' | 'abdominal' | 'funcional' | 'danca'
 type MobilityType = 'inferior' | 'superior' | 'completa' | 'none'
+type MuscleGroup = 'gluteos' | 'pernas' | 'superior' | 'core' | 'bracos' | 'completo' | 'nenhum'
 
 export default function WorkoutsNew() {
   const { userProfile } = useUser()
@@ -24,6 +26,7 @@ export default function WorkoutsNew() {
   const [availableTime, setAvailableTime] = useState(45)
   const [selectedWorkoutType, setSelectedWorkoutType] = useState<WorkoutType>('musculacao')
   const [selectedMobility, setSelectedMobility] = useState<MobilityType>('none')
+  const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<MuscleGroup>('nenhum')
   const [isGenerating, setIsGenerating] = useState(false)
   const [workoutSuggestion, setWorkoutSuggestion] = useState<string | null>(null)
 
@@ -80,6 +83,51 @@ export default function WorkoutsNew() {
       description: 'Cardio divertido ao som de música',
       color: 'from-pink-500 to-rose-600'
     },
+  ]
+
+  const muscleGroupOptions = [
+    {
+      id: 'nenhum' as MuscleGroup,
+      name: 'Sem preferência',
+      emoji: '✨',
+      description: 'Deixar a IA decidir o melhor foco'
+    },
+    {
+      id: 'gluteos' as MuscleGroup,
+      name: 'Glúteos',
+      emoji: '🍑',
+      description: 'Foco em glúteos e posterior'
+    },
+    {
+      id: 'pernas' as MuscleGroup,
+      name: 'Pernas Completas',
+      emoji: '🦵',
+      description: 'Quadríceps, posterior e panturrilhas'
+    },
+    {
+      id: 'superior' as MuscleGroup,
+      name: 'Corpo Superior',
+      emoji: '💪',
+      description: 'Peito, costas e ombros'
+    },
+    {
+      id: 'bracos' as MuscleGroup,
+      name: 'Braços',
+      emoji: '💪',
+      description: 'Bíceps, tríceps e antebraços'
+    },
+    {
+      id: 'core' as MuscleGroup,
+      name: 'Core/Abdômen',
+      emoji: '⚡',
+      description: 'Abdômen, oblíquos e lombar'
+    },
+    {
+      id: 'completo' as MuscleGroup,
+      name: 'Corpo Completo',
+      emoji: '🔥',
+      description: 'Treino full body balanceado'
+    }
   ]
 
   const mobilityOptions = [
@@ -139,6 +187,7 @@ export default function WorkoutsNew() {
           workoutType: selectedWorkoutType,
           mobilityType: selectedMobility,
           availableTime: availableTime,
+          muscleGroup: selectedMuscleGroup,
           equipmentAvailable: selectedWorkoutType === 'casa' ? [] : undefined
         }
       }
@@ -251,6 +300,43 @@ export default function WorkoutsNew() {
             </div>
           </div>
 
+          {/* Grupo Muscular */}
+          <div className="space-y-3">
+            <Label className="text-base font-medium flex items-center gap-2">
+              <Target className="w-4 h-4 text-orange-500" />
+              Qual grupo muscular quer treinar hoje?
+            </Label>
+            {workoutSuggestion && (
+              <Alert className="bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200 dark:from-orange-900/20 dark:to-yellow-900/20">
+                <AlertDescription className="text-sm">
+                  <strong>💡 Sugestão da IA:</strong> {workoutSuggestion}
+                </AlertDescription>
+              </Alert>
+            )}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {muscleGroupOptions.map((group) => {
+                const isSelected = selectedMuscleGroup === group.id
+                return (
+                  <Card
+                    key={group.id}
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      isSelected
+                        ? 'ring-2 ring-orange-500 bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                    onClick={() => setSelectedMuscleGroup(group.id)}
+                  >
+                    <CardContent className="p-3 text-center">
+                      <div className="text-3xl mb-2">{group.emoji}</div>
+                      <h4 className="font-medium text-sm mb-1">{group.name}</h4>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{group.description}</p>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Mobilidade */}
           <div className="space-y-3">
             <Label className="text-base font-medium">Adicionar mobilidade?</Label>
@@ -304,14 +390,6 @@ export default function WorkoutsNew() {
               </>
             )}
           </Button>
-
-          {workoutSuggestion && (
-            <Alert className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 dark:from-purple-900/20 dark:to-pink-900/20">
-              <AlertDescription className="text-sm">
-                <strong>💡 Sugestão Inteligente:</strong> {workoutSuggestion}
-              </AlertDescription>
-            </Alert>
-          )}
 
           {userProfile && (
             <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20">
