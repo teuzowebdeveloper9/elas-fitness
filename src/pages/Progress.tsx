@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
+import { useUser } from '@/contexts/UserContext'
 import {
   TrendingDown,
   Scale,
@@ -11,42 +13,62 @@ import {
   Calendar as CalendarIcon,
   Camera,
   ChevronRight,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react'
 
 export default function Progress() {
   const { toast } = useToast()
+  const { userProfile } = useUser()
+  const [loading, setLoading] = useState(true)
 
+  useEffect(() => {
+    // Simular carregamento
+    if (userProfile) {
+      setLoading(false)
+    }
+  }, [userProfile])
+
+  // Dados reais do usuário
+  const currentWeight = userProfile?.weight || 0
+  const startWeight = userProfile?.weight || 0 // Peso inicial = peso atual (começando agora)
+  const goalWeight = userProfile?.goalWeight || 0
+  const weightLost = 0 // Zero, pois está começando agora
+
+  // Sem atividades ainda (começando do zero)
   const weeklyProgress = [
-    { day: 'Seg', completed: true },
-    { day: 'Ter', completed: true },
-    { day: 'Qua', completed: true },
-    { day: 'Qui', completed: true },
+    { day: 'Seg', completed: false },
+    { day: 'Ter', completed: false },
+    { day: 'Qua', completed: false },
+    { day: 'Qui', completed: false },
     { day: 'Sex', completed: false },
     { day: 'Sáb', completed: false },
     { day: 'Dom', completed: false },
   ]
 
-  const measurements = [
-    { date: '01/12', weight: 65.2, waist: 72, hips: 98, thigh: 56 },
-    { date: '08/12', weight: 64.8, waist: 71, hips: 97, thigh: 55 },
-    { date: '15/12', weight: 64.3, waist: 70, hips: 96, thigh: 54.5 },
-    { date: '22/12', weight: 63.9, waist: 69, hips: 95, thigh: 54 },
-  ]
+  // Sem medidas ainda
+  const measurements: any[] = []
 
+  // Conquistas zeradas
   const achievements = [
-    { title: 'Primeira Semana', description: 'Complete 7 dias seguidos', completed: true },
-    { title: '30 Dias Ativos', description: 'Treine por 30 dias', completed: false, progress: 23 },
-    { title: 'Hidratação Master', description: '14 dias atingindo a meta de água', completed: true },
-    { title: 'Perda de Peso', description: 'Perca 5kg', completed: false, progress: 3.1 },
-    { title: 'Força Total', description: 'Complete 50 treinos', completed: false, progress: 34 },
-    { title: 'Nutrição Perfeita', description: '7 dias dentro das macros', completed: true },
+    { title: 'Primeira Semana', description: 'Complete 7 dias seguidos', completed: false, progress: 0 },
+    { title: '30 Dias Ativos', description: 'Treine por 30 dias', completed: false, progress: 0 },
+    { title: 'Hidratação Master', description: '14 dias atingindo a meta de água', completed: false, progress: 0 },
+    { title: 'Perda de Peso', description: 'Perca 5kg', completed: false, progress: 0 },
+    { title: 'Força Total', description: 'Complete 50 treinos', completed: false, progress: 0 },
+    { title: 'Nutrição Perfeita', description: '7 dias dentro das macros', completed: false, progress: 0 },
   ]
 
-  const currentWeight = 63.9
-  const startWeight = 67.0
-  const goalWeight = 60.0
-  const weightLost = startWeight - currentWeight
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <p className="mt-4 text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -98,10 +120,10 @@ export default function Progress() {
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <TrendingDown className="w-5 h-5 text-green-600" />
-            <span className="font-medium text-green-700 dark:text-green-400">
-              Você já perdeu {weightLost.toFixed(1)} kg! Continue assim!
+          <div className="flex items-center justify-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <Sparkles className="w-5 h-5 text-blue-600" />
+            <span className="font-medium text-blue-700 dark:text-blue-400">
+              Você está começando sua jornada! Complete treinos e registre seu progresso.
             </span>
           </div>
         </CardContent>
@@ -116,55 +138,65 @@ export default function Progress() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {measurements.map((measurement, index) => {
-              const isLatest = index === measurements.length - 1
+          {measurements.length > 0 ? (
+            <div className="space-y-3">
+              {measurements.map((measurement: any, index: number) => {
+                const isLatest = index === measurements.length - 1
 
-              return (
-                <div
-                  key={measurement.date}
-                  className={`p-4 rounded-lg border-2 ${
-                    isLatest
-                      ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700'
-                      : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-medium">{measurement.date}</span>
-                    {isLatest && (
-                      <Badge className="bg-blue-500 hover:bg-blue-600">Mais Recente</Badge>
-                    )}
+                return (
+                  <div
+                    key={measurement.date}
+                    className={`p-4 rounded-lg border-2 ${
+                      isLatest
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700'
+                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-medium">{measurement.date}</span>
+                      {isLatest && (
+                        <Badge className="bg-blue-500 hover:bg-blue-600">Mais Recente</Badge>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-4 gap-3 text-center">
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Peso</p>
+                        <p className="text-lg font-bold">{measurement.weight} kg</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Cintura</p>
+                        <p className="text-lg font-bold">{measurement.waist} cm</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Quadril</p>
+                        <p className="text-lg font-bold">{measurement.hips} cm</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Coxa</p>
+                        <p className="text-lg font-bold">{measurement.thigh} cm</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-4 gap-3 text-center">
-                    <div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Peso</p>
-                      <p className="text-lg font-bold">{measurement.weight} kg</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Cintura</p>
-                      <p className="text-lg font-bold">{measurement.waist} cm</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Quadril</p>
-                      <p className="text-lg font-bold">{measurement.hips} cm</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Coxa</p>
-                      <p className="text-lg font-bold">{measurement.thigh} cm</p>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Ruler className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-semibold mb-2">Nenhuma medida registrada</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                Comece registrando suas medidas iniciais (peso, cintura, quadril, coxa) para acompanhar sua evolução!
+              </p>
+            </div>
+          )}
 
           <Button
             className="w-full mt-4"
             variant="outline"
             onClick={() => {
               toast({
-                title: "Nova Medição",
-                description: "Registre suas novas medidas para acompanhar seu progresso"
+                title: "Em breve!",
+                description: "A funcionalidade de adicionar medições estará disponível em breve"
               })
             }}
           >
@@ -200,9 +232,9 @@ export default function Progress() {
             ))}
           </div>
 
-          <div className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg">
+          <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
             <p className="text-sm text-center text-gray-700 dark:text-gray-300">
-              <span className="font-bold text-orange-600 dark:text-orange-400">4 de 7 dias</span> completados esta semana!
+              <span className="font-bold text-purple-600 dark:text-purple-400">0 de 7 dias</span> completados esta semana. Comece seu primeiro treino!
             </p>
           </div>
         </CardContent>
