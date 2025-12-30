@@ -618,26 +618,27 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
  * Analisa imagem de comida usando OpenAI Vision
  */
 export async function analyzeFoodImage(imageBase64: string) {
-  const prompt = `Analise esta imagem de comida e forneça:
-1. Nome do prato/alimento
-2. Calorias estimadas
-3. Proteínas (g)
-4. Carboidratos (g)
-5. Gorduras (g)
-6. Avaliação nutricional (saudável, moderado, evitar)
-7. Sugestões de melhoria
+  const prompt = `Analise esta imagem de comida e identifique todos os alimentos presentes.
 
-Responda em JSON:
+Forneça as informações nutricionais TOTAIS do prato completo em JSON:
 {
-  "food_name": "...",
-  "calories": número,
-  "protein": número,
-  "carbs": número,
-  "fats": número,
-  "health_rating": "saudável|moderado|evitar",
-  "analysis": "texto de análise",
-  "suggestions": ["sugestão1", "sugestão2"]
-}`
+  "meal_name": "nome do prato/refeição completa",
+  "meal_type": "cafe-da-manha|almoco|jantar|lanche",
+  "foods_detected": ["alimento1", "alimento2", "alimento3"],
+  "nutrition": {
+    "calories": número_total,
+    "protein": número_total_em_gramas,
+    "carbs": número_total_em_gramas,
+    "fats": número_total_em_gramas,
+    "fiber": número_total_em_gramas
+  }
+}
+
+IMPORTANTE:
+- Os valores nutricionais devem ser do PRATO COMPLETO (soma de todos alimentos)
+- Use estimativas realistas baseadas nas porções visíveis
+- Seja preciso nos valores numéricos
+- Liste todos os alimentos detectados no array foods_detected`
 
   try {
     const completion = await openai.chat.completions.create({
@@ -654,10 +655,17 @@ Responda em JSON:
           ]
         }
       ],
-      max_tokens: 1000
+      max_tokens: 1000,
+      response_format: { type: 'json_object' }
     })
 
     const response = JSON.parse(completion.choices[0].message.content || '{}')
+
+    // Validar resposta
+    if (!response.meal_name || !response.nutrition) {
+      throw new Error('Resposta inválida da IA')
+    }
+
     return response
   } catch (error) {
     console.error('Erro ao analisar imagem:', error)
