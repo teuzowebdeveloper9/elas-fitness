@@ -11,10 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   CheckCircle, Clock, Flame, Dumbbell,
-  ArrowLeft, Target, Timer, Award, Coffee, Moon, Zap
+  ArrowLeft, Target, Timer, Award, Coffee, Moon, Zap, Video
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase'
+import { ExerciseVideoModal } from '@/components/ExerciseVideoModal'
+import { searchExerciseVideo, YouTubeVideo } from '@/lib/youtube-service'
 
 interface GeneratedWorkout {
   workout_name: string
@@ -43,6 +45,10 @@ export default function ActiveWorkout() {
   const [exerciseWeights, setExerciseWeights] = useState<Record<string, number>>({})
   const [startTime] = useState(Date.now())
   const [elapsedTime, setElapsedTime] = useState(0)
+  const [selectedExercise, setSelectedExercise] = useState<string | null>(null)
+  const [exerciseVideos, setExerciseVideos] = useState<YouTubeVideo[]>([])
+  const [loadingVideos, setLoadingVideos] = useState(false)
+  const [videoModalOpen, setVideoModalOpen] = useState(false)
 
   useEffect(() => {
     if (!workout) {
@@ -80,6 +86,26 @@ export default function ActiveWorkout() {
 
   const handleWeightChange = (exerciseName: string, weight: number) => {
     setExerciseWeights(prev => ({ ...prev, [exerciseName]: weight }))
+  }
+
+  const handleWatchVideo = async (exerciseName: string) => {
+    setSelectedExercise(exerciseName)
+    setLoadingVideos(true)
+    setVideoModalOpen(true)
+
+    try {
+      const videos = await searchExerciseVideo(exerciseName, 5)
+      setExerciseVideos(videos)
+    } catch (error) {
+      console.error('Erro ao buscar vídeos:', error)
+      toast({
+        title: 'Erro ao buscar vídeos',
+        description: 'Não foi possível carregar os vídeos neste momento.',
+        variant: 'destructive'
+      })
+    } finally {
+      setLoadingVideos(false)
+    }
   }
 
   const totalExercises =
@@ -201,9 +227,13 @@ export default function ActiveWorkout() {
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <Icon className="w-5 h-5 text-purple-500" />
                 <h4 className="font-semibold">{exercise.name}</h4>
+                <Badge variant="outline" className="text-xs gap-1">
+                  <Video className="w-3 h-3" />
+                  Vídeo disponível
+                </Badge>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                 {exercise.description}
@@ -240,14 +270,25 @@ export default function ActiveWorkout() {
               )}
             </div>
 
-            <Button
-              size="sm"
-              variant={isCompleted ? 'default' : 'outline'}
-              onClick={() => toggleExerciseComplete(exerciseId)}
-              className={isCompleted ? 'bg-green-500 hover:bg-green-600' : ''}
-            >
-              {isCompleted ? <CheckCircle className="w-4 h-4" /> : 'Concluir'}
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleWatchVideo(exercise.name)}
+                className="whitespace-nowrap"
+              >
+                <Video className="w-4 h-4 mr-1" />
+                Ver vídeo
+              </Button>
+              <Button
+                size="sm"
+                variant={isCompleted ? 'default' : 'outline'}
+                onClick={() => toggleExerciseComplete(exerciseId)}
+                className={isCompleted ? 'bg-green-500 hover:bg-green-600' : ''}
+              >
+                {isCompleted ? <CheckCircle className="w-4 h-4" /> : 'Concluir'}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -409,6 +450,15 @@ export default function ActiveWorkout() {
           </Alert>
         )}
       </div>
+
+      {/* Modal de Vídeos */}
+      <ExerciseVideoModal
+        open={videoModalOpen}
+        onOpenChange={setVideoModalOpen}
+        exerciseName={selectedExercise || ''}
+        videos={exerciseVideos}
+        loading={loadingVideos}
+      />
     </div>
   )
 }
