@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
-  Play, Clock, Flame, Dumbbell, Home, Zap, Music,
-  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown, Pause, CheckCircle
+  Clock, Flame, Dumbbell, Home, Zap, Music,
+  Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { generatePersonalizedWorkout, WorkoutGenerationData } from '@/lib/openai-real'
@@ -22,22 +17,6 @@ import { supabase } from '@/lib/supabase'
 type WorkoutType = 'musculacao' | 'casa' | 'abdominal' | 'funcional' | 'danca'
 type MobilityType = 'inferior' | 'superior' | 'completa' | 'none'
 
-interface GeneratedWorkout {
-  workout_name: string
-  description: string
-  duration_minutes: number
-  estimated_calories: number
-  workout_plan: {
-    warmup: Array<{name: string; duration: string; description: string}>
-    main_exercises: Array<{name: string; sets: string; reps: string; rest: string; description: string; calories: number}>
-    mobility_exercises?: Array<{name: string; duration: string; description: string; focus_area: string}>
-    cooldown: Array<{name: string; duration: string; description: string}>
-  }
-  equipment_needed: string[]
-  tips: string[]
-  adaptations: string[]
-}
-
 export default function WorkoutsNew() {
   const { userProfile } = useUser()
   const { toast } = useToast()
@@ -46,8 +25,6 @@ export default function WorkoutsNew() {
   const [selectedWorkoutType, setSelectedWorkoutType] = useState<WorkoutType>('musculacao')
   const [selectedMobility, setSelectedMobility] = useState<MobilityType>('none')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedWorkout, setGeneratedWorkout] = useState<GeneratedWorkout | null>(null)
-  const [showWorkoutDialog, setShowWorkoutDialog] = useState(false)
   const [workoutSuggestion, setWorkoutSuggestion] = useState<string | null>(null)
 
   // Buscar sugestão de treino ao carregar
@@ -132,6 +109,8 @@ export default function WorkoutsNew() {
     },
   ]
 
+  const navigate = useNavigate()
+
   const handleGenerateWorkout = async () => {
     if (!userProfile) {
       toast({
@@ -165,21 +144,14 @@ export default function WorkoutsNew() {
       }
 
       const workout = await generatePersonalizedWorkout(workoutData)
-      setGeneratedWorkout(workout)
-      setShowWorkoutDialog(true)
-
-      // Rolar para o fim da página para visualizar o dialog completo
-      setTimeout(() => {
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth'
-        })
-      }, 100)
 
       toast({
         title: '✨ Treino gerado!',
-        description: 'Seu treino personalizado está pronto!',
+        description: 'Abrindo sua sessão de treino...',
       })
+
+      // Navegar para a página de treino ativo
+      navigate('/active-workout', { state: { workout } })
     } catch (error) {
       console.error('Erro ao gerar treino:', error)
       toast({

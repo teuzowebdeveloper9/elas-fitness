@@ -8,6 +8,7 @@ import Auth from '@/pages/Auth'
 import Onboarding from '@/pages/Onboarding'
 import Home from '@/pages/Home'
 import Workouts from '@/pages/WorkoutsNew'
+import ActiveWorkout from '@/pages/ActiveWorkout'
 import WorkoutCompletion from '@/pages/WorkoutCompletion'
 import WeightProgress from '@/pages/WeightProgress'
 import Diet from '@/pages/DietNew'
@@ -61,6 +62,7 @@ function AppRoutes() {
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="workouts" element={<Workouts />} />
+        <Route path="active-workout" element={<ActiveWorkout />} />
         <Route path="workout-completion" element={<WorkoutCompletion />} />
         <Route path="weight-progress" element={<WeightProgress />} />
         <Route path="diet" element={<Diet />} />
