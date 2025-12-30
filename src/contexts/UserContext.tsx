@@ -30,6 +30,7 @@ export interface UserProfile {
   proteinGoal?: number
   carbsGoal?: number
   fatsGoal?: number
+  waterGoal?: number // Meta de água em litros
 
   // Preferências alimentares
   favoriteFoods?: string[]
@@ -117,6 +118,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           proteinGoal: data.protein_goal,
           carbsGoal: data.carbs_goal,
           fatsGoal: data.fats_goal,
+          waterGoal: data.water_goal,
           neck: data.neck,
           waist: data.waist,
           hips: data.hips,

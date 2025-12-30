@@ -23,6 +23,7 @@ export interface NutritionData {
   fats: number
   bmi: number
   bodyFatPercentage?: number
+  waterGoal?: number // Meta de água em litros
 }
 
 /**
@@ -58,6 +59,23 @@ export async function calculateBioimpedance(data: BioimpedanceData): Promise<Nut
     dailyCalories += 300 // Superávit para ganho muscular
   }
 
+  // Calcular meta de água baseada em peso e atividade
+  // Fórmula: 35ml por kg de peso corporal + ajuste por atividade
+  let waterGoal = (data.weight * 35) / 1000 // Converte ml para litros
+
+  // Ajuste baseado no nível de atividade
+  const activityWaterBonus: Record<string, number> = {
+    'sedentaria': 0,
+    'leve': 0.3,
+    'moderada': 0.5,
+    'intensa': 0.8,
+    'muito-intensa': 1.0
+  }
+  waterGoal += activityWaterBonus[data.activityLevel] || 0.3
+
+  // Arredondar para 1 casa decimal
+  waterGoal = Math.round(waterGoal * 10) / 10
+
   // Usar IA para refinar recomendações
   try {
     const prompt = `Como nutricionista especializada em mulheres, analise estes dados:
@@ -66,14 +84,16 @@ export async function calculateBioimpedance(data: BioimpedanceData): Promise<Nut
 - Objetivos: ${data.goals.join(', ')}
 - TMB calculada: ${tmb} kcal
 - Calorias diárias: ${dailyCalories} kcal
+- Meta de água calculada: ${waterGoal}L
 
-Forneça ajustes finos para proteína, carboidratos e gorduras (em gramas) considerando:
+Forneça ajustes finos para proteína, carboidratos, gorduras (em gramas) e água (em litros) considerando:
 1. Fase hormonal feminina
 2. Necessidades de recuperação muscular
 3. Energia sustentável ao longo do dia
+4. Hidratação adequada para atividade física
 
 Responda APENAS com JSON no formato:
-{"protein": número, "carbs": número, "fats": número, "adjustedCalories": número}`
+{"protein": número, "carbs": número, "fats": número, "adjustedCalories": número, "waterGoal": número_em_litros}`
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -91,7 +111,8 @@ Responda APENAS com JSON no formato:
       carbs: aiResponse.carbs || Math.round((dailyCalories - (Math.round(data.weight * 1.6) * 4) - (Math.round((dailyCalories * 0.25) / 9) * 9)) / 4),
       fats: aiResponse.fats || Math.round((dailyCalories * 0.25) / 9),
       bmi: parseFloat(bmi.toFixed(1)),
-      bodyFatPercentage: parseFloat(((1.2 * bmi) + (0.23 * data.age) - 5.4).toFixed(1))
+      bodyFatPercentage: parseFloat(((1.2 * bmi) + (0.23 * data.age) - 5.4).toFixed(1)),
+      waterGoal: aiResponse.waterGoal || waterGoal
     }
   } catch (error) {
     console.error('Erro ao usar IA:', error)
@@ -107,7 +128,8 @@ Responda APENAS com JSON no formato:
       carbs,
       fats,
       bmi: parseFloat(bmi.toFixed(1)),
-      bodyFatPercentage: parseFloat(((1.2 * bmi) + (0.23 * data.age) - 5.4).toFixed(1))
+      bodyFatPercentage: parseFloat(((1.2 * bmi) + (0.23 * data.age) - 5.4).toFixed(1)),
+      waterGoal
     }
   }
 }

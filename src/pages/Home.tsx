@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Camera, Dumbbell } from 'lucide-react'
+import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Dumbbell, Apple } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUser } from '@/contexts/UserContext'
 import { useEffect } from 'react'
@@ -146,7 +146,9 @@ export default function Home() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">1.8L</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400">Água consumida</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  Meta: {userProfile?.waterGoal ? `${userProfile.waterGoal}L` : '2.5L'}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -179,9 +181,9 @@ export default function Home() {
           <div>
             <div className="flex justify-between mb-2">
               <span className="text-sm font-medium">Hidratação</span>
-              <span className="text-sm text-gray-500">1.8L / 2.5L</span>
+              <span className="text-sm text-gray-500">1.8L / {userProfile?.waterGoal ? `${userProfile.waterGoal}L` : '2.5L'}</span>
             </div>
-            <Progress value={72} className="h-2" />
+            <Progress value={userProfile?.waterGoal ? Math.round((1.8 / userProfile.waterGoal) * 100) : 72} className="h-2" />
           </div>
         </CardContent>
       </Card>
@@ -252,17 +254,6 @@ export default function Home() {
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-4">
-        <Link to="/nutri-scan">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200 dark:border-orange-700">
-            <CardContent className="pt-6 text-center">
-              <div className="inline-flex p-3 bg-orange-500 rounded-full mb-3">
-                <Camera className="w-6 h-6 text-white" />
-              </div>
-              <p className="font-medium text-orange-700 dark:text-orange-300">Nutri Scan</p>
-            </CardContent>
-          </Card>
-        </Link>
-
         <Link to="/weight-progress">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-700">
             <CardContent className="pt-6 text-center">
@@ -292,6 +283,17 @@ export default function Home() {
                 <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <p className="font-medium">Progresso</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link to="/diet">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700">
+            <CardContent className="pt-6 text-center">
+              <div className="inline-flex p-3 bg-green-500 rounded-full mb-3">
+                <Apple className="w-6 h-6 text-white" />
+              </div>
+              <p className="font-medium text-green-700 dark:text-green-300">Dieta</p>
             </CardContent>
           </Card>
         </Link>

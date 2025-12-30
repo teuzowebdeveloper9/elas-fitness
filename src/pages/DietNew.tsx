@@ -140,7 +140,8 @@ export default function DietNew() {
         dailyCalories: bioData.dailyCalories,
         proteinGoal: bioData.protein,
         carbsGoal: bioData.carbs,
-        fatsGoal: bioData.fats
+        fatsGoal: bioData.fats,
+        waterGoal: bioData.waterGoal
       })
 
       toast({
