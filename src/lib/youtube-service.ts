@@ -161,7 +161,10 @@ function buildSearchQuery(exerciseName: string): string {
   // Escolher uma palavra-chave aleatória para variar resultados
   const keyword = keywords[Math.floor(Math.random() * keywords.length)]
 
-  return `${exerciseName} ${keyword} musculação`
+  const query = `${exerciseName} ${keyword} musculação`
+  console.log('🔎 Query de busca:', query)
+
+  return query
 }
 
 /**
@@ -186,6 +189,8 @@ function parseYouTubeResponse(data: any): YouTubeVideo[] {
  * Remove vídeos com termos não desejados e prioriza vídeos técnicos
  */
 function filterQualityVideos(videos: YouTubeVideo[]): YouTubeVideo[] {
+  console.log(`📊 Filtrando ${videos.length} vídeos...`)
+
   // Termos positivos que indicam conteúdo técnico/instrucional
   const positiveTerms = [
     'execução',
@@ -219,7 +224,7 @@ function filterQualityVideos(videos: YouTubeVideo[]): YouTubeVideo[] {
     'reagindo'
   ]
 
-  return videos
+  const filtered = videos
     .map(video => {
       const titleLower = video.title.toLowerCase()
       const channelLower = video.channelTitle.toLowerCase()
@@ -238,11 +243,17 @@ function filterQualityVideos(videos: YouTubeVideo[]): YouTubeVideo[] {
         if (titleLower.includes(term)) score -= 3
       })
 
+      console.log(`  ${score >= 0 ? '✅' : '❌'} [Score: ${score}] ${video.title}`)
+
       return { video, score }
     })
     .filter(item => item.score >= 0) // Remover vídeos com score negativo
     .sort((a, b) => b.score - a.score) // Ordenar por score
     .map(item => item.video)
+
+  console.log(`✨ ${filtered.length} vídeos aprovados após filtragem`)
+
+  return filtered
 }
 
 /**

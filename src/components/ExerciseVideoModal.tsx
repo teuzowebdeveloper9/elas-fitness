@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -27,14 +27,16 @@ export function ExerciseVideoModal({
   videos,
   loading
 }: ExerciseVideoModalProps) {
-  const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(
-    videos.length > 0 ? videos[0] : null
-  )
+  const [selectedVideo, setSelectedVideo] = useState<YouTubeVideo | null>(null)
 
-  // Atualizar vídeo selecionado quando a lista mudar
-  if (videos.length > 0 && !selectedVideo) {
-    setSelectedVideo(videos[0])
-  }
+  // Resetar vídeo selecionado quando trocar de exercício ou receber novos vídeos
+  useEffect(() => {
+    if (videos.length > 0) {
+      setSelectedVideo(videos[0])
+    } else {
+      setSelectedVideo(null)
+    }
+  }, [videos, exerciseName])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

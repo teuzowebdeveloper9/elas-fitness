@@ -90,14 +90,17 @@ export default function ActiveWorkout() {
 
   const handleWatchVideo = async (exerciseName: string) => {
     setSelectedExercise(exerciseName)
+    setExerciseVideos([]) // Limpar vídeos anteriores
     setLoadingVideos(true)
     setVideoModalOpen(true)
 
     try {
+      console.log('🔍 Buscando vídeos para:', exerciseName)
       const videos = await searchExerciseVideo(exerciseName, 5)
+      console.log('✅ Vídeos encontrados:', videos.length, videos.map(v => v.title))
       setExerciseVideos(videos)
     } catch (error) {
-      console.error('Erro ao buscar vídeos:', error)
+      console.error('❌ Erro ao buscar vídeos:', error)
       toast({
         title: 'Erro ao buscar vídeos',
         description: 'Não foi possível carregar os vídeos neste momento.',
