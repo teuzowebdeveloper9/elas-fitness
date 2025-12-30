@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -10,8 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-  Play, Pause, CheckCircle, Clock, Flame, Dumbbell,
-  ArrowLeft, Target, Timer, Award, Coffee, Sun, Moon, Zap
+  CheckCircle, Clock, Flame, Dumbbell,
+  ArrowLeft, Target, Timer, Award, Coffee, Moon, Zap
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase'
@@ -32,11 +32,6 @@ interface GeneratedWorkout {
   adaptations: string[]
 }
 
-interface ExerciseWeight {
-  exerciseName: string
-  weight: number
-}
-
 export default function ActiveWorkout() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -51,7 +46,7 @@ export default function ActiveWorkout() {
 
   useEffect(() => {
     if (!workout) {
-      navigate('/workouts')
+      navigate('/workouts', { replace: true })
       return
     }
 
@@ -63,7 +58,14 @@ export default function ActiveWorkout() {
   }, [workout, navigate, startTime])
 
   if (!workout) {
-    return null
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <p className="mt-4 text-muted-foreground">Redirecionando...</p>
+        </div>
+      </div>
+    )
   }
 
   const toggleExerciseComplete = (exerciseName: string) => {
@@ -291,7 +293,7 @@ export default function ActiveWorkout() {
         <Card>
           <CardContent className="p-4">
             <Tabs value={currentTab} onValueChange={setCurrentTab}>
-              <TabsList className="grid grid-cols-4 w-full">
+              <TabsList className={`grid w-full ${workout.workout_plan.mobility_exercises && workout.workout_plan.mobility_exercises.length > 0 ? 'grid-cols-4' : 'grid-cols-3'}`}>
                 <TabsTrigger value="warmup" className="text-xs">
                   <Coffee className="w-3 h-3 mr-1" />
                   Aquecimento

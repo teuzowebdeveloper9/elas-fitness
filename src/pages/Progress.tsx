@@ -109,13 +109,19 @@ export default function Progress() {
             <div className="flex justify-between text-sm">
               <span className="font-medium">Progresso até a meta</span>
               <span className="font-bold text-purple-600 dark:text-purple-400">
-                {((weightLost / (startWeight - goalWeight)) * 100).toFixed(1)}%
+                {startWeight !== goalWeight && startWeight > goalWeight
+                  ? ((weightLost / (startWeight - goalWeight)) * 100).toFixed(1)
+                  : '0.0'}%
               </span>
             </div>
             <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
-                style={{ width: `${(weightLost / (startWeight - goalWeight)) * 100}%` }}
+                style={{
+                  width: `${startWeight !== goalWeight && startWeight > goalWeight
+                    ? (weightLost / (startWeight - goalWeight)) * 100
+                    : 0}%`
+                }}
               />
             </div>
           </div>
