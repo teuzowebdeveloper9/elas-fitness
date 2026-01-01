@@ -19,6 +19,7 @@ import CycleTracking from '@/pages/CycleTracking'
 import MenopauseTracking from '@/pages/MenopauseTracking'
 import Community from '@/pages/Community'
 import Routine from '@/pages/Routine'
+import DietPlan from '@/pages/DietPlan'
 
 function AppRoutes() {
   const { user, loading: authLoading } = useAuth()
@@ -73,6 +74,7 @@ function AppRoutes() {
         <Route path="menopause-tracking" element={<MenopauseTracking />} />
         <Route path="community" element={<Community />} />
         <Route path="routine" element={<Routine />} />
+        <Route path="diet-plan" element={<DietPlan />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

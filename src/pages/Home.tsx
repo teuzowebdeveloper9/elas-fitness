@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Dumbbell, Apple } from 'lucide-react'
+import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Dumbbell, Apple, Utensils } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUser } from '@/contexts/UserContext'
 import { useEffect } from 'react'
@@ -294,6 +294,28 @@ export default function Home() {
                 <Apple className="w-6 h-6 text-white" />
               </div>
               <p className="font-medium text-green-700 dark:text-green-300">Dieta</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link to="/diet-plan">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-700">
+            <CardContent className="pt-6 text-center">
+              <div className="inline-flex p-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full mb-3">
+                <Utensils className="w-6 h-6 text-white" />
+              </div>
+              <p className="font-medium text-orange-700 dark:text-orange-300">Plano Alimentar</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link to="/routine">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="pt-6 text-center">
+              <div className="inline-flex p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-3">
+                <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <p className="font-medium">Rotina</p>
             </CardContent>
           </Card>
         </Link>
