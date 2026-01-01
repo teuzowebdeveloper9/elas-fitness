@@ -14,14 +14,14 @@ export default function Layout() {
   ]
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-[rgb(252,250,247)]">
       {/* Main Content - topo limpo, sem header global */}
       <main className="container mx-auto px-4 py-6 pb-24">
         <Outlet />
       </main>
 
       {/* Bottom Navigation - Nova identidade visual */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/98 dark:bg-gray-800/98 backdrop-blur-lg border-t border-[var(--border)] shadow-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/98 dark:bg-gray-800/98 backdrop-blur-lg border-t border-[rgb(231,228,225)] shadow-2xl">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-around py-3">
             {navItems.map((item) => {
@@ -35,8 +35,8 @@ export default function Layout() {
                   className={cn(
                     "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200",
                     isActive
-                      ? "text-[var(--tiffany-dark)] bg-[var(--tiffany-light)] scale-105"
-                      : "text-[var(--warm-gray)] hover:text-[var(--tiffany)] hover:bg-[var(--warm-gray-light)]"
+                      ? "text-[rgb(94,185,176)] bg-[rgb(176,235,229)] scale-105"
+                      : "text-[rgb(115,107,102)] hover:text-[rgb(129,216,208)] hover:bg-[rgb(231,228,225)]"
                   )}
                 >
                   <Icon className={cn("w-5 h-5", isActive && "scale-110")} />
