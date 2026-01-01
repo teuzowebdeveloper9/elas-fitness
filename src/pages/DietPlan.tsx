@@ -500,7 +500,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
                 } else if (line.trim() === '---') {
                   return <hr key={idx} className="my-6 border-gray-300 dark:border-gray-700" />
                 } else if (line.trim() === '') {
-                  return <br key={idx} />
+                  return <div key={idx} className="h-4" />
                 } else {
                   return <p key={idx} className="my-2">{line}</p>
                 }
