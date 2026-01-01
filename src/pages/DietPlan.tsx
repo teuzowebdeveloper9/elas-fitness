@@ -5,10 +5,17 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useUser } from '@/contexts/UserContext'
+import { useUser, DietType } from '@/contexts/UserContext'
 import { Utensils, Sparkles, Calendar, Target, AlertCircle, Check, TrendingDown, Scale, Clock, ChefHat } from 'lucide-react'
 
-const dietDescriptions = {
+interface DietDescription {
+  name: string
+  icon: string
+  description: string
+  benefits: string[]
+}
+
+const dietDescriptions: Record<DietType, DietDescription> = {
   'personalized': {
     name: 'Dieta Personalizada',
     icon: '✨',

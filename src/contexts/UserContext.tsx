@@ -156,12 +156,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
         // Carregar dados de dieta do localStorage se não existirem no banco
         if (!profile.goalDeadlineWeeks || !profile.selectedDietType) {
-          const dietPlanData = localStorage.getItem('diet_plan_data')
-          if (dietPlanData) {
-            const parsed = JSON.parse(dietPlanData)
-            profile.goalDeadlineWeeks = profile.goalDeadlineWeeks || parsed.goalDeadlineWeeks
-            profile.selectedDietType = profile.selectedDietType || parsed.selectedDietType
-            profile.customDietPlan = profile.customDietPlan || parsed.customDietPlan
+          try {
+            const dietPlanData = localStorage.getItem('diet_plan_data')
+            if (dietPlanData) {
+              const parsed = JSON.parse(dietPlanData)
+              profile.goalDeadlineWeeks = profile.goalDeadlineWeeks || parsed.goalDeadlineWeeks
+              profile.selectedDietType = profile.selectedDietType || parsed.selectedDietType
+              profile.customDietPlan = profile.customDietPlan || parsed.customDietPlan
+            }
+          } catch (e) {
+            console.warn('Erro ao carregar diet_plan_data do localStorage:', e)
           }
         }
 
@@ -240,11 +244,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
           if (retryError) throw retryError
 
           // Salvar campos novos no localStorage como fallback
-          localStorage.setItem('diet_plan_data', JSON.stringify({
-            goalDeadlineWeeks: profile.goalDeadlineWeeks,
-            selectedDietType: profile.selectedDietType,
-            customDietPlan: profile.customDietPlan,
-          }))
+          try {
+            localStorage.setItem('diet_plan_data', JSON.stringify({
+              goalDeadlineWeeks: profile.goalDeadlineWeeks,
+              selectedDietType: profile.selectedDietType,
+              customDietPlan: profile.customDietPlan,
+            }))
+          } catch (e) {
+            console.warn('Erro ao salvar no localStorage:', e)
+          }
         } else {
           throw profileError
         }
