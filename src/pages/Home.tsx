@@ -2,20 +2,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Dumbbell, Apple, Utensils } from 'lucide-react'
+import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Dumbbell, Apple } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUser } from '@/contexts/UserContext'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { FoxMascot, useFoxStage } from '@/components/mascot/fox-mascot'
 
 export default function Home() {
   const { userProfile } = useUser()
   const navigate = useNavigate()
+  const [completedWorkouts] = useState(0) // TODO: Conectar com dados reais
+  const [daysConsistent] = useState(0) // TODO: Conectar com dados reais
+  const foxStage = useFoxStage(completedWorkouts, daysConsistent)
 
   const today = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: 'numeric',
     month: 'long'
   })
+
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Bom dia'
+    if (hour < 18) return 'Boa tarde'
+    return 'Boa noite'
+  }
 
   // Detecta se precisa redirecionar para o tracking apropriado
   useEffect(() => {
@@ -96,11 +107,38 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-        <h2 className="text-2xl font-bold mb-2">Olá, {userProfile?.name || 'Linda'}! 💪</h2>
-        <p className="text-pink-100 capitalize">{today}</p>
-        <p className="mt-4 text-sm">{getLifePhaseMessage()}</p>
+      {/* Welcome Section - Nova identidade visual com mascote */}
+      <div className="relative bg-gradient-to-br from-[rgb(176,235,229)] via-white to-[rgb(216,191,228)] rounded-3xl p-6 shadow-xl border border-[var(--warm-gray-light)] overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--tiffany)] opacity-10 rounded-full -mr-16 -mt-16" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-[var(--lilac)] opacity-10 rounded-full -ml-12 -mb-12" />
+
+        <div className="relative z-10">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <p className="text-sm text-[var(--warm-gray)] font-medium capitalize">{today}</p>
+              <h2 className="text-3xl font-heading text-[rgb(51,51,51)] mt-1">
+                {getGreeting()}, {userProfile?.name || 'Linda'}!
+              </h2>
+            </div>
+
+            {/* Mascote */}
+            <div className="flex-shrink-0">
+              <FoxMascot stage={foxStage} size="medium" />
+            </div>
+          </div>
+
+          {/* Mensagem motivacional da mascote */}
+          <div className="mt-4 bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-[var(--warm-gray-light)]">
+            <p className="text-sm text-[rgb(51,51,51)] font-heading-medium text-center">
+              {foxStage === 'starting' && 'Vamos juntas nessa jornada! 💚'}
+              {foxStage === 'progressing' && 'Olha só como você está evoluindo! ✨'}
+              {foxStage === 'active' && 'Que constância incrível! 🌟'}
+              {foxStage === 'strong' && 'Você está imparável! 🔥'}
+              {foxStage === 'champion' && 'Campeã absoluta! 👑'}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Tracking Card - Apenas se tiver tracking disponível */}
@@ -122,31 +160,31 @@ export default function Home() {
         </Link>
       )}
 
-      {/* Quick Stats */}
+      {/* Quick Stats - Nova paleta */}
       <div className="grid grid-cols-2 gap-4">
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-700">
+        <Card className="bg-gradient-to-br from-[rgb(255,240,235)] to-[rgb(255,230,225)] border-[var(--coral)] border-opacity-30 shadow-md hover:shadow-lg transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-orange-500 rounded-full">
+              <div className="p-3 bg-[var(--coral)] rounded-2xl shadow-md">
                 <Flame className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">1.245</p>
-                <p className="text-xs text-orange-600 dark:text-orange-400">Calorias queimadas</p>
+                <p className="text-2xl font-bold text-[rgb(51,51,51)]">1.245</p>
+                <p className="text-xs text-[var(--warm-gray)]">Calorias queimadas</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-700">
+        <Card className="bg-gradient-to-br from-[rgb(220,245,243)] to-[rgb(200,240,237)] border-[var(--tiffany)] border-opacity-30 shadow-md hover:shadow-lg transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-500 rounded-full">
+              <div className="p-3 bg-[var(--tiffany)] rounded-2xl shadow-md">
                 <Droplets className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">1.8L</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400">
+                <p className="text-2xl font-bold text-[rgb(51,51,51)]">1.8L</p>
+                <p className="text-xs text-[var(--warm-gray)]">
                   Meta: {userProfile?.waterGoal ? `${userProfile.waterGoal}L` : '2.5L'}
                 </p>
               </div>
@@ -155,74 +193,69 @@ export default function Home() {
         </Card>
       </div>
 
-      {/* Today's Goals */}
-      <Card>
+      {/* Seu Foco Hoje - Simplificado e direto */}
+      <Card className="border-2 border-[var(--tiffany)] shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Heart className="w-5 h-5 text-pink-500" />
-            Metas de Hoje
+          <CardTitle className="flex items-center gap-2 font-heading">
+            <Heart className="w-5 h-5 text-[var(--coral)]" />
+            Seu foco hoje
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <div className="flex justify-between mb-2">
-              <span className="text-sm font-medium">Treino Completo</span>
-              <span className="text-sm text-gray-500">75%</span>
+              <span className="text-sm font-medium">Treino</span>
+              <span className="text-sm text-[var(--warm-gray)]">0%</span>
             </div>
-            <Progress value={75} className="h-2" />
-          </div>
-          <div>
-            <div className="flex justify-between mb-2">
-              <span className="text-sm font-medium">Calorias Diárias</span>
-              <span className="text-sm text-gray-500">1.245 / 1.800</span>
-            </div>
-            <Progress value={69} className="h-2" />
+            <Progress value={0} className="h-3 bg-[var(--warm-gray-light)]" />
           </div>
           <div>
             <div className="flex justify-between mb-2">
               <span className="text-sm font-medium">Hidratação</span>
-              <span className="text-sm text-gray-500">1.8L / {userProfile?.waterGoal ? `${userProfile.waterGoal}L` : '2.5L'}</span>
+              <span className="text-sm text-[var(--warm-gray)]">1.8L / {userProfile?.waterGoal ? `${userProfile.waterGoal}L` : '2.5L'}</span>
             </div>
-            <Progress value={userProfile?.waterGoal ? Math.round((1.8 / userProfile.waterGoal) * 100) : 72} className="h-2" />
+            <Progress value={userProfile?.waterGoal ? Math.round((1.8 / userProfile.waterGoal) * 100) : 72} className="h-3 bg-[var(--warm-gray-light)]" />
           </div>
         </CardContent>
       </Card>
 
-      {/* Today's Workout */}
-      <Card className="border-2 border-purple-200 dark:border-purple-700">
+      {/* Today's Workout - Nova identidade */}
+      <Card className="border-2 border-[var(--lilac)] shadow-lg bg-gradient-to-br from-white to-[rgb(245,240,248)]">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-purple-500" />
+            <CardTitle className="flex items-center gap-2 font-heading">
+              <Calendar className="w-5 h-5 text-[var(--lilac)]" />
               Treino de Hoje
             </CardTitle>
-            <Badge className="bg-purple-500 hover:bg-purple-600">Pernas & Glúteos</Badge>
+            <Badge className="bg-[var(--lilac)] text-white hover:bg-[rgb(166,135,181)] font-heading-medium">Pernas & Glúteos</Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-[var(--warm-gray-light)] shadow-sm">
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-purple-500" />
+              <div className="p-2 bg-[var(--lilac-light)] rounded-xl">
+                <Clock className="w-5 h-5 text-[var(--lilac)]" />
+              </div>
               <div>
-                <p className="font-medium">Duração: 45 minutos</p>
-                <p className="text-sm text-gray-500">8 exercícios</p>
+                <p className="font-medium text-[rgb(51,51,51)]">45 minutos</p>
+                <p className="text-sm text-[var(--warm-gray)]">8 exercícios</p>
               </div>
             </div>
           </div>
           <Link to="/workouts">
-            <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700">
-              Iniciar Treino
+            <Button className="w-full bg-[var(--coral)] hover:bg-[rgb(255,139,128)] text-white font-heading-medium py-6 rounded-2xl shadow-md hover:shadow-lg transition-all">
+              Começar agora
             </Button>
           </Link>
         </CardContent>
       </Card>
 
-      {/* Weekly Progress */}
-      <Card>
+      {/* Weekly Progress - Nova identidade */}
+      <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-green-500" />
-            Progresso da Semana
+          <CardTitle className="flex items-center gap-2 font-heading">
+            <TrendingUp className="w-5 h-5 text-[var(--tiffany)]" />
+            Sua constância
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -234,17 +267,17 @@ export default function Home() {
               return (
                 <div key={day} className="flex flex-col items-center gap-2">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium ${
+                    className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xs font-bold transition-all ${
                       isCompleted
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-[var(--tiffany)] text-white shadow-md'
                         : isToday
-                        ? 'bg-purple-500 text-white ring-2 ring-purple-300'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                        ? 'bg-[var(--coral)] text-white ring-2 ring-[var(--coral)] ring-opacity-30 shadow-md'
+                        : 'bg-[var(--warm-gray-light)] text-[var(--warm-gray)]'
                     }`}
                   >
                     {isCompleted ? '✓' : day.charAt(0)}
                   </div>
-                  <span className="text-xs text-gray-500">{day}</span>
+                  <span className="text-xs text-[var(--warm-gray)] font-medium">{day}</span>
                 </div>
               )
             })}
@@ -252,70 +285,37 @@ export default function Home() {
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4">
-        <Link to="/weight-progress">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-700">
-            <CardContent className="pt-6 text-center">
-              <div className="inline-flex p-3 bg-purple-500 rounded-full mb-3">
+      {/* Quick Actions - Simplificado */}
+      <div className="grid grid-cols-3 gap-3">
+        <Link to="/workouts">
+          <Card className="hover:shadow-xl transition-all cursor-pointer bg-gradient-to-br from-white to-[rgb(240,248,247)] border-[var(--tiffany)] border-opacity-40">
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="inline-flex p-3 bg-[var(--tiffany)] rounded-2xl mb-2 shadow-md">
                 <Dumbbell className="w-6 h-6 text-white" />
               </div>
-              <p className="font-medium text-purple-700 dark:text-purple-300">Evolução</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/workouts">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <div className="inline-flex p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-3">
-                <Activity className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <p className="font-medium">Treinos</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/progress">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <div className="inline-flex p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-3">
-                <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <p className="font-medium">Progresso</p>
+              <p className="font-heading-medium text-sm text-[rgb(51,51,51)]">Treinos</p>
             </CardContent>
           </Card>
         </Link>
 
         <Link to="/diet">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700">
-            <CardContent className="pt-6 text-center">
-              <div className="inline-flex p-3 bg-green-500 rounded-full mb-3">
+          <Card className="hover:shadow-xl transition-all cursor-pointer bg-gradient-to-br from-white to-[rgb(245,243,240)] border-[var(--lilac)] border-opacity-40">
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="inline-flex p-3 bg-[var(--lilac)] rounded-2xl mb-2 shadow-md">
                 <Apple className="w-6 h-6 text-white" />
               </div>
-              <p className="font-medium text-green-700 dark:text-green-300">Dieta</p>
+              <p className="font-heading-medium text-sm text-[rgb(51,51,51)]">Dieta</p>
             </CardContent>
           </Card>
         </Link>
 
-        <Link to="/diet-plan">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-700">
-            <CardContent className="pt-6 text-center">
-              <div className="inline-flex p-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full mb-3">
-                <Utensils className="w-6 h-6 text-white" />
+        <Link to="/progress">
+          <Card className="hover:shadow-xl transition-all cursor-pointer bg-gradient-to-br from-white to-[rgb(255,245,240)] border-[var(--coral)] border-opacity-40">
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="inline-flex p-3 bg-[var(--coral)] rounded-2xl mb-2 shadow-md">
+                <TrendingUp className="w-6 h-6 text-white" />
               </div>
-              <p className="font-medium text-orange-700 dark:text-orange-300">Plano Alimentar</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/routine">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <div className="inline-flex p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-3">
-                <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <p className="font-medium">Rotina</p>
+              <p className="font-heading-medium text-sm text-[rgb(51,51,51)]">Progresso</p>
             </CardContent>
           </Card>
         </Link>

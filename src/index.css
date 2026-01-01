@@ -7,93 +7,125 @@
 
 @layer base {
   :root {
-    --background: rgb(255, 255, 255);
-    --foreground: rgb(9, 9, 12);
+    /* Nova paleta de cores - Identidade Visual */
+    /* Verde Tiffany - Cor principal (saúde, frescor, equilíbrio) */
+    --tiffany: rgb(129, 216, 208);
+    --tiffany-dark: rgb(94, 185, 176);
+    --tiffany-light: rgb(176, 235, 229);
+
+    /* Lilás suave - Cor secundária (autocuidado, feminilidade) */
+    --lilac: rgb(186, 155, 201);
+    --lilac-light: rgb(216, 191, 228);
+
+    /* Coral suave - Destaque (CTAs, progresso) */
+    --coral: rgb(255, 159, 148);
+
+    /* Amarelo suave - Destaque alternativo */
+    --yellow-soft: rgb(255, 214, 140);
+
+    /* Neutros (off-white e cinza quente) */
+    --off-white: rgb(252, 250, 247);
+    --warm-gray: rgb(115, 107, 102);
+    --warm-gray-light: rgb(231, 228, 225);
+
+    --background: var(--off-white);
+    --foreground: rgb(51, 51, 51);
 
     --card: rgb(255, 255, 255);
-    --card-foreground: rgb(9, 9, 12);
+    --card-foreground: rgb(51, 51, 51);
 
     --popover: rgb(255, 255, 255);
-    --popover-foreground: rgb(9, 9, 12);
+    --popover-foreground: rgb(51, 51, 51);
 
-    --primary: rgb(0, 123, 255);
-    --primary-foreground: rgb(250, 250, 250);
+    --primary: var(--tiffany);
+    --primary-foreground: rgb(255, 255, 255);
 
-    --secondary: rgb(245, 245, 245);
-    --secondary-foreground: rgb(23, 23, 28);
+    --secondary: var(--lilac-light);
+    --secondary-foreground: rgb(51, 51, 51);
 
-    --muted: rgb(245, 245, 245);
-    --muted-foreground: rgb(115, 115, 120);
+    --muted: var(--warm-gray-light);
+    --muted-foreground: var(--warm-gray);
 
-    --accent: rgb(0, 123, 255);
-    --accent-foreground: rgb(23, 23, 28);
+    --accent: var(--coral);
+    --accent-foreground: rgb(255, 255, 255);
 
     --destructive: rgb(239, 68, 68);
     --destructive-foreground: rgb(250, 250, 250);
 
-    --border: rgb(229, 229, 234);
-    --input: rgb(229, 229, 234);
-    --ring: rgb(163, 163, 163);
+    --border: var(--warm-gray-light);
+    --input: var(--warm-gray-light);
+    --ring: var(--tiffany);
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: rgb(250, 250, 250);
-    --sidebar-foreground: rgb(63, 63, 70);
-    --sidebar-primary: rgb(23, 23, 28);
-    --sidebar-primary-foreground: rgb(250, 250, 250);
-    --sidebar-accent: rgb(244, 244, 245);
-    --sidebar-accent-foreground: rgb(23, 23, 28);
-    --sidebar-border: rgb(229, 231, 235);
-    --sidebar-ring: rgb(59, 130, 246);
+    --sidebar-background: rgb(255, 255, 255);
+    --sidebar-foreground: rgb(51, 51, 51);
+    --sidebar-primary: var(--tiffany);
+    --sidebar-primary-foreground: rgb(255, 255, 255);
+    --sidebar-accent: var(--tiffany-light);
+    --sidebar-accent-foreground: rgb(51, 51, 51);
+    --sidebar-border: var(--warm-gray-light);
+    --sidebar-ring: var(--tiffany);
 
+    /* Fontes - Arredondada para títulos, limpa para texto */
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-heading: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-heading: 'Nunito', 'Quicksand', 'Comfortaa', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   }
 
   .dark {
-    --background: rgb(9, 9, 12);
+    --background: rgb(28, 28, 30);
     --foreground: rgb(250, 250, 250);
 
-    --card: rgb(20, 20, 23);
+    --card: rgb(38, 38, 40);
     --card-foreground: rgb(242, 242, 242);
 
-    --popover: rgb(20, 20, 23);
+    --popover: rgb(38, 38, 40);
     --popover-foreground: rgb(242, 242, 242);
 
-    --primary: rgb(0, 123, 255);
-    --primary-foreground: rgb(250, 250, 250);
+    --primary: var(--tiffany);
+    --primary-foreground: rgb(255, 255, 255);
 
-    --secondary: rgb(38, 38, 38);
+    --secondary: rgb(94, 85, 98);
     --secondary-foreground: rgb(250, 250, 250);
 
-    --muted: rgb(38, 38, 38);
+    --muted: rgb(58, 58, 60);
     --muted-foreground: rgb(178, 178, 178);
 
-    --accent: rgb(0, 123, 255);
-    --accent-foreground: rgb(250, 250, 250);
+    --accent: var(--coral);
+    --accent-foreground: rgb(255, 255, 255);
 
     --destructive: rgb(153, 27, 27);
     --destructive-foreground: rgb(250, 250, 250);
 
-    --border: rgb(51, 51, 51);
-    --input: rgb(51, 51, 51);
-    --ring: rgb(163, 163, 163);
+    --border: rgb(58, 58, 60);
+    --input: rgb(58, 58, 60);
+    --ring: var(--tiffany);
 
-    --sidebar-background: rgb(23, 23, 28);
+    --sidebar-background: rgb(38, 38, 40);
     --sidebar-foreground: rgb(244, 244, 245);
-    --sidebar-primary: rgb(59, 130, 246);
+    --sidebar-primary: var(--tiffany);
     --sidebar-primary-foreground: rgb(255, 255, 255);
-    --sidebar-accent: rgb(38, 38, 42);
+    --sidebar-accent: rgb(58, 58, 60);
     --sidebar-accent-foreground: rgb(244, 244, 245);
-    --sidebar-border: rgb(38, 38, 42);
-    --sidebar-ring: rgb(59, 130, 246);
+    --sidebar-border: rgb(58, 58, 60);
+    --sidebar-ring: var(--tiffany);
   }
 }
 @layer utilities {
-  
+
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[rgb(129,216,208)] to-[rgb(186,155,201)];
+  }
+
+  .font-heading {
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
+
+  .font-heading-medium {
+    font-family: var(--font-heading);
+    font-weight: 600;
   }
 }
 
