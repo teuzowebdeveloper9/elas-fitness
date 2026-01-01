@@ -154,6 +154,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
           profile.fatsGoal = foodPrefs.fats_goal_grams
         }
 
+        // Carregar dados de dieta do localStorage se não existirem no banco
+        if (!profile.goalDeadlineWeeks || !profile.selectedDietType) {
+          const dietPlanData = localStorage.getItem('diet_plan_data')
+          if (dietPlanData) {
+            const parsed = JSON.parse(dietPlanData)
+            profile.goalDeadlineWeeks = profile.goalDeadlineWeeks || parsed.goalDeadlineWeeks
+            profile.selectedDietType = profile.selectedDietType || parsed.selectedDietType
+            profile.customDietPlan = profile.customDietPlan || parsed.customDietPlan
+          }
+        }
+
         setUserProfileState(profile)
       }
     } catch (error) {
@@ -171,41 +182,73 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (!authUser?.email) throw new Error('Email não encontrado')
 
+      // Preparar dados base (campos que já existem)
+      const baseData: any = {
+        id: user.id,
+        email: authUser.email,
+        name: profile.name,
+        age: profile.age,
+        weight: profile.weight,
+        height: profile.height,
+        goal_weight: profile.goalWeight,
+        life_phase: profile.lifePhase,
+        has_menstrual_cycle: profile.hasMenstrualCycle,
+        cycle_regular: profile.cycleRegular,
+        fitness_level: profile.fitnessLevel,
+        goals: profile.goals,
+        challenges: profile.challenges,
+        exercise_frequency: profile.exerciseFrequency,
+        dietary_restrictions: profile.dietaryRestrictions,
+        health_conditions: profile.healthConditions,
+        ideal_weight: profile.idealWeight,
+        bmi: profile.bmi,
+        body_fat_percentage: profile.bodyFatPercentage,
+        daily_calories: profile.dailyCalories,
+        neck: profile.neck,
+        waist: profile.waist,
+        hips: profile.hips,
+        activity_level: profile.activityLevel,
+        onboarding_completed: profile.onboardingCompleted,
+      }
+
+      // Adicionar campos novos se existirem (para compatibilidade)
+      if (profile.goalDeadlineWeeks !== undefined) {
+        baseData.goal_deadline_weeks = profile.goalDeadlineWeeks
+      }
+      if (profile.selectedDietType !== undefined) {
+        baseData.selected_diet_type = profile.selectedDietType
+      }
+      if (profile.customDietPlan !== undefined) {
+        baseData.custom_diet_plan = profile.customDietPlan
+      }
+
       // Salvar no banco de dados
       const { error: profileError } = await supabase
         .from('user_profiles')
-        .upsert({
-          id: user.id,
-          email: authUser.email,
-          name: profile.name,
-          age: profile.age,
-          weight: profile.weight,
-          height: profile.height,
-          goal_weight: profile.goalWeight,
-          life_phase: profile.lifePhase,
-          has_menstrual_cycle: profile.hasMenstrualCycle,
-          cycle_regular: profile.cycleRegular,
-          fitness_level: profile.fitnessLevel,
-          goals: profile.goals,
-          challenges: profile.challenges,
-          exercise_frequency: profile.exerciseFrequency,
-          dietary_restrictions: profile.dietaryRestrictions,
-          health_conditions: profile.healthConditions,
-          ideal_weight: profile.idealWeight,
-          bmi: profile.bmi,
-          body_fat_percentage: profile.bodyFatPercentage,
-          daily_calories: profile.dailyCalories,
-          neck: profile.neck,
-          waist: profile.waist,
-          hips: profile.hips,
-          activity_level: profile.activityLevel,
-          goal_deadline_weeks: profile.goalDeadlineWeeks,
-          selected_diet_type: profile.selectedDietType,
-          custom_diet_plan: profile.customDietPlan,
-          onboarding_completed: profile.onboardingCompleted,
-        })
+        .upsert(baseData)
 
-      if (profileError) throw profileError
+      if (profileError) {
+        // Se o erro for por coluna não existir, salvar sem os campos novos
+        if (profileError.message.includes('column') && profileError.message.includes('does not exist')) {
+          console.warn('Algumas colunas não existem no banco. Execute a migração SQL.')
+          const { goal_deadline_weeks, selected_diet_type, custom_diet_plan, ...dataWithoutNewFields } = baseData
+
+          const { error: retryError } = await supabase
+            .from('user_profiles')
+            .upsert(dataWithoutNewFields)
+
+          if (retryError) throw retryError
+
+          // Salvar campos novos no localStorage como fallback
+          localStorage.setItem('diet_plan_data', JSON.stringify({
+            goalDeadlineWeeks: profile.goalDeadlineWeeks,
+            selectedDietType: profile.selectedDietType,
+            customDietPlan: profile.customDietPlan,
+          }))
+        } else {
+          throw profileError
+        }
+      }
 
       // Salvar preferências alimentares separadamente
       if (profile.favoriteFoods || profile.dislikedFoods || profile.mealsPerDay) {
