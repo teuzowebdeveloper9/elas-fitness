@@ -131,8 +131,8 @@ export default function Routine() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">Minha Rotina</h1>
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+        <h1 className="text-3xl font-bold mb-2">Minha Rotina Diária</h1>
         <p className="text-blue-100">
           Organize sua rotina e não perca nenhum compromisso com sua saúde
         </p>
