@@ -5,6 +5,7 @@ import { useAuth } from './AuthContext'
 export type LifePhase = 'menstrual' | 'pre-menopause' | 'menopause' | 'post-menopause'
 export type FitnessLevel = 'beginner' | 'intermediate' | 'advanced'
 export type Goal = 'lose-weight' | 'gain-muscle' | 'tone' | 'health' | 'flexibility' | 'energy' | 'reduce-stress' | 'posture' | 'maintain'
+export type DietType = 'mediterranean' | 'low-carb' | 'dash' | 'plant-based' | 'hypocaloric' | 'personalized'
 
 export interface UserProfile {
   name: string
@@ -39,6 +40,11 @@ export interface UserProfile {
   cookingSkill?: 'beginner' | 'intermediate' | 'advanced'
   timeForCooking?: number
   eatsOutFrequency?: 'never' | 'rarely' | 'sometimes' | 'often' | 'daily'
+
+  // Meta e dieta
+  goalDeadlineWeeks?: number // Prazo em semanas para alcançar a meta
+  selectedDietType?: DietType // Tipo de dieta escolhido
+  customDietPlan?: string // Plano de dieta personalizado gerado pela IA
 
   // Dados adicionais
   neck?: number // circunferência do pescoço
@@ -123,6 +129,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
           waist: data.waist,
           hips: data.hips,
           activityLevel: data.activity_level,
+          goalDeadlineWeeks: data.goal_deadline_weeks,
+          selectedDietType: data.selected_diet_type,
+          customDietPlan: data.custom_diet_plan,
           onboardingCompleted: data.onboarding_completed || false,
         }
 
@@ -190,6 +199,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
           waist: profile.waist,
           hips: profile.hips,
           activity_level: profile.activityLevel,
+          goal_deadline_weeks: profile.goalDeadlineWeeks,
+          selected_diet_type: profile.selectedDietType,
+          custom_diet_plan: profile.customDietPlan,
           onboarding_completed: profile.onboardingCompleted,
         })
 
