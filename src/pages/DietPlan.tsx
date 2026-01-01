@@ -485,7 +485,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
             </div>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm dark:prose-invert max-w-none">
+            <div className="prose prose-sm dark:prose-invert max-w-none space-y-2">
               {generatedPlan.split('\n').map((line, idx) => {
                 if (line.startsWith('# ')) {
                   return <h1 key={idx} className="text-2xl font-bold mt-6 mb-4">{line.substring(2)}</h1>
@@ -494,13 +494,13 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
                 } else if (line.startsWith('### ')) {
                   return <h3 key={idx} className="text-lg font-semibold mt-4 mb-2">{line.substring(4)}</h3>
                 } else if (line.startsWith('- ')) {
-                  return <li key={idx} className="ml-4">{line.substring(2)}</li>
+                  return <p key={idx} className="ml-4 my-1 flex items-start gap-2"><span className="text-purple-500 font-bold">•</span><span>{line.substring(2)}</span></p>
                 } else if (line.startsWith('**') && line.endsWith('**')) {
                   return <p key={idx} className="font-bold my-2">{line.replace(/\*\*/g, '')}</p>
                 } else if (line.trim() === '---') {
                   return <hr key={idx} className="my-6 border-gray-300 dark:border-gray-700" />
                 } else if (line.trim() === '') {
-                  return <div key={idx} className="h-4" />
+                  return <div key={idx} className="h-2" />
                 } else {
                   return <p key={idx} className="my-2">{line}</p>
                 }
