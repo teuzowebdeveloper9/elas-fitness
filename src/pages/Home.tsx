@@ -64,23 +64,6 @@ export default function Home() {
     return () => clearTimeout(timer)
   }, [userProfile, navigate])
 
-  const getLifePhaseMessage = () => {
-    if (!userProfile) return ''
-
-    switch (userProfile.lifePhase) {
-      case 'menstrual':
-        return 'Treinos adaptados ao seu ciclo menstrual'
-      case 'pre-menopause':
-        return 'Treinos focados em equilíbrio hormonal'
-      case 'menopause':
-        return 'Treinos para fortalecer ossos e músculos'
-      case 'post-menopause':
-        return 'Treinos para manter vitalidade e saúde'
-      default:
-        return ''
-    }
-  }
-
   const getTrackingLink = () => {
     if (!userProfile) return null
 
@@ -144,15 +127,15 @@ export default function Home() {
       {/* Tracking Card - Apenas se tiver tracking disponível */}
       {trackingLink && (
         <Link to={trackingLink.to}>
-          <Card className="border-2 border-pink-200 dark:border-pink-700 hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="border-2 border-[var(--lilac)] hover:shadow-lg transition-shadow cursor-pointer">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-pink-100 dark:bg-pink-900/30 rounded-full">
-                  <Activity className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+                <div className="p-3 bg-[var(--lilac-light)] rounded-2xl">
+                  <Activity className="w-6 h-6 text-[var(--lilac)]" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg">{trackingLink.label}</h3>
-                  <p className="text-sm text-muted-foreground">{trackingLink.description}</p>
+                  <h3 className="font-semibold text-lg text-[rgb(51,51,51)]">{trackingLink.label}</h3>
+                  <p className="text-sm text-[var(--warm-gray)]">{trackingLink.description}</p>
                 </div>
               </div>
             </CardContent>

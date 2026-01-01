@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
 import {
   Apple, Flame, Camera, Sparkles, Coffee, Sunrise,
   Sun, Moon, ShoppingCart, ChevronRight
 } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { FoxMascot } from '@/components/mascot/fox-mascot'
 import { generatePersonalizedDiet, calculateBioimpedance, DietGenerationData, NutritionData } from '@/lib/openai-real'
@@ -59,7 +58,6 @@ const DAY_NAMES: Record<string, string> = {
 export default function DietNewRedesign() {
   const { userProfile, updateUserProfile } = useUser()
   const { toast } = useToast()
-  const navigate = useNavigate()
 
   const [isCalculating, setIsCalculating] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -361,12 +359,6 @@ export default function DietNewRedesign() {
   if (!generatedDiet) return null
 
   const currentDayPlan = generatedDiet.meal_plan[selectedDay]
-  const mealIcons = {
-    breakfast: Sunrise,
-    lunch: Sun,
-    dinner: Moon,
-    snacks: Coffee
-  }
 
   return (
     <div className="space-y-6">
