@@ -104,8 +104,8 @@ export default function DietPlan() {
     )
   }
 
-  const dietInfo = userProfile.selectedDietType
-    ? dietDescriptions[userProfile.selectedDietType]
+  const dietInfo = userProfile.selectedDietType && userProfile.selectedDietType in dietDescriptions
+    ? dietDescriptions[userProfile.selectedDietType as DietType]
     : null
 
   const weightDiff = Math.abs(userProfile.weight - userProfile.goalWeight)
