@@ -193,7 +193,7 @@ export default function DietNewRedesign() {
         },
         nutritionData: nutritionData,
         foodPreferences: {
-          dietaryRestrictions: userProfile.dietaryRestrictions,
+          dietaryRestrictions: userProfile.dietaryRestrictions || [],
           favoriteFoods: userProfile.favoriteFoods,
           dislikedFoods: userProfile.dislikedFoods,
           mealsPerDay: userProfile.mealsPerDay || 3,
