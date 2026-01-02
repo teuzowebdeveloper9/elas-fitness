@@ -205,7 +205,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (!authUser?.email) throw new Error('Email não encontrado')
 
-      // Preparar dados base (campos que já existem)
+      // Preparar dados MÍNIMOS - apenas campos que SEMPRE existem
       const baseData: any = {
         id: user.id,
         email: authUser.email,
@@ -217,8 +217,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
         life_phase: profile.lifePhase,
         has_menstrual_cycle: profile.hasMenstrualCycle,
         cycle_regular: profile.cycleRegular,
-        uses_daily_feedback: profile.usesDailyFeedback || false,
-        irregular_cycle_reason: profile.irregularCycleReason || null,
         fitness_level: profile.fitnessLevel,
         goals: profile.goals,
         challenges: profile.challenges,
@@ -236,45 +234,45 @@ export function UserProvider({ children }: { children: ReactNode }) {
         onboarding_completed: profile.onboardingCompleted,
       }
 
-      // Adicionar campos novos se existirem (para compatibilidade)
-      if (profile.goalDeadlineWeeks !== undefined) {
-        baseData.goal_deadline_weeks = profile.goalDeadlineWeeks
-      }
-      if (profile.selectedDietType !== undefined) {
-        baseData.selected_diet_type = profile.selectedDietType
-      }
-      if (profile.customDietPlan !== undefined) {
-        baseData.custom_diet_plan = profile.customDietPlan
+      // Tentar adicionar campos novos (podem não existir no banco)
+      const optionalFields = {
+        uses_daily_feedback: profile.usesDailyFeedback || false,
+        irregular_cycle_reason: profile.irregularCycleReason || null,
+        goal_deadline_weeks: profile.goalDeadlineWeeks,
+        selected_diet_type: profile.selectedDietType,
+        custom_diet_plan: profile.customDietPlan,
       }
 
-      // Salvar no banco de dados
-      const { error: profileError } = await supabase
+      // Primeira tentativa: com TODOS os campos
+      let { error: profileError } = await supabase
         .from('user_profiles')
-        .upsert(baseData)
+        .upsert({ ...baseData, ...optionalFields })
 
       if (profileError) {
-        // Se o erro for por coluna não existir, salvar sem os campos novos
-        if (profileError.message.includes('column') && profileError.message.includes('does not exist')) {
-          console.warn('⚠️ Algumas colunas não existem no banco. Execute a migração SQL.')
-          console.warn('Arquivo: fix-onboarding-complete.sql')
+        console.warn('⚠️ Erro ao salvar com todos os campos:', profileError.message)
 
-          // Remover TODOS os campos novos que podem não existir
-          const {
-            goal_deadline_weeks,
-            selected_diet_type,
-            custom_diet_plan,
-            uses_daily_feedback,
-            irregular_cycle_reason,
-            ...dataWithoutNewFields
-          } = baseData
+        // Se o erro for por coluna não existir, tentar salvar SEM os campos opcionais
+        if (
+          profileError.message.includes('column') ||
+          profileError.message.includes('does not exist') ||
+          profileError.message.includes('violates')
+        ) {
+          console.warn('🔄 Tentando salvar SEM os campos opcionais...')
 
+          // Segunda tentativa: APENAS com campos base (que sempre existem)
           const { error: retryError } = await supabase
             .from('user_profiles')
-            .upsert(dataWithoutNewFields)
+            .upsert(baseData)
 
-          if (retryError) throw retryError
+          if (retryError) {
+            console.error('❌ Erro mesmo sem campos opcionais:', retryError)
+            throw retryError
+          }
 
-          // Salvar campos novos no localStorage como fallback
+          // Salvou com sucesso sem os campos opcionais!
+          console.info('✅ Perfil salvo (sem campos opcionais)')
+
+          // Salvar campos opcionais no localStorage como fallback
           try {
             localStorage.setItem('missing_profile_fields', JSON.stringify({
               goalDeadlineWeeks: profile.goalDeadlineWeeks,
@@ -283,13 +281,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
               usesDailyFeedback: profile.usesDailyFeedback,
               irregularCycleReason: profile.irregularCycleReason,
             }))
-            console.info('✅ Dados salvos temporariamente. Execute a migração SQL para salvar permanentemente.')
+            console.info('💾 Campos opcionais salvos no navegador temporariamente')
+            console.warn('📝 Execute o arquivo: EXECUTE-ESTE-SQL-AGORA.sql para salvar permanentemente')
           } catch (e) {
             console.warn('Erro ao salvar no localStorage:', e)
           }
         } else {
+          // Erro diferente - propagar
           throw profileError
         }
+      } else {
+        console.info('✅ Perfil salvo com sucesso (com todos os campos)')
       }
 
       // Salvar preferências alimentares separadamente

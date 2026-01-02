@@ -108,28 +108,35 @@ export default function Onboarding() {
       console.error('Mensagem:', error?.message)
       console.error('Código:', error?.code)
       console.error('Detalhes:', error?.details)
+      console.error('Stack:', error?.stack)
 
       let errorMessage = error?.message || 'Erro desconhecido'
 
-      // Mensagem mais amigável
-      if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
-        errorMessage = `⚠️ Falta executar a migração SQL!
+      // Mensagem amigável e detalhada
+      const fullError = `
+🚨 ERRO AO FINALIZAR CADASTRO
 
-IMPORTANTE: Clique no botão "Executar" do arquivo:
+Mensagem: ${errorMessage}
+
+📋 COMO RESOLVER:
+1. Abra o Console do navegador (F12)
+2. Veja os logs detalhados
+3. Copie TODA a mensagem de erro
+4. Envie para mim para eu corrigir
+
+💡 OU execute o arquivo SQL:
+Clique em "Executar" no arquivo:
 EXECUTE-ESTE-SQL-AGORA.sql
+      `.trim()
 
-Isso vai adicionar as colunas que faltam no banco de dados.
+      alert(fullError)
 
-Erro técnico: ${errorMessage}`
-      } else if (errorMessage.includes('constraint') || errorMessage.includes('violates')) {
-        errorMessage = `⚠️ Erro de validação no banco de dados.
-
-Execute o arquivo SQL: EXECUTE-ESTE-SQL-AGORA.sql
-
-Erro técnico: ${errorMessage}`
-      }
-
-      alert(errorMessage)
+      // Também mostrar no console
+      console.group('📋 INSTRUÇÕES DE DEBUG')
+      console.log('1. Copie o erro completo acima')
+      console.log('2. Envie para a Lasy')
+      console.log('3. OU execute: EXECUTE-ESTE-SQL-AGORA.sql')
+      console.groupEnd()
     } finally {
       setIsSaving(false)
     }
