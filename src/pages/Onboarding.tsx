@@ -65,6 +65,10 @@ export default function Onboarding() {
   const completeOnboarding = async () => {
     try {
       setIsSaving(true)
+
+      // Determinar se deve usar feedback diário (DIU ou ciclo irregular)
+      const usesDailyFeedback = formData.lifePhase === 'iud' || formData.lifePhase === 'irregular-cycle'
+
       const profile: UserProfile = {
         name: formData.name,
         age: parseInt(formData.age),
@@ -78,6 +82,7 @@ export default function Onboarding() {
         lifePhase: formData.lifePhase,
         hasMenstrualCycle: formData.hasMenstrualCycle,
         cycleRegular: formData.cycleRegular,
+        usesDailyFeedback: usesDailyFeedback,
         fitnessLevel: formData.fitnessLevel,
         goals: formData.goals,
         challenges: formData.challenges,
@@ -264,6 +269,28 @@ export default function Onboarding() {
                         </Label>
                         <p className="text-sm text-gray-500 mt-1">
                           Após a menopausa, novo equilíbrio hormonal
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                      <RadioGroupItem value="iud" id="iud" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="iud" className="font-medium cursor-pointer">
+                          Uso DIU (hormonal ou cobre)
+                        </Label>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Adaptação personalizada com base em como você se sente a cada dia
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                      <RadioGroupItem value="irregular-cycle" id="irregular-cycle" className="mt-1" />
+                      <div className="flex-1">
+                        <Label htmlFor="irregular-cycle" className="font-medium cursor-pointer">
+                          Ciclo Irregular / Sem Menstruação
+                        </Label>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Personalização diária de acordo com seu bem-estar
                         </p>
                       </div>
                     </div>

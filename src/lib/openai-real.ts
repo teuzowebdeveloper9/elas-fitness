@@ -506,6 +506,7 @@ export interface WorkoutGenerationData {
     exerciseFrequency: number
     challenges: string[]
     healthConditions: string[]
+    usesDailyFeedback?: boolean // TRUE para DIU e ciclo irregular
   }
   workoutPreferences: {
     workoutType: string
@@ -513,6 +514,14 @@ export interface WorkoutGenerationData {
     availableTime: number
     muscleGroup?: string
     equipmentAvailable?: string[]
+  }
+  dailyFeedback?: {
+    // Feedback diário para personalização (usado quando usesDailyFeedback = true)
+    energyLevel?: 'low' | 'medium' | 'high' // Nível de energia hoje
+    mood?: 'sad' | 'neutral' | 'happy' // Humor
+    physicalFeeling?: 'pain' | 'tired' | 'good' | 'great' // Como está se sentindo fisicamente
+    sleepQuality?: 'poor' | 'ok' | 'good' | 'excellent' // Qualidade do sono
+    stressLevel?: 'low' | 'medium' | 'high' // Nível de estresse
   }
 }
 
@@ -526,6 +535,37 @@ export async function generatePersonalizedWorkout(data: WorkoutGenerationData, _
       ? `\n- Foco muscular: ${data.workoutPreferences.muscleGroup}`
       : ''
 
+    // Preparar texto sobre personalização baseada em ciclo ou feedback diário
+    let personalizationText = ''
+    if (data.userProfile.usesDailyFeedback && data.dailyFeedback) {
+      // Usar feedback diário para personalizar (DIU ou ciclo irregular)
+      personalizationText = `
+
+🎯 PERSONALIZAÇÃO BASEADA EM FEEDBACK DIÁRIO (NÃO usar ciclo hormonal):
+- Energia hoje: ${data.dailyFeedback.energyLevel || 'não informada'}
+- Humor: ${data.dailyFeedback.mood || 'não informado'}
+- Sentindo-se: ${data.dailyFeedback.physicalFeeling || 'não informado'}
+- Qualidade do sono: ${data.dailyFeedback.sleepQuality || 'não informada'}
+- Nível de estresse: ${data.dailyFeedback.stressLevel || 'não informado'}
+
+⚠️ IMPORTANTE: Esta usuária usa DIU ou tem ciclo irregular. NÃO faça adaptações baseadas em fases hormonais.
+ADAPTE o treino EXCLUSIVAMENTE com base no feedback diário acima sobre como ela está se sentindo HOJE.
+
+REGRAS DE ADAPTAÇÃO:
+- Energia baixa → Treino mais leve, menos séries, mais descanso
+- Energia alta → Pode aumentar intensidade
+- Dor/cansaço físico → Foco em mobilidade e alongamento, evitar sobrecarga
+- Estresse alto → Priorizar exercícios relaxantes, yoga, alongamento
+- Sono ruim → Treino moderado, não forçar`
+    } else {
+      // Usar ciclo hormonal tradicional
+      personalizationText = `
+
+📅 PERSONALIZAÇÃO BASEADA EM CICLO HORMONAL:
+- Fase da vida: ${data.userProfile.lifePhase}
+- Adapte considerando as fases hormonais naturais da mulher`
+    }
+
     const prompt = `Você é uma personal trainer especializada em treinos femininos. Crie um treino completo personalizado.
 
 PERFIL:
@@ -538,6 +578,7 @@ PERFIL:
 TREINO:
 - Tipo: ${data.workoutPreferences.workoutType}
 - Tempo: ${data.workoutPreferences.availableTime} minutos${muscleGroupText}
+${personalizationText}
 
 ${muscleGroupText ? 'IMPORTANTE: Priorize exercícios para o grupo muscular escolhido, mas mantenha o treino balanceado.' : ''}
 
