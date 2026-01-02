@@ -104,9 +104,32 @@ export default function Onboarding() {
       await setUserProfile(profile)
       navigate('/')
     } catch (error: any) {
-      console.error('Erro ao salvar perfil:', error)
-      const errorMessage = error?.message || 'Erro desconhecido'
-      alert(`Erro ao salvar: ${errorMessage}`)
+      console.error('❌ ERRO AO SALVAR PERFIL:', error)
+      console.error('Mensagem:', error?.message)
+      console.error('Código:', error?.code)
+      console.error('Detalhes:', error?.details)
+
+      let errorMessage = error?.message || 'Erro desconhecido'
+
+      // Mensagem mais amigável
+      if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
+        errorMessage = `⚠️ Falta executar a migração SQL!
+
+IMPORTANTE: Clique no botão "Executar" do arquivo:
+EXECUTE-ESTE-SQL-AGORA.sql
+
+Isso vai adicionar as colunas que faltam no banco de dados.
+
+Erro técnico: ${errorMessage}`
+      } else if (errorMessage.includes('constraint') || errorMessage.includes('violates')) {
+        errorMessage = `⚠️ Erro de validação no banco de dados.
+
+Execute o arquivo SQL: EXECUTE-ESTE-SQL-AGORA.sql
+
+Erro técnico: ${errorMessage}`
+      }
+
+      alert(errorMessage)
     } finally {
       setIsSaving(false)
     }
