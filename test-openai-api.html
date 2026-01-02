@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste OpenAI API</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 8px 4px;
+    }
+    button:hover { background: #0052a3; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f0f0f0;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .success { background: #d4edda; border: 2px solid #28a745; }
+    .error { background: #f8d7da; border: 2px solid #dc3545; }
+    .info { background: #d1ecf1; border: 2px solid #0c5460; }
+    h1 { color: #333; }
+    h3 { color: #666; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Teste de Integração OpenAI API</h1>
+    <p>Este teste vai verificar se sua chave da OpenAI está funcionando corretamente.</p>
+
+    <h3>1️⃣ Verificar Variáveis de Ambiente</h3>
+    <button onclick="checkEnvVars()">Verificar Variáveis</button>
+    <div id="env-result" class="result" style="display:none"></div>
+
+    <h3>2️⃣ Testar Cálculo de Bioimpedância</h3>
+    <button onclick="testBioimpedance()">Testar Cálculo</button>
+    <div id="bio-result" class="result" style="display:none"></div>
+
+    <h3>3️⃣ Testar Geração de Dieta (Simples)</h3>
+    <button onclick="testSimpleDiet()">Testar Dieta Simples</button>
+    <div id="diet-result" class="result" style="display:none"></div>
+
+    <h3>4️⃣ Teste Direto da API OpenAI</h3>
+    <button onclick="testOpenAIDirect()">Teste Direto</button>
+    <div id="api-result" class="result" style="display:none"></div>
+  </div>
+
+  <script type="module">
+    import { calculateBioimpedance, generatePersonalizedDiet, hasOpenAI } from '/src/lib/openai-real.ts';
+
+    window.checkEnvVars = function() {
+      const result = document.getElementById('env-result');
+      result.style.display = 'block';
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const openaiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+      const status = {
+        'VITE_SUPABASE_URL': supabaseUrl ? '✅ Configurado' : '❌ Faltando',
+        'VITE_SUPABASE_ANON_KEY': supabaseKey ? '✅ Configurado' : '❌ Faltando',
+        'VITE_OPENAI_API_KEY': openaiKey ? '✅ Configurado' : '❌ Faltando',
+        'OpenAI Module Status': hasOpenAI ? '✅ Ativo' : '❌ Inativo'
+      };
+
+      result.className = 'result ' + (openaiKey ? 'success' : 'error');
+      result.textContent = JSON.stringify(status, null, 2);
+    };
+
+    window.testBioimpedance = async function() {
+      const result = document.getElementById('bio-result');
+      result.style.display = 'block';
+      result.className = 'result info';
+      result.textContent = '⏳ Calculando...';
+
+      try {
+        const bioData = await calculateBioimpedance({
+          weight: 65,
+          height: 165,
+          age: 28,
+          gender: 'female',
+          activityLevel: 'moderate',
+          goals: ['lose-weight']
+        });
+
+        result.className = 'result success';
+        result.textContent = '✅ SUCESSO!\n\n' + JSON.stringify(bioData, null, 2);
+      } catch (error) {
+        result.className = 'result error';
+        result.textContent = '❌ ERRO:\n\n' + error.message + '\n\nStack:\n' + error.stack;
+      }
+    };
+
+    window.testSimpleDiet = async function() {
+      const result = document.getElementById('diet-result');
+      result.style.display = 'block';
+      result.className = 'result info';
+      result.textContent = '⏳ Gerando dieta (pode levar ~30 segundos)...';
+
+      try {
+        const diet = await generatePersonalizedDiet({
+          userProfile: {
+            name: 'Maria',
+            age: 28,
+            weight: 65,
+            height: 165,
+            goalWeight: 60,
+            goals: ['lose-weight'],
+            lifePhase: 'menstrual',
+            fitnessLevel: 'beginner'
+          },
+          nutritionData: {
+            idealWeight: 60,
+            dailyCalories: 1600,
+            protein: 104,
+            carbs: 180,
+            fats: 44,
+            bmi: 23.9,
+            waterGoal: 2.5
+          },
+          foodPreferences: {
+            dietaryRestrictions: [],
+            favoriteFoods: ['Frango', 'Arroz', 'Salada'],
+            dislikedFoods: ['Brócolis'],
+            mealsPerDay: 3,
+            cookingSkill: 'intermediate',
+            timeForCooking: 30
+          }
+        });
+
+        result.className = 'result success';
+        result.textContent = '✅ DIETA GERADA COM SUCESSO!\n\n' + JSON.stringify(diet, null, 2);
+      } catch (error) {
+        result.className = 'result error';
+        result.textContent = '❌ ERRO:\n\n' + error.message + '\n\nStack:\n' + error.stack;
+      }
+    };
+
+    window.testOpenAIDirect = async function() {
+      const result = document.getElementById('api-result');
+      result.style.display = 'block';
+      result.className = 'result info';
+      result.textContent = '⏳ Testando API diretamente...';
+
+      try {
+        const { default: OpenAI } = await import('openai');
+        const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+        if (!apiKey) {
+          throw new Error('VITE_OPENAI_API_KEY não configurada!');
+        }
+
+        const openai = new OpenAI({
+          apiKey: apiKey,
+          dangerouslyAllowBrowser: true
+        });
+
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: 'Responda apenas: "API funcionando!"' }],
+          max_tokens: 20
+        });
+
+        result.className = 'result success';
+        result.textContent = '✅ API OPENAI FUNCIONANDO!\n\nResposta: ' + completion.choices[0].message.content;
+      } catch (error) {
+        result.className = 'result error';
+        result.textContent = '❌ ERRO NA API:\n\n' +
+          'Mensagem: ' + error.message + '\n\n' +
+          'Tipo: ' + error.constructor.name + '\n\n' +
+          'Status: ' + (error.status || 'N/A') + '\n\n' +
+          'Stack:\n' + error.stack;
+      }
+    };
+  </script>
+</body>
+</html>

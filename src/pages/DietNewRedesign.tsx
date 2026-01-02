@@ -152,13 +152,23 @@ export default function DietNewRedesign() {
         title: 'Metas calculadas! ✨',
         description: 'Suas necessidades nutricionais foram definidas.'
       })
-    } catch (error) {
-      console.error('Erro ao calcular:', error)
+    } catch (error: any) {
+      console.error('❌ ERRO DETALHADO AO CALCULAR METAS:')
+      console.error('Tipo:', error?.constructor?.name)
+      console.error('Mensagem:', error?.message)
+      console.error('Status:', error?.status)
+      console.error('Stack:', error?.stack)
+      console.error('Objeto completo:', error)
+
+      let errorMessage = error?.message || 'Tente novamente em alguns instantes.'
+
       toast({
         title: 'Erro ao calcular',
-        description: 'Tente novamente em alguns instantes.',
+        description: errorMessage,
         variant: 'destructive'
       })
+
+      alert(`🚨 ERRO AO CALCULAR METAS\n\n${errorMessage}\n\nAbra o Console (F12) para ver detalhes técnicos.`)
     } finally {
       setIsCalculating(false)
     }
@@ -236,13 +246,41 @@ export default function DietNewRedesign() {
         title: 'Dieta criada! 🎉',
         description: 'Sua dieta personalizada está pronta!'
       })
-    } catch (error) {
-      console.error('Erro ao gerar dieta:', error)
+    } catch (error: any) {
+      console.error('❌ ERRO DETALHADO AO GERAR DIETA:')
+      console.error('Tipo:', error?.constructor?.name)
+      console.error('Mensagem:', error?.message)
+      console.error('Status:', error?.status)
+      console.error('Código:', error?.code)
+      console.error('Response:', error?.response)
+      console.error('Stack:', error?.stack)
+      console.error('Objeto completo:', error)
+
+      // Mensagem amigável baseada no erro
+      let errorMessage = 'Tente novamente em alguns instantes.'
+
+      if (error?.message?.includes('API key')) {
+        errorMessage = 'Problema com a chave da API. Verifique a configuração.'
+      } else if (error?.message?.includes('rate limit') || error?.status === 429) {
+        errorMessage = 'Muitas requisições. Aguarde um momento e tente novamente.'
+      } else if (error?.message?.includes('timeout')) {
+        errorMessage = 'A requisição demorou muito. Tente novamente.'
+      } else if (error?.status === 401) {
+        errorMessage = 'Chave da API inválida ou expirada.'
+      } else if (error?.status === 500) {
+        errorMessage = 'Erro no servidor da OpenAI. Tente novamente em alguns minutos.'
+      } else if (error?.message) {
+        errorMessage = error.message
+      }
+
       toast({
         title: 'Erro ao gerar dieta',
-        description: 'Tente novamente em alguns instantes.',
+        description: errorMessage,
         variant: 'destructive'
       })
+
+      // Alert com mais detalhes para debug
+      alert(`🚨 ERRO AO GERAR DIETA\n\n${errorMessage}\n\nAbra o Console (F12) para ver detalhes técnicos.`)
     } finally {
       setIsGenerating(false)
     }
