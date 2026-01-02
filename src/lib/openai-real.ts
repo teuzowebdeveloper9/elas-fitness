@@ -174,22 +174,23 @@ export async function generatePersonalizedDiet(data: DietGenerationData) {
   // Tentar gerar com IA
   try {
     // Preparar lista de restrições de forma clara
-    const restrictionsText = data.foodPreferences.dietaryRestrictions && data.foodPreferences.dietaryRestrictions.length > 0
-      ? data.foodPreferences.dietaryRestrictions.join(', ')
+    const restrictions = data.foodPreferences.dietaryRestrictions || []
+    const restrictionsText = restrictions.length > 0
+      ? restrictions.join(', ')
       : 'Nenhuma'
 
     // Criar lista de alimentos a evitar com base nas restrições
-    const foodsToAvoid = []
-    if (data.foodPreferences.dietaryRestrictions.includes('intolerancia-lactose') ||
-        data.foodPreferences.dietaryRestrictions.includes('lactose')) {
+    const foodsToAvoid: string[] = []
+    if (restrictions.includes('intolerancia-lactose') ||
+        restrictions.includes('lactose')) {
       foodsToAvoid.push('leite', 'iogurte comum', 'queijo comum', 'creme de leite', 'manteiga', 'produtos lácteos')
     }
-    if (data.foodPreferences.dietaryRestrictions.includes('vegetariana') ||
-        data.foodPreferences.dietaryRestrictions.includes('vegetarian')) {
+    if (restrictions.includes('vegetariana') ||
+        restrictions.includes('vegetarian')) {
       foodsToAvoid.push('carne', 'frango', 'peixe', 'porco', 'qualquer proteína animal')
     }
-    if (data.foodPreferences.dietaryRestrictions.includes('vegana') ||
-        data.foodPreferences.dietaryRestrictions.includes('vegan')) {
+    if (restrictions.includes('vegana') ||
+        restrictions.includes('vegan')) {
       foodsToAvoid.push('carne', 'frango', 'peixe', 'ovos', 'leite', 'queijo', 'mel', 'qualquer produto de origem animal')
     }
 
