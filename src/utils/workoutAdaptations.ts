@@ -99,6 +99,7 @@ export function getLifePhaseLabel(lifePhase: LifePhase): string {
     'pre-menopause': 'Pré-Menopausa',
     menopause: 'Menopausa',
     'post-menopause': 'Pós-Menopausa',
+    'irregular-cycle': 'Ciclo Irregular',
   }
   return labels[lifePhase]
 }
@@ -109,6 +110,7 @@ export function getLifePhaseColor(lifePhase: LifePhase): string {
     'pre-menopause': 'from-purple-500 to-pink-500',
     menopause: 'from-orange-500 to-red-500',
     'post-menopause': 'from-blue-500 to-indigo-500',
+    'irregular-cycle': 'from-purple-500 to-violet-500',
   }
   return colors[lifePhase]
 }
