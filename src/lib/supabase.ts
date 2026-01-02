@@ -1,13 +1,23 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Tentar com prefixo VITE_ primeiro, depois sem prefixo como fallback
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY
+
+console.log('[Supabase Config] Verificando variáveis...')
+console.log('[Supabase Config] URL:', supabaseUrl ? '✓ Configurada' : '✗ Faltando')
+console.log('[Supabase Config] Key:', supabaseAnonKey ? '✓ Configurada' : '✗ Faltando')
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('[Supabase Config Error] Missing environment variables')
-  console.error('Please check that VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your .env.local file')
-  throw new Error('Missing Supabase environment variables')
+  console.error('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL)
+  console.error('SUPABASE_URL:', import.meta.env.SUPABASE_URL)
+  console.error('VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'presente' : 'faltando')
+  console.error('SUPABASE_ANON_KEY:', import.meta.env.SUPABASE_ANON_KEY ? 'presente' : 'faltando')
+  throw new Error('Missing Supabase environment variables. Check .env.local file.')
 }
+
+console.log('[Supabase Config] ✅ Configuração OK!')
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {

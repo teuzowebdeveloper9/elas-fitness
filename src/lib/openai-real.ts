@@ -1,11 +1,13 @@
 import OpenAI from 'openai'
 
-// Verificar se a chave da OpenAI existe
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
+// Tentar com prefixo VITE_ primeiro, depois sem prefixo como fallback
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY
 
 // Log para debug
 console.log('[OpenAI Config] Verificando chave...')
-console.log('[OpenAI Config] Chave presente:', OPENAI_API_KEY ? 'Sim ✓' : 'Não ✗')
+console.log('[OpenAI Config] VITE_OPENAI_API_KEY:', import.meta.env.VITE_OPENAI_API_KEY ? '✓ Presente' : '✗ Faltando')
+console.log('[OpenAI Config] OPENAI_API_KEY:', import.meta.env.OPENAI_API_KEY ? '✓ Presente' : '✗ Faltando')
+console.log('[OpenAI Config] Chave final:', OPENAI_API_KEY ? 'Sim ✓' : 'Não ✗')
 
 // Inicializar cliente OpenAI apenas se a chave existir
 const openai = OPENAI_API_KEY ? new OpenAI({
