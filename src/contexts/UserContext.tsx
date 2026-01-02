@@ -113,6 +113,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
           lifePhase: data.life_phase,
           hasMenstrualCycle: data.has_menstrual_cycle ?? true,
           cycleRegular: data.cycle_regular ?? true,
+          usesDailyFeedback: data.uses_daily_feedback ?? false,
+          irregularCycleReason: data.irregular_cycle_reason,
           fitnessLevel: data.fitness_level,
           goals: data.goals || [],
           challenges: data.challenges || [],
@@ -156,7 +158,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
           profile.fatsGoal = foodPrefs.fats_goal_grams
         }
 
-        // Carregar dados de dieta do localStorage se não existirem no banco
+        // Carregar dados faltando do localStorage se não existirem no banco
+        try {
+          const missingFields = localStorage.getItem('missing_profile_fields')
+          if (missingFields) {
+            const parsed = JSON.parse(missingFields)
+            profile.goalDeadlineWeeks = profile.goalDeadlineWeeks || parsed.goalDeadlineWeeks
+            profile.selectedDietType = profile.selectedDietType || parsed.selectedDietType
+            profile.customDietPlan = profile.customDietPlan || parsed.customDietPlan
+            profile.usesDailyFeedback = profile.usesDailyFeedback ?? parsed.usesDailyFeedback
+            profile.irregularCycleReason = profile.irregularCycleReason || parsed.irregularCycleReason
+          }
+        } catch (e) {
+          console.warn('Erro ao carregar missing_profile_fields do localStorage:', e)
+        }
+
+        // Fallback antigo para compatibilidade
         if (!profile.goalDeadlineWeeks || !profile.selectedDietType) {
           try {
             const dietPlanData = localStorage.getItem('diet_plan_data')
@@ -200,6 +217,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         life_phase: profile.lifePhase,
         has_menstrual_cycle: profile.hasMenstrualCycle,
         cycle_regular: profile.cycleRegular,
+        uses_daily_feedback: profile.usesDailyFeedback || false,
+        irregular_cycle_reason: profile.irregularCycleReason || null,
         fitness_level: profile.fitnessLevel,
         goals: profile.goals,
         challenges: profile.challenges,
@@ -236,8 +255,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (profileError) {
         // Se o erro for por coluna não existir, salvar sem os campos novos
         if (profileError.message.includes('column') && profileError.message.includes('does not exist')) {
-          console.warn('Algumas colunas não existem no banco. Execute a migração SQL.')
-          const { goal_deadline_weeks, selected_diet_type, custom_diet_plan, ...dataWithoutNewFields } = baseData
+          console.warn('⚠️ Algumas colunas não existem no banco. Execute a migração SQL.')
+          console.warn('Arquivo: fix-onboarding-complete.sql')
+
+          // Remover TODOS os campos novos que podem não existir
+          const {
+            goal_deadline_weeks,
+            selected_diet_type,
+            custom_diet_plan,
+            uses_daily_feedback,
+            irregular_cycle_reason,
+            ...dataWithoutNewFields
+          } = baseData
 
           const { error: retryError } = await supabase
             .from('user_profiles')
@@ -247,11 +276,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
           // Salvar campos novos no localStorage como fallback
           try {
-            localStorage.setItem('diet_plan_data', JSON.stringify({
+            localStorage.setItem('missing_profile_fields', JSON.stringify({
               goalDeadlineWeeks: profile.goalDeadlineWeeks,
               selectedDietType: profile.selectedDietType,
               customDietPlan: profile.customDietPlan,
+              usesDailyFeedback: profile.usesDailyFeedback,
+              irregularCycleReason: profile.irregularCycleReason,
             }))
+            console.info('✅ Dados salvos temporariamente. Execute a migração SQL para salvar permanentemente.')
           } catch (e) {
             console.warn('Erro ao salvar no localStorage:', e)
           }
