@@ -1,10 +1,20 @@
 import OpenAI from 'openai'
 
-// Inicializar cliente OpenAI
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+// Verificar se a chave da OpenAI existe
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
+
+// Inicializar cliente OpenAI apenas se a chave existir
+const openai = OPENAI_API_KEY ? new OpenAI({
+  apiKey: OPENAI_API_KEY,
   dangerouslyAllowBrowser: true // Necessário para uso no navegador
-})
+}) : null
+
+// Flag para saber se a OpenAI está disponível
+export const hasOpenAI = !!OPENAI_API_KEY
+
+if (!hasOpenAI) {
+  console.warn('⚠️ VITE_OPENAI_API_KEY não configurada. Usando cálculos locais sem IA.')
+}
 
 export interface BioimpedanceData {
   weight: number
@@ -79,9 +89,26 @@ export async function calculateBioimpedance(data: BioimpedanceData): Promise<Nut
   // Arredondar para 1 casa decimal
   waterGoal = Math.round(waterGoal * 10) / 10
 
-  // Usar IA para refinar recomendações
-  try {
-    const prompt = `Como nutricionista especializada em mulheres, analise estes dados:
+  // Cálculos nutricionais baseados em fórmulas científicas
+  const protein = Math.round(data.weight * 1.6) // 1.6g por kg para mulheres ativas
+  const fats = Math.round((dailyCalories * 0.25) / 9) // 25% das calorias em gorduras
+  const carbs = Math.round((dailyCalories - (protein * 4) - (fats * 9)) / 4) // Restante em carboidratos
+
+  const result = {
+    idealWeight: parseFloat(idealWeight.toFixed(1)),
+    dailyCalories,
+    protein,
+    carbs,
+    fats,
+    bmi: parseFloat(bmi.toFixed(1)),
+    bodyFatPercentage: parseFloat(((1.2 * bmi) + (0.23 * data.age) - 5.4).toFixed(1)),
+    waterGoal
+  }
+
+  // Tentar usar IA para refinar recomendações (se disponível)
+  if (hasOpenAI && openai) {
+    try {
+      const prompt = `Como nutricionista especializada em mulheres, analise estes dados:
 - Peso: ${data.weight}kg, Altura: ${data.height}cm, Idade: ${data.age} anos
 - Nível de atividade: ${data.activityLevel}
 - Objetivos: ${data.goals.join(', ')}
@@ -96,53 +123,34 @@ DIRETRIZES OBRIGATÓRIAS:
 4. Garantir energia suficiente para o dia todo
 5. Foco em saúde, não em restrições radicais
 
-Forneça ajustes finos para proteína, carboidratos, gorduras (em gramas) e água (em litros) considerando:
-1. Fase hormonal feminina
-2. Necessidades de recuperação muscular
-3. Energia sustentável ao longo do dia
-4. Hidratação adequada para atividade física
-5. Plano acolhedor e realista (não radical)
-
-Responda APENAS com JSON no formato:
+Responda APENAS com JSON:
 {"protein": número, "carbs": número, "fats": número, "adjustedCalories": número, "waterGoal": número_em_litros}`
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-      max_tokens: 200
-    })
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 200
+      })
 
-    const aiResponse = JSON.parse(completion.choices[0].message.content || '{}')
+      const aiResponse = JSON.parse(completion.choices[0].message.content || '{}')
 
-    return {
-      idealWeight: parseFloat(idealWeight.toFixed(1)),
-      dailyCalories: aiResponse.adjustedCalories || dailyCalories,
-      protein: aiResponse.protein || Math.round(data.weight * 1.6),
-      carbs: aiResponse.carbs || Math.round((dailyCalories - (Math.round(data.weight * 1.6) * 4) - (Math.round((dailyCalories * 0.25) / 9) * 9)) / 4),
-      fats: aiResponse.fats || Math.round((dailyCalories * 0.25) / 9),
-      bmi: parseFloat(bmi.toFixed(1)),
-      bodyFatPercentage: parseFloat(((1.2 * bmi) + (0.23 * data.age) - 5.4).toFixed(1)),
-      waterGoal: aiResponse.waterGoal || waterGoal
+      // Atualizar com valores refinados pela IA
+      if (aiResponse.protein) result.protein = aiResponse.protein
+      if (aiResponse.carbs) result.carbs = aiResponse.carbs
+      if (aiResponse.fats) result.fats = aiResponse.fats
+      if (aiResponse.adjustedCalories) result.dailyCalories = aiResponse.adjustedCalories
+      if (aiResponse.waterGoal) result.waterGoal = aiResponse.waterGoal
+
+      console.log('✅ Cálculos refinados com IA')
+    } catch (error) {
+      console.warn('⚠️ Erro ao usar IA, usando cálculos locais:', error)
     }
-  } catch (error) {
-    console.error('Erro ao usar IA:', error)
-    // Fallback para cálculos manuais
-    const protein = Math.round(data.weight * 1.6)
-    const fats = Math.round((dailyCalories * 0.25) / 9)
-    const carbs = Math.round((dailyCalories - (protein * 4) - (fats * 9)) / 4)
-
-    return {
-      idealWeight: parseFloat(idealWeight.toFixed(1)),
-      dailyCalories,
-      protein,
-      carbs,
-      fats,
-      bmi: parseFloat(bmi.toFixed(1)),
-      bodyFatPercentage: parseFloat(((1.2 * bmi) + (0.23 * data.age) - 5.4).toFixed(1)),
-      waterGoal
-    }
+  } else {
+    console.log('✅ Usando cálculos nutricionais (sem IA)')
   }
+
+  return result
 }
 
 export interface DietGenerationData {
@@ -171,6 +179,12 @@ export interface DietGenerationData {
  * Gera plano alimentar personalizado usando OpenAI com fallback
  */
 export async function generatePersonalizedDiet(data: DietGenerationData) {
+  // Se OpenAI não estiver configurada, pular direto para fallback
+  if (!hasOpenAI || !openai) {
+    console.log('📝 Gerando plano alimentar básico (OpenAI não configurada)')
+    throw new Error('OpenAI not configured - usando fallback')
+  }
+
   // Tentar gerar com IA
   try {
     // Preparar lista de restrições de forma clara
