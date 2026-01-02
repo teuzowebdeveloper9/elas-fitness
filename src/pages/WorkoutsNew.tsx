@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
-  Clock, Flame, Dumbbell, Home, Zap, Music,
+  Clock, Dumbbell, Home, Zap, Music,
   Heart, Sparkles, Loader2, ArrowDown, ArrowUp, ArrowUpDown,
   Target
 } from 'lucide-react'

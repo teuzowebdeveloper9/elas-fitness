@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import { useUser } from '@/contexts/UserContext'
 import {
-  TrendingDown,
   Scale,
   Ruler,
   Target,

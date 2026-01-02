@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Play, X, ExternalLink } from 'lucide-react'
+import { Play, ExternalLink } from 'lucide-react'
 import { YouTubeVideo } from '@/lib/youtube-service'
 
 interface ExerciseVideoModalProps {

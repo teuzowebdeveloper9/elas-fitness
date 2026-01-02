@@ -135,7 +135,7 @@ DIRETRIZES OBRIGATÓRIAS:
 Responda APENAS com JSON:
 {"protein": número, "carbs": número, "fats": número, "adjustedCalories": número, "waterGoal": número_em_litros}`
 
-      const completion = await openai.chat.completions.create({
+      const completion = await openai!.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
@@ -258,7 +258,7 @@ Formato JSON (sem texto extra):
 }
 Repita para tuesday, wednesday, thursday, friday, saturday, sunday.`
 
-    const completion = await openai.chat.completions.create({
+    const completion = await openai!.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'Você é uma nutricionista especializada. Respeite TOTALMENTE as restrições alimentares. Nunca inclua alimentos que a pessoa não pode comer. Responda APENAS com JSON válido.' },
@@ -598,7 +598,7 @@ REGRAS DE ADAPTAÇÃO:
     const nivelAtual = nivelMap[data.userProfile.fitnessLevel] || 'INICIANTE'
 
     // Exercícios apropriados por nível
-    const exerciciosPorNivel = {
+    const exerciciosPorNivel: Record<string, string> = {
       'INICIANTE': `
 EXERCÍCIOS PERMITIDOS PARA INICIANTE (escolha APENAS destes):
 - Agachamento livre (sem peso ou com barra leve)
@@ -744,7 +744,7 @@ Responda APENAS com JSON válido (sem texto adicional):
   "adaptations": ["string"]
 }`
 
-    const completion = await openai.chat.completions.create({
+    const completion = await openai!.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'Você é uma personal trainer especializada. Responda APENAS com JSON válido, sem texto adicional.' },
@@ -954,7 +954,7 @@ IMPORTANTE:
 - Liste todos os alimentos detectados no array foods_detected`
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await openai!.chat.completions.create({
       model: 'gpt-4o',
       messages: [
         {
@@ -1009,7 +1009,7 @@ Responda em JSON:
 }`
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await openai!.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
