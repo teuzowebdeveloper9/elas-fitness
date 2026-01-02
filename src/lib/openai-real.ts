@@ -589,12 +589,123 @@ REGRAS DE ADAPTAÇÃO:
 - Adapte considerando as fases hormonais naturais da mulher`
     }
 
-    const prompt = `Você é uma personal trainer especializada em treinos femininos. Crie um treino completo personalizado.
+    // Mapear nível para português
+    const nivelMap: Record<string, string> = {
+      'beginner': 'INICIANTE',
+      'intermediate': 'INTERMEDIÁRIO',
+      'advanced': 'AVANÇADO'
+    }
+    const nivelAtual = nivelMap[data.userProfile.fitnessLevel] || 'INICIANTE'
+
+    // Exercícios apropriados por nível
+    const exerciciosPorNivel = {
+      'INICIANTE': `
+EXERCÍCIOS PERMITIDOS PARA INICIANTE (escolha APENAS destes):
+- Agachamento livre (sem peso ou com barra leve)
+- Leg Press 45° (carga leve)
+- Cadeira extensora
+- Cadeira flexora (mesa flexora)
+- Elevação pélvica (ponte de glúteo)
+- Panturrilha em pé
+- Remada sentada na máquina
+- Pulldown (puxada na polia)
+- Supino na máquina ou com halteres leves
+- Crucifixo na máquina
+- Desenvolvimento com halteres leves
+- Elevação lateral (halteres leves)
+- Rosca direta com barra ou halteres
+- Tríceps na polia (corda)
+- Abdominal reto (crunch)
+- Prancha (30-45 segundos)
+- Esteira (caminhada/trote leve)
+- Bicicleta ergométrica
+
+IMPORTANTE PARA INICIANTE:
+- Use APENAS exercícios da lista acima
+- Máximo 3-4 séries por exercício
+- Repetições: 12-15 (nunca menos)
+- Descanso: 60-90 segundos entre séries
+- Cargas LEVES (foco na técnica)
+- Movimentos simples e seguros
+- Evitar exercícios complexos ou com muita técnica`,
+
+      'INTERMEDIÁRIO': `
+EXERCÍCIOS PERMITIDOS PARA INTERMEDIÁRIO (escolha APENAS destes):
+- Agachamento livre com barra
+- Leg Press 45° (carga moderada)
+- Agachamento sumô
+- Stiff (barra ou halteres)
+- Avanço (afundo com halteres)
+- Cadeira abdutora/adutora
+- Mesa flexora
+- Panturrilha no leg press
+- Remada curvada com barra
+- Remada sentada no cabo
+- Pulldown pegada aberta
+- Barra fixa assistida
+- Supino reto com barra
+- Supino inclinado com halteres
+- Crucifixo no banco
+- Desenvolvimento militar
+- Elevação lateral + frontal
+- Rosca direta + alternada
+- Rosca martelo
+- Tríceps testa (francês)
+- Tríceps na polia
+- Abdominal bicicleta
+- Prancha (45-60 segundos)
+- Elevação de pernas
+
+IMPORTANTE PARA INTERMEDIÁRIO:
+- 3-4 séries por exercício
+- Repetições: 10-15
+- Descanso: 45-60 segundos
+- Cargas moderadas (pode aumentar gradualmente)
+- Pode fazer exercícios compostos`,
+
+      'AVANÇADO': `
+EXERCÍCIOS PERMITIDOS PARA AVANÇADO (escolha APENAS destes):
+- Agachamento livre (barra alta/baixa)
+- Agachamento búlgaro
+- Leg Press 45° (carga alta)
+- Hack squat
+- Stiff com barra
+- Levantamento terra (deadlift)
+- Avanço com barra
+- Hip thrust (elevação pélvica com carga)
+- Remada curvada (pegadas variadas)
+- Remada cavalinho
+- Barra fixa
+- Pullover
+- Supino reto/inclinado/declinado
+- Supino com halteres
+- Crucifixo (variações)
+- Desenvolvimento militar/Arnold press
+- Elevação lateral + frontal + posterior
+- Rosca 21
+- Rosca concentrada
+- Tríceps testa com barra
+- Mergulho (dips)
+- Abdominal completo
+- Prancha (60+ segundos)
+- Elevação de pernas suspensa
+
+IMPORTANTE PARA AVANÇADO:
+- 4-5 séries por exercício
+- Repetições: 8-12 (força) ou 12-15 (hipertrofia)
+- Descanso: 45-60 segundos
+- Cargas desafiadoras
+- Pode fazer drop sets ou supersets`
+    }
+
+    const exerciciosNivel = exerciciosPorNivel[nivelAtual]
+
+    const prompt = `Você é uma personal trainer brasileira especializada em treinos femininos. Crie um treino SIMPLES e REALISTA para academia brasileira.
 
 PERFIL:
 - Nome: ${data.userProfile.name}
 - Idade: ${data.userProfile.age} anos
-- Nível: ${data.userProfile.fitnessLevel}
+- Nível: ${nivelAtual}
 - Fase da vida: ${data.userProfile.lifePhase}
 - Objetivos: ${data.userProfile.goals.join(', ')}
 
@@ -603,7 +714,18 @@ TREINO:
 - Tempo: ${data.workoutPreferences.availableTime} minutos${muscleGroupText}
 ${personalizationText}
 
-${muscleGroupText ? 'IMPORTANTE: Priorize exercícios para o grupo muscular escolhido, mas mantenha o treino balanceado.' : ''}
+${exerciciosNivel}
+
+🎯 REGRAS OBRIGATÓRIAS:
+1. Use APENAS exercícios da lista acima para o nível ${nivelAtual}
+2. Respeite RIGOROSAMENTE as diretrizes de séries, reps e descanso do nível
+3. Exercícios CONHECIDOS e SIMPLES que todo mundo faz na academia brasileira
+4. Nomes em PORTUGUÊS (sem termos técnicos em inglês)
+5. O treino deve ser APROPRIADO e SEGURO para o nível ${nivelAtual}
+6. ${data.workoutPreferences.availableTime <= 30 ? 'Treino CURTO - máximo 5-6 exercícios' : data.workoutPreferences.availableTime <= 45 ? 'Treino médio - máximo 7-8 exercícios' : 'Treino completo - 8-10 exercícios'}
+7. FACILITAR, não dificultar! O conceito é treino que funciona e é sustentável
+
+${muscleGroupText ? 'IMPORTANTE: Priorize exercícios para o grupo muscular escolhido, mas use APENAS exercícios permitidos para o nível.' : ''}
 
 Responda APENAS com JSON válido (sem texto adicional):
 {
@@ -655,79 +777,126 @@ Responda APENAS com JSON válido (sem texto adicional):
  */
 function generateWorkoutFallback(data: WorkoutGenerationData) {
   const estimatedCalories = Math.round((data.workoutPreferences.availableTime / 60) * 300)
+  const isIniciante = data.userProfile.fitnessLevel === 'beginner'
+  const isIntermediario = data.userProfile.fitnessLevel === 'intermediate'
 
+  // Templates adaptados por nível
   const workoutTemplates: Record<string, any> = {
     musculacao: {
       warmup: [
-        { name: "Esteira leve", duration: "5 min", description: "Caminhar ou correr leve" },
-        { name: "Alongamento dinâmico", duration: "3 min", description: "Movimentos amplos" }
+        { name: "Esteira leve", duration: "5 min", description: "Caminhada ou trote leve para aquecer" },
+        { name: "Alongamento dinâmico", duration: "3 min", description: "Movimentos de braços e pernas" }
       ],
-      main_exercises: [
-        { name: "Agachamento livre", sets: "4", reps: "12-15", rest: "60s", description: "Pés na largura dos ombros", calories: 50 },
-        { name: "Leg Press 45°", sets: "3", reps: "15", rest: "60s", description: "Empurrar com calcanhares", calories: 45 },
-        { name: "Stiff", sets: "3", reps: "12", rest: "60s", description: "Trabalha posterior de coxa", calories: 40 },
-        { name: "Remada curvada", sets: "4", reps: "12", rest: "60s", description: "Costas retas", calories: 35 },
-        { name: "Supino reto", sets: "3", reps: "12", rest: "60s", description: "Trabalha peitoral", calories: 40 }
+      main_exercises: isIniciante ? [
+        { name: "Leg Press 45°", sets: "3", reps: "15", rest: "90s", description: "Carga leve, empurre com os calcanhares", calories: 45 },
+        { name: "Cadeira extensora", sets: "3", reps: "15", rest: "60s", description: "Trabalha frente da coxa", calories: 35 },
+        { name: "Mesa flexora", sets: "3", reps: "12", rest: "60s", description: "Trabalha parte de trás da coxa", calories: 30 },
+        { name: "Elevação pélvica", sets: "3", reps: "15", rest: "60s", description: "Ponte de glúteo, aperte no topo", calories: 35 },
+        { name: "Remada sentada na máquina", sets: "3", reps: "12", rest: "60s", description: "Puxe até o peito, costas retas", calories: 30 },
+        { name: "Abdominal crunch", sets: "3", reps: "15", rest: "45s", description: "Suba apenas até meia altura", calories: 25 }
+      ] : isIntermediario ? [
+        { name: "Agachamento livre", sets: "4", reps: "12", rest: "60s", description: "Com barra, desça até 90 graus", calories: 50 },
+        { name: "Leg Press 45°", sets: "3", reps: "15", rest: "60s", description: "Carga moderada, amplitude completa", calories: 45 },
+        { name: "Stiff", sets: "3", reps: "12", rest: "60s", description: "Barra ou halteres, trabalha posterior", calories: 40 },
+        { name: "Remada curvada", sets: "4", reps: "12", rest: "60s", description: "Barra, costas retas, puxe até o abdômen", calories: 40 },
+        { name: "Supino reto", sets: "3", reps: "12", rest: "60s", description: "Barra ou halteres, desça até o peito", calories: 35 },
+        { name: "Desenvolvimento com halteres", sets: "3", reps: "12", rest: "60s", description: "Suba acima da cabeça", calories: 30 },
+        { name: "Abdominal bicicleta", sets: "3", reps: "20", rest: "45s", description: "Cotovelo toca joelho oposto", calories: 25 }
+      ] : [
+        { name: "Agachamento livre", sets: "4", reps: "10", rest: "60s", description: "Barra alta, carga desafiadora", calories: 60 },
+        { name: "Stiff com barra", sets: "4", reps: "10", rest: "60s", description: "Barra rente às pernas", calories: 50 },
+        { name: "Leg Press 45°", sets: "4", reps: "12", rest: "45s", description: "Carga alta, amplitude completa", calories: 50 },
+        { name: "Hip thrust", sets: "4", reps: "12", rest: "60s", description: "Elevação pélvica com barra", calories: 45 },
+        { name: "Remada curvada", sets: "4", reps: "10", rest: "60s", description: "Barra, pegada supinada", calories: 40 },
+        { name: "Supino reto", sets: "4", reps: "10", rest: "60s", description: "Barra, desça controlado", calories: 40 },
+        { name: "Desenvolvimento militar", sets: "4", reps: "10", rest: "60s", description: "Barra em pé ou sentada", calories: 35 }
       ],
       cooldown: [
-        { name: "Alongamento posterior", duration: "2 min", description: "Alongar pernas e costas" },
-        { name: "Alongamento superior", duration: "2 min", description: "Braços e ombros" }
+        { name: "Alongamento posterior", duration: "3 min", description: "Alongar pernas e glúteos" },
+        { name: "Alongamento superior", duration: "2 min", description: "Braços, ombros e costas" }
       ]
     },
     casa: {
       warmup: [
-        { name: "Polichinelos", duration: "2 min", description: "Saltar abrindo pernas" },
-        { name: "Joelho alto", duration: "2 min", description: "Correr no lugar" }
+        { name: "Polichinelos", duration: "2 min", description: "Pular abrindo e fechando pernas e braços" },
+        { name: "Joelho alto", duration: "2 min", description: "Correr no lugar levantando os joelhos" }
       ],
-      main_exercises: [
-        { name: "Agachamento", sets: "4", reps: "15-20", rest: "45s", description: "Peso corporal", calories: 40 },
-        { name: "Flexão", sets: "3", reps: "10-15", rest: "45s", description: "Pode ser no joelho", calories: 35 },
-        { name: "Afundo", sets: "3", reps: "12 cada", rest: "45s", description: "Passos largos", calories: 40 },
-        { name: "Prancha", sets: "3", reps: "30-45s", rest: "30s", description: "Posição estática", calories: 30 }
+      main_exercises: isIniciante ? [
+        { name: "Agachamento", sets: "3", reps: "15", rest: "60s", description: "Peso corporal, desça devagar", calories: 35 },
+        { name: "Flexão nos joelhos", sets: "3", reps: "10", rest: "60s", description: "Apoiando os joelhos no chão", calories: 25 },
+        { name: "Prancha", sets: "3", reps: "30s", rest: "60s", description: "Segure a posição estática", calories: 20 },
+        { name: "Ponte de glúteo", sets: "3", reps: "15", rest: "45s", description: "Deitada, eleve o quadril", calories: 30 },
+        { name: "Abdominal crunch", sets: "3", reps: "15", rest: "45s", description: "Suba só até meia altura", calories: 20 }
+      ] : [
+        { name: "Agachamento", sets: "4", reps: "20", rest: "45s", description: "Peso corporal, amplitude completa", calories: 45 },
+        { name: "Flexão", sets: "4", reps: "15", rest: "45s", description: "Pode variar a largura das mãos", calories: 40 },
+        { name: "Afundo alternado", sets: "3", reps: "12 cada perna", rest: "45s", description: "Passos largos para frente", calories: 40 },
+        { name: "Prancha", sets: "3", reps: "45-60s", rest: "30s", description: "Corpo reto, aperte o abdômen", calories: 30 },
+        { name: "Burpee", sets: "3", reps: "10", rest: "60s", description: "Movimento completo, pode pular no final", calories: 50 },
+        { name: "Mountain climbers", sets: "3", reps: "20", rest: "45s", description: "Escalador, alterne as pernas rápido", calories: 35 }
       ],
       cooldown: [
-        { name: "Alongamento geral", duration: "5 min", description: "Todas as articulações" }
+        { name: "Alongamento de pernas", duration: "3 min", description: "Alongar frente e trás das coxas" },
+        { name: "Alongamento geral", duration: "2 min", description: "Braços, costas e quadril" }
       ]
     },
     abdominal: {
       warmup: [
-        { name: "Rotação de tronco", duration: "2 min", description: "Girar o corpo" },
-        { name: "Prancha leve", duration: "1 min", description: "Aquecer o core" }
+        { name: "Rotação de tronco", duration: "2 min", description: "Girar o corpo para os lados" },
+        { name: "Prancha leve", duration: "30s-1min", description: "Aquecer o abdômen" }
       ],
-      main_exercises: [
-        { name: "Abdominal tradicional", sets: "4", reps: "20", rest: "30s", description: "Subir o tronco", calories: 25 },
-        { name: "Prancha frontal", sets: "3", reps: "45s", rest: "30s", description: "Posição estática", calories: 20 },
-        { name: "Bicicleta", sets: "4", reps: "20x", rest: "30s", description: "Cotovelo toca joelho", calories: 35 }
+      main_exercises: isIniciante ? [
+        { name: "Abdominal crunch", sets: "3", reps: "15", rest: "45s", description: "Subir só até meia altura", calories: 20 },
+        { name: "Prancha frontal", sets: "3", reps: "30s", rest: "45s", description: "Segure a posição", calories: 15 },
+        { name: "Elevação de pernas (joelhos flexionados)", sets: "3", reps: "12", rest: "45s", description: "Deitada, eleve as pernas com joelhos dobrados", calories: 20 },
+        { name: "Prancha lateral", sets: "2", reps: "20s cada lado", rest: "30s", description: "Trabalha os oblíquos", calories: 15 }
+      ] : [
+        { name: "Abdominal tradicional", sets: "4", reps: "20", rest: "30s", description: "Subir o tronco completamente", calories: 30 },
+        { name: "Prancha frontal", sets: "3", reps: "45-60s", rest: "30s", description: "Corpo reto e firme", calories: 25 },
+        { name: "Bicicleta", sets: "4", reps: "20 cada lado", rest: "30s", description: "Cotovelo toca joelho oposto", calories: 35 },
+        { name: "Elevação de pernas", sets: "3", reps: "15", rest: "30s", description: "Pernas retas, suba devagar", calories: 30 },
+        { name: "Prancha lateral", sets: "3", reps: "30s cada lado", rest: "30s", description: "Segure firme de lado", calories: 20 }
       ],
       cooldown: [
-        { name: "Gato e vaca", duration: "2 min", description: "Mobilidade da coluna" }
+        { name: "Gato e vaca", duration: "2 min", description: "Alongamento da coluna" },
+        { name: "Alongamento de quadril", duration: "2 min", description: "Relaxar a lombar" }
       ]
     },
     funcional: {
       warmup: [
-        { name: "Caminhada rápida", duration: "3 min", description: "Aumentar frequência" },
-        { name: "Mobilidade articular", duration: "2 min", description: "Círculos nas articulações" }
+        { name: "Polichinelos", duration: "2 min", description: "Aquecer corpo todo" },
+        { name: "Mobilidade articular", duration: "2 min", description: "Girar braços, pernas e quadril" }
       ],
-      main_exercises: [
-        { name: "Burpee", sets: "3", reps: "10", rest: "60s", description: "Movimento completo", calories: 50 },
-        { name: "Agachamento com salto", sets: "3", reps: "12", rest: "60s", description: "Explosivo", calories: 45 },
-        { name: "Mountain climbers", sets: "3", reps: "20x", rest: "45s", description: "Escalador", calories: 40 }
+      main_exercises: isIniciante ? [
+        { name: "Agachamento", sets: "3", reps: "15", rest: "60s", description: "Movimento básico funcional", calories: 35 },
+        { name: "Flexão nos joelhos", sets: "3", reps: "10", rest: "60s", description: "Força de empurrar", calories: 25 },
+        { name: "Prancha", sets: "3", reps: "30s", rest: "45s", description: "Core estável", calories: 20 },
+        { name: "Afundo estático", sets: "3", reps: "10 cada perna", rest: "60s", description: "Sem alternar, uma perna de cada vez", calories: 30 }
+      ] : [
+        { name: "Burpee", sets: "4", reps: "12", rest: "60s", description: "Movimento explosivo completo", calories: 55 },
+        { name: "Agachamento com salto", sets: "3", reps: "15", rest: "60s", description: "Pular no topo do agachamento", calories: 50 },
+        { name: "Mountain climbers", sets: "4", reps: "20", rest: "45s", description: "Escalador rápido", calories: 40 },
+        { name: "Afundo com salto", sets: "3", reps: "10 cada perna", rest: "60s", description: "Trocar de perna no ar", calories: 45 },
+        { name: "Prancha com toque no ombro", sets: "3", reps: "20", rest: "45s", description: "Na prancha, toque ombro oposto", calories: 30 }
       ],
       cooldown: [
-        { name: "Caminhada leve", duration: "3 min", description: "Baixar frequência" }
+        { name: "Caminhada leve", duration: "3 min", description: "Baixar batimentos cardíacos" },
+        { name: "Alongamento dinâmico", duration: "2 min", description: "Movimentos suaves" }
       ]
     },
     danca: {
       warmup: [
-        { name: "Marcha no lugar", duration: "2 min", description: "Aquecer corpo" },
-        { name: "Giros suaves", duration: "2 min", description: "Soltar articulações" }
+        { name: "Marcha no lugar", duration: "2 min", description: "Começar devagar" },
+        { name: "Giros e movimentos de braço", duration: "2 min", description: "Soltar o corpo" }
       ],
       main_exercises: [
-        { name: "Sequência de dança", sets: "3", reps: "5 min", rest: "60s", description: "Coreografia", calories: 60 },
-        { name: "Passos laterais", sets: "4", reps: "20x", rest: "30s", description: "Movimentos ritmados", calories: 40 }
+        { name: "Sequência de dança cardio", sets: "3", reps: "5 min", rest: "90s", description: "Ritmo que você goste", calories: 60 },
+        { name: "Passos laterais com agachamento", sets: "4", reps: "20", rest: "45s", description: "Lateral com descida", calories: 40 },
+        { name: "Giros e saltos", sets: "3", reps: "1 min", rest: "60s", description: "Movimentos livres", calories: 35 }
       ],
       cooldown: [
-        { name: "Alongamento dinâmico", duration: "3 min", description: "Movimentos suaves" }
+        { name: "Dança suave", duration: "2 min", description: "Ritmo lento para desacelerar" },
+        { name: "Alongamento dinâmico", duration: "3 min", description: "Movimentos amplos e lentos" }
       ]
     }
   }
