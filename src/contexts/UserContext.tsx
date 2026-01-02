@@ -199,11 +199,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const setUserProfile = async (profile: UserProfile) => {
     try {
-      if (!user) return
+      console.log('💾 [setUserProfile] Iniciando salvamento...')
+
+      if (!user) {
+        console.error('❌ [setUserProfile] Usuário não autenticado')
+        return
+      }
 
       // Obter email do usuário
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (!authUser?.email) throw new Error('Email não encontrado')
+
+      console.log('✅ [setUserProfile] Usuário autenticado:', authUser.email)
 
       // Preparar dados MÍNIMOS - apenas campos que SEMPRE existem
       const baseData: any = {
@@ -234,6 +241,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         onboarding_completed: profile.onboardingCompleted,
       }
 
+      console.log('📦 [setUserProfile] Dados base preparados:', baseData)
+
       // Tentar adicionar campos novos (podem não existir no banco)
       const optionalFields = {
         uses_daily_feedback: profile.usesDailyFeedback || false,
@@ -241,15 +250,25 @@ export function UserProvider({ children }: { children: ReactNode }) {
         goal_deadline_weeks: profile.goalDeadlineWeeks,
         selected_diet_type: profile.selectedDietType,
         custom_diet_plan: profile.customDietPlan,
+        protein_goal: profile.proteinGoal,
+        carbs_goal: profile.carbsGoal,
+        fats_goal: profile.fatsGoal,
+        water_goal: profile.waterGoal,
       }
 
+      console.log('📦 [setUserProfile] Campos opcionais:', optionalFields)
+
       // Primeira tentativa: com TODOS os campos
+      console.log('💾 [setUserProfile] Tentando salvar COM todos os campos...')
       let { error: profileError } = await supabase
         .from('user_profiles')
         .upsert({ ...baseData, ...optionalFields })
 
       if (profileError) {
-        console.warn('⚠️ Erro ao salvar com todos os campos:', profileError.message)
+        console.warn('⚠️ [setUserProfile] Erro ao salvar com todos os campos:', profileError.message)
+        console.warn('⚠️ [setUserProfile] Erro code:', profileError.code)
+        console.warn('⚠️ [setUserProfile] Erro details:', profileError.details)
+        console.warn('⚠️ [setUserProfile] Erro hint:', profileError.hint)
 
         // Se o erro for por coluna não existir, tentar salvar SEM os campos opcionais
         if (

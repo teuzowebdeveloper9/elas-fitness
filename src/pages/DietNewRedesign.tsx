@@ -121,11 +121,26 @@ export default function DietNewRedesign() {
   }, [userProfile, nutritionData])
 
   const handleCalculateBioimpedance = async () => {
-    if (!userProfile) return
+    console.log('🚀 INICIANDO CÁLCULO DE METAS')
+
+    if (!userProfile) {
+      console.error('❌ userProfile não existe')
+      return
+    }
+
+    console.log('✅ UserProfile OK:', {
+      weight: userProfile.weight,
+      height: userProfile.height,
+      age: userProfile.age,
+      activityLevel: userProfile.activityLevel,
+      goals: userProfile.goals
+    })
 
     setIsCalculating(true)
 
     try {
+      console.log('📊 Chamando calculateBioimpedance...')
+
       const bioData = await calculateBioimpedance({
         weight: userProfile.weight,
         height: userProfile.height,
@@ -135,9 +150,13 @@ export default function DietNewRedesign() {
         goals: userProfile.goals
       })
 
+      console.log('✅ Cálculo concluído:', bioData)
+      console.log('💾 Salvando no estado local...')
       setNutritionData(bioData)
+      console.log('✅ Estado local atualizado')
 
-      updateUserProfile({
+      console.log('💾 Atualizando perfil do usuário no Supabase...')
+      await updateUserProfile({
         idealWeight: bioData.idealWeight,
         bmi: bioData.bmi,
         bodyFatPercentage: bioData.bodyFatPercentage,
@@ -147,18 +166,24 @@ export default function DietNewRedesign() {
         fatsGoal: bioData.fats,
         waterGoal: bioData.waterGoal
       })
+      console.log('✅ Perfil atualizado no Supabase')
 
       toast({
         title: 'Metas calculadas! ✨',
         description: 'Suas necessidades nutricionais foram definidas.'
       })
+
+      console.log('🎉 PROCESSO COMPLETO COM SUCESSO')
     } catch (error: any) {
-      console.error('❌ ERRO DETALHADO AO CALCULAR METAS:')
+      console.error('❌❌❌ ERRO DETALHADO AO CALCULAR METAS ❌❌❌')
       console.error('Tipo:', error?.constructor?.name)
       console.error('Mensagem:', error?.message)
       console.error('Status:', error?.status)
+      console.error('Code:', error?.code)
+      console.error('Details:', error?.details)
+      console.error('Hint:', error?.hint)
       console.error('Stack:', error?.stack)
-      console.error('Objeto completo:', error)
+      console.error('Objeto completo:', JSON.stringify(error, null, 2))
 
       let errorMessage = error?.message || 'Tente novamente em alguns instantes.'
 
@@ -168,9 +193,10 @@ export default function DietNewRedesign() {
         variant: 'destructive'
       })
 
-      alert(`🚨 ERRO AO CALCULAR METAS\n\n${errorMessage}\n\nAbra o Console (F12) para ver detalhes técnicos.`)
+      alert(`🚨 ERRO AO CALCULAR METAS\n\n${errorMessage}\n\nDetalhes no Console (F12)`)
     } finally {
       setIsCalculating(false)
+      console.log('🏁 Finalizando handleCalculateBioimpedance')
     }
   }
 
