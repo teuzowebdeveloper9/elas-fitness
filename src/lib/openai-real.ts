@@ -52,12 +52,15 @@ export async function calculateBioimpedance(data: BioimpedanceData): Promise<Nut
   // Calorias diárias baseadas em atividade
   let dailyCalories = Math.round(tmb * activityFactor)
 
-  // Ajuste baseado nos objetivos
+  // Ajuste MODERADO baseado nos objetivos (sem radicalismos)
   if (data.goals.includes('perder-peso')) {
-    dailyCalories -= 500 // Déficit para perda de peso
+    dailyCalories -= 300 // Déficit MODERADO para perda de peso saudável
   } else if (data.goals.includes('ganhar-massa')) {
     dailyCalories += 300 // Superávit para ganho muscular
   }
+
+  // Garantir mínimo de calorias para saúde (nunca abaixo de 1200 kcal)
+  dailyCalories = Math.max(1200, dailyCalories)
 
   // Calcular meta de água baseada em peso e atividade
   // Fórmula: 35ml por kg de peso corporal + ajuste por atividade
@@ -86,11 +89,19 @@ export async function calculateBioimpedance(data: BioimpedanceData): Promise<Nut
 - Calorias diárias: ${dailyCalories} kcal
 - Meta de água calculada: ${waterGoal}L
 
+DIRETRIZES OBRIGATÓRIAS:
+1. MODERAÇÃO CALÓRICA: Crie um plano EQUILIBRADO e SUSTENTÁVEL
+2. NUNCA sugerir déficits extremos (mínimo 1200 kcal)
+3. INCLUIR carboidratos em níveis saudáveis (não restringir)
+4. Garantir energia suficiente para o dia todo
+5. Foco em saúde, não em restrições radicais
+
 Forneça ajustes finos para proteína, carboidratos, gorduras (em gramas) e água (em litros) considerando:
 1. Fase hormonal feminina
 2. Necessidades de recuperação muscular
 3. Energia sustentável ao longo do dia
 4. Hidratação adequada para atividade física
+5. Plano acolhedor e realista (não radical)
 
 Responda APENAS com JSON no formato:
 {"protein": número, "carbs": número, "fats": número, "adjustedCalories": número, "waterGoal": número_em_litros}`
@@ -162,10 +173,49 @@ export interface DietGenerationData {
 export async function generatePersonalizedDiet(data: DietGenerationData) {
   // Tentar gerar com IA
   try {
-    const prompt = `Crie um plano alimentar de 7 dias em JSON para:
+    // Preparar lista de restrições de forma clara
+    const restrictionsText = data.foodPreferences.dietaryRestrictions && data.foodPreferences.dietaryRestrictions.length > 0
+      ? data.foodPreferences.dietaryRestrictions.join(', ')
+      : 'Nenhuma'
+
+    // Criar lista de alimentos a evitar com base nas restrições
+    const foodsToAvoid = []
+    if (data.foodPreferences.dietaryRestrictions.includes('intolerancia-lactose') ||
+        data.foodPreferences.dietaryRestrictions.includes('lactose')) {
+      foodsToAvoid.push('leite', 'iogurte comum', 'queijo comum', 'creme de leite', 'manteiga', 'produtos lácteos')
+    }
+    if (data.foodPreferences.dietaryRestrictions.includes('vegetariana') ||
+        data.foodPreferences.dietaryRestrictions.includes('vegetarian')) {
+      foodsToAvoid.push('carne', 'frango', 'peixe', 'porco', 'qualquer proteína animal')
+    }
+    if (data.foodPreferences.dietaryRestrictions.includes('vegana') ||
+        data.foodPreferences.dietaryRestrictions.includes('vegan')) {
+      foodsToAvoid.push('carne', 'frango', 'peixe', 'ovos', 'leite', 'queijo', 'mel', 'qualquer produto de origem animal')
+    }
+
+    const avoidText = foodsToAvoid.length > 0
+      ? `\n\n🚫 ALIMENTOS PROIBIDOS (NUNCA incluir): ${foodsToAvoid.join(', ')}`
+      : ''
+
+    const prompt = `Crie um plano alimentar de 7 dias PERSONALIZADO em JSON para:
+
+PERFIL:
+- Nome: ${data.userProfile.name}
 - Calorias: ${data.nutritionData.dailyCalories} kcal/dia
 - Proteína: ${data.nutritionData.protein}g
-- Restrições: ${data.foodPreferences.dietaryRestrictions.join(', ') || 'Nenhuma'}
+- Carboidratos: ${data.nutritionData.carbs}g
+- Gorduras: ${data.nutritionData.fats}g
+
+RESTRIÇÕES ALIMENTARES: ${restrictionsText}${avoidText}
+
+🎯 DIRETRIZES OBRIGATÓRIAS:
+1. MODERAÇÃO CALÓRICA: Plano equilibrado, NUNCA muito restritivo
+2. INCLUIR carboidratos em TODAS as refeições (sem low carb radical)
+3. RESPEITAR TOTALMENTE as restrições alimentares (NUNCA incluir alimentos proibidos)
+4. Se intolerância à lactose: usar alternativas sem lactose (leite sem lactose, iogurte sem lactose, queijos sem lactose)
+5. Plano ACOLHEDOR e SUSTENTÁVEL (não radical)
+6. Refeições variadas e saborosas
+7. Porções realistas e satisfatórias
 
 Formato JSON (sem texto extra):
 {
@@ -187,7 +237,7 @@ Repita para tuesday, wednesday, thursday, friday, saturday, sunday.`
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: 'Você é nutricionista. Responda APENAS com JSON válido.' },
+        { role: 'system', content: 'Você é uma nutricionista especializada. Respeite TOTALMENTE as restrições alimentares. Nunca inclua alimentos que a pessoa não pode comer. Responda APENAS com JSON válido.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.7,
