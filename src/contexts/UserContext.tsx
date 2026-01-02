@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './AuthContext'
 
-export type LifePhase = 'menstrual' | 'pre-menopause' | 'menopause' | 'post-menopause' | 'iud' | 'irregular-cycle'
+export type LifePhase = 'menstrual' | 'pre-menopause' | 'menopause' | 'post-menopause' | 'irregular-cycle'
 export type FitnessLevel = 'beginner' | 'intermediate' | 'advanced'
 export type Goal = 'lose-weight' | 'gain-muscle' | 'tone' | 'health' | 'flexibility' | 'energy' | 'reduce-stress' | 'posture' | 'maintain'
 export type DietType = 'mediterranean' | 'low-carb' | 'dash' | 'plant-based' | 'hypocaloric' | 'personalized'
@@ -16,7 +16,8 @@ export interface UserProfile {
   lifePhase: LifePhase
   hasMenstrualCycle: boolean
   cycleRegular: boolean
-  usesDailyFeedback?: boolean // TRUE para DIU e ciclo irregular (usa feedback diário ao invés de ciclo)
+  usesDailyFeedback?: boolean // TRUE para ciclo irregular (usa feedback diário ao invés de ciclo)
+  irregularCycleReason?: 'iud' | 'pcos' | 'stress' | 'health-condition' | 'other' // Motivo do ciclo irregular
   fitnessLevel: FitnessLevel
   goals: Goal[]
   challenges: string[]

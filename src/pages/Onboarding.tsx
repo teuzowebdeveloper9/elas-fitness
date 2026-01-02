@@ -30,6 +30,7 @@ export default function Onboarding() {
     lifePhase: 'menstrual' as LifePhase,
     hasMenstrualCycle: true,
     cycleRegular: true,
+    irregularCycleReason: '' as 'iud' | 'pcos' | 'stress' | 'health-condition' | 'other' | '',
     fitnessLevel: 'beginner' as FitnessLevel,
     goals: [] as Goal[],
     challenges: [] as string[],
@@ -66,8 +67,8 @@ export default function Onboarding() {
     try {
       setIsSaving(true)
 
-      // Determinar se deve usar feedback diário (DIU ou ciclo irregular)
-      const usesDailyFeedback = formData.lifePhase === 'iud' || formData.lifePhase === 'irregular-cycle'
+      // Determinar se deve usar feedback diário (ciclo irregular)
+      const usesDailyFeedback = formData.lifePhase === 'irregular-cycle'
 
       const profile: UserProfile = {
         name: formData.name,
@@ -83,6 +84,7 @@ export default function Onboarding() {
         hasMenstrualCycle: formData.hasMenstrualCycle,
         cycleRegular: formData.cycleRegular,
         usesDailyFeedback: usesDailyFeedback,
+        irregularCycleReason: formData.irregularCycleReason || undefined,
         fitnessLevel: formData.fitnessLevel,
         goals: formData.goals,
         challenges: formData.challenges,
@@ -273,24 +275,13 @@ export default function Onboarding() {
                       </div>
                     </div>
                     <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
-                      <RadioGroupItem value="iud" id="iud" className="mt-1" />
-                      <div className="flex-1">
-                        <Label htmlFor="iud" className="font-medium cursor-pointer">
-                          Uso DIU (hormonal ou cobre)
-                        </Label>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Adaptação personalizada com base em como você se sente a cada dia
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
                       <RadioGroupItem value="irregular-cycle" id="irregular-cycle" className="mt-1" />
                       <div className="flex-1">
                         <Label htmlFor="irregular-cycle" className="font-medium cursor-pointer">
                           Ciclo Irregular / Sem Menstruação
                         </Label>
                         <p className="text-sm text-gray-500 mt-1">
-                          Personalização diária de acordo com seu bem-estar
+                          Ciclos imprevisíveis ou ausência de menstruação
                         </p>
                       </div>
                     </div>
@@ -299,7 +290,7 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* Step 4: Menstrual Details (only if menstrual) */}
+            {/* Step 4: Menstrual Details or Irregular Cycle Reason */}
             {currentStep === 4 && (
               <div className="space-y-4">
                 {formData.lifePhase === 'menstrual' ? (
@@ -328,6 +319,78 @@ export default function Onboarding() {
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                       <p className="text-sm text-gray-700 dark:text-gray-300">
                         <strong>Por que perguntamos?</strong> Vamos adaptar seus treinos de acordo com as fases do seu ciclo menstrual, respeitando os momentos de mais e menos energia.
+                      </p>
+                    </div>
+                  </>
+                ) : formData.lifePhase === 'irregular-cycle' ? (
+                  <>
+                    <div>
+                      <Label className="text-base mb-4 block">O que pode estar causando a irregularidade?</Label>
+                      <RadioGroup
+                        value={formData.irregularCycleReason}
+                        onValueChange={(value) => setFormData({ ...formData, irregularCycleReason: value as any })}
+                        className="space-y-3"
+                      >
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                          <RadioGroupItem value="iud" id="reason-iud" className="mt-1" />
+                          <div className="flex-1">
+                            <Label htmlFor="reason-iud" className="font-medium cursor-pointer">
+                              Uso DIU (hormonal ou cobre)
+                            </Label>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Dispositivo intrauterino pode alterar ou interromper o ciclo
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                          <RadioGroupItem value="pcos" id="reason-pcos" className="mt-1" />
+                          <div className="flex-1">
+                            <Label htmlFor="reason-pcos" className="font-medium cursor-pointer">
+                              SOP (Síndrome dos Ovários Policísticos)
+                            </Label>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Condição hormonal que afeta os ciclos menstruais
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                          <RadioGroupItem value="stress" id="reason-stress" className="mt-1" />
+                          <div className="flex-1">
+                            <Label htmlFor="reason-stress" className="font-medium cursor-pointer">
+                              Estresse / Mudanças na Rotina
+                            </Label>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Fatores emocionais e mudanças podem alterar o ciclo
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                          <RadioGroupItem value="health-condition" id="reason-health" className="mt-1" />
+                          <div className="flex-1">
+                            <Label htmlFor="reason-health" className="font-medium cursor-pointer">
+                              Condição de Saúde
+                            </Label>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Problemas de tireoide, endometriose, ou outras condições
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                          <RadioGroupItem value="other" id="reason-other" className="mt-1" />
+                          <div className="flex-1">
+                            <Label htmlFor="reason-other" className="font-medium cursor-pointer">
+                              Outro motivo / Não sei
+                            </Label>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Outros fatores ou ainda em investigação
+                            </p>
+                          </div>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <strong>Personalização Especial:</strong> Vamos adaptar seus treinos e dieta com base em como você se sente a cada dia, sem depender de fases do ciclo hormonal.
                       </p>
                     </div>
                   </>

@@ -1,12 +1,14 @@
 -- Migração para adicionar suporte a feedback diário (DIU e ciclo irregular)
 -- Data: 2026-01-02
 
--- 1. Adicionar coluna uses_daily_feedback na tabela user_profiles
+-- 1. Adicionar colunas na tabela user_profiles
 ALTER TABLE user_profiles
-ADD COLUMN IF NOT EXISTS uses_daily_feedback BOOLEAN DEFAULT FALSE;
+ADD COLUMN IF NOT EXISTS uses_daily_feedback BOOLEAN DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS irregular_cycle_reason TEXT CHECK (irregular_cycle_reason IN ('iud', 'pcos', 'stress', 'health-condition', 'other'));
 
--- Comentário explicativo
-COMMENT ON COLUMN user_profiles.uses_daily_feedback IS 'TRUE para usuárias com DIU ou ciclo irregular que usam feedback diário ao invés de ciclo hormonal';
+-- Comentários explicativos
+COMMENT ON COLUMN user_profiles.uses_daily_feedback IS 'TRUE para usuárias com ciclo irregular que usam feedback diário ao invés de ciclo hormonal';
+COMMENT ON COLUMN user_profiles.irregular_cycle_reason IS 'Motivo do ciclo irregular: iud (DIU), pcos (SOP), stress, health-condition, other';
 
 -- 2. Criar tabela para armazenar feedback diário
 CREATE TABLE IF NOT EXISTS daily_feedback (
