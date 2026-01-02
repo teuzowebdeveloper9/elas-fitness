@@ -3,6 +3,10 @@ import OpenAI from 'openai'
 // Verificar se a chave da OpenAI existe
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
 
+// Log para debug
+console.log('[OpenAI Config] Verificando chave...')
+console.log('[OpenAI Config] Chave presente:', OPENAI_API_KEY ? 'Sim ✓' : 'Não ✗')
+
 // Inicializar cliente OpenAI apenas se a chave existir
 const openai = OPENAI_API_KEY ? new OpenAI({
   apiKey: OPENAI_API_KEY,
@@ -14,6 +18,9 @@ export const hasOpenAI = !!OPENAI_API_KEY
 
 if (!hasOpenAI) {
   console.warn('⚠️ VITE_OPENAI_API_KEY não configurada. Usando cálculos locais sem IA.')
+  console.warn('📝 Adicione VITE_OPENAI_API_KEY no arquivo .env.local')
+} else {
+  console.log('✅ OpenAI configurada e pronta para uso!')
 }
 
 export interface BioimpedanceData {
