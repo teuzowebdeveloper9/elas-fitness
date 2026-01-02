@@ -67,7 +67,7 @@ export default function ActiveWorkout() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--tiffany)]"></div>
           <p className="mt-4 text-muted-foreground">Redirecionando...</p>
         </div>
       </div>
@@ -231,7 +231,7 @@ export default function ActiveWorkout() {
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <Icon className="w-5 h-5 text-purple-500" />
+                <Icon className="w-5 h-5 text-[var(--lilac)]" />
                 <h4 className="font-semibold">{exercise.name}</h4>
                 <Badge variant="outline" className="text-xs gap-1">
                   <Video className="w-3 h-3" />
@@ -357,7 +357,7 @@ export default function ActiveWorkout() {
 
           <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
             <CardContent className="p-4 text-center">
-              <Target className="w-5 h-5 mx-auto mb-1 text-purple-500" />
+              <Target className="w-5 h-5 mx-auto mb-1 text-[var(--lilac)]" />
               <p className="text-lg font-bold">{Math.round(progressPercentage)}%</p>
               <p className="text-xs text-gray-600 dark:text-gray-400">Completo</p>
             </CardContent>

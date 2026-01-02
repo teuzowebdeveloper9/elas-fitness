@@ -52,29 +52,29 @@ export default function Profile() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+      <div className="relative bg-gradient-to-br from-[rgb(176,235,229)] via-white to-[rgb(216,191,228)] rounded-3xl p-6 shadow-xl border border-[rgb(231,228,225)]">
+        <h2 className="text-3xl font-heading text-[rgb(51,51,51)]">
           Meu Perfil
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-[var(--warm-gray)] mt-1">
           Gerencie suas informações e preferências
         </p>
       </div>
 
       {/* Profile Header */}
-      <Card className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border-pink-200 dark:border-pink-700">
+      <Card className="bg-gradient-to-br from-[rgb(176,235,229)] via-white to-[rgb(216,191,228)] border-2 border-[var(--tiffany)] shadow-xl">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center text-center">
             <div className="relative mb-4">
-              <Avatar className="w-24 h-24 border-4 border-white dark:border-gray-800 shadow-lg">
+              <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
                 <AvatarImage src="" alt="Perfil" />
-                <AvatarFallback className="text-2xl bg-gradient-to-br from-pink-500 to-purple-600 text-white">
+                <AvatarFallback className="text-2xl bg-gradient-to-br from-[var(--tiffany)] to-[var(--lilac)] text-white">
                   MJ
                 </AvatarFallback>
               </Avatar>
               <Button
                 size="icon"
-                className="absolute bottom-0 right-0 rounded-full w-8 h-8 bg-pink-500 hover:bg-pink-600"
+                className="absolute bottom-0 right-0 rounded-full w-8 h-8 bg-[var(--coral)] hover:bg-[rgb(255,139,128)] shadow-md"
                 onClick={() => {
                   toast({
                     title: "Foto de Perfil",
@@ -85,29 +85,29 @@ export default function Profile() {
                 <Camera className="w-4 h-4" />
               </Button>
             </div>
-            <h3 className="text-2xl font-bold mb-1">{userProfile?.name || 'Usuária'}</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-2">{userProfile?.age} anos</p>
+            <h3 className="text-2xl font-heading text-[rgb(51,51,51)] mb-1">{userProfile?.name || 'Usuária'}</h3>
+            <p className="text-[var(--warm-gray)] mb-2">{userProfile?.age} anos</p>
             {userProfile && (
-              <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-4">
+              <p className="text-sm font-medium text-[var(--lilac)] mb-4">
                 {getLifePhaseLabel(userProfile.lifePhase)}
               </p>
             )}
             <div className="flex gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-pink-600 dark:text-pink-400">34</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Treinos</p>
+                <p className="text-2xl font-bold text-[var(--tiffany)]">34</p>
+                <p className="text-xs text-[var(--warm-gray)]">Treinos</p>
               </div>
-              <div className="w-px bg-gray-300 dark:bg-gray-600" />
+              <div className="w-px bg-[var(--warm-gray-light)]" />
               <div>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">23</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Dias Ativos</p>
+                <p className="text-2xl font-bold text-[var(--lilac)]">23</p>
+                <p className="text-xs text-[var(--warm-gray)]">Dias Ativos</p>
               </div>
-              <div className="w-px bg-gray-300 dark:bg-gray-600" />
+              <div className="w-px bg-[var(--warm-gray-light)]" />
               <div>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                <p className="text-2xl font-bold text-[var(--coral)]">
                   {userProfile ? (userProfile.weight - userProfile.goalWeight).toFixed(1) : '0'}kg
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">Restantes</p>
+                <p className="text-xs text-[var(--warm-gray)]">Restantes</p>
               </div>
             </div>
           </div>
@@ -123,10 +123,10 @@ export default function Profile() {
 
         {/* Personal Info Tab */}
         <TabsContent value="personal" className="space-y-4 mt-4">
-          <Card>
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5 text-pink-500" />
+              <CardTitle className="flex items-center gap-2 font-heading">
+                <User className="w-5 h-5 text-[var(--tiffany)]" />
                 Informações Pessoais
               </CardTitle>
             </CardHeader>
@@ -134,7 +134,7 @@ export default function Profile() {
               <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                  <User className="absolute left-3 top-3 w-4 h-4 text-[var(--warm-gray)]" />
                   <Input id="name" defaultValue={userProfile?.name} className="pl-10" />
                 </div>
               </div>
@@ -142,14 +142,14 @@ export default function Profile() {
               <div className="space-y-2">
                 <Label htmlFor="age">Idade</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                  <Calendar className="absolute left-3 top-3 w-4 h-4 text-[var(--warm-gray)]" />
                   <Input id="age" type="number" defaultValue={userProfile?.age} className="pl-10" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="lifePhase">Fase da Vida</Label>
-                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="p-3 bg-[var(--lilac-light)] rounded-2xl">
                   <p className="text-sm font-medium">
                     {userProfile && getLifePhaseLabel(userProfile.lifePhase)}
                   </p>
@@ -169,7 +169,7 @@ export default function Profile() {
               </Button>
 
               <Button
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+                className="w-full bg-[var(--tiffany)] hover:bg-[var(--tiffany-dark)] text-white font-heading-medium rounded-2xl py-6 shadow-md"
                 onClick={handleSaveProfile}
               >
                 <Save className="w-4 h-4 mr-2" />
@@ -181,10 +181,10 @@ export default function Profile() {
 
         {/* Goals Tab */}
         <TabsContent value="goals" className="space-y-4 mt-4">
-          <Card>
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-purple-500" />
+              <CardTitle className="flex items-center gap-2 font-heading">
+                <Target className="w-5 h-5 text-[var(--coral)]" />
                 Metas e Objetivos
               </CardTitle>
             </CardHeader>
@@ -220,7 +220,7 @@ export default function Profile() {
               </div>
 
               <Button
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                className="w-full bg-[var(--coral)] hover:bg-[rgb(255,139,128)] text-white font-heading-medium rounded-2xl py-6 shadow-md"
                 onClick={handleSaveProfile}
               >
                 <Save className="w-4 h-4 mr-2" />
@@ -229,13 +229,13 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700">
+          <Card className="bg-gradient-to-br from-[var(--tiffany-light)] to-white border-2 border-[var(--tiffany)] shadow-lg">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
-                <Activity className="w-5 h-5 text-green-600 mt-0.5" />
+                <Activity className="w-5 h-5 text-[var(--tiffany-dark)] mt-0.5" />
                 <div>
                   <h4 className="font-medium mb-1">Nível de Atividade: Moderado</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-[var(--warm-gray)]">
                     Baseado na sua frequência de treino de 5 dias por semana
                   </p>
                 </div>
@@ -246,10 +246,10 @@ export default function Profile() {
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-4 mt-4">
-          <Card>
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-blue-500" />
+              <CardTitle className="flex items-center gap-2 font-heading">
+                <Bell className="w-5 h-5 text-[var(--tiffany)]" />
                 Notificações
               </CardTitle>
             </CardHeader>
@@ -257,7 +257,7 @@ export default function Profile() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Notificações Push</Label>
-                  <p className="text-sm text-gray-500">Receba notificações no dispositivo</p>
+                  <p className="text-sm text-[var(--warm-gray)]">Receba notificações no dispositivo</p>
                 </div>
                 <Switch
                   checked={notificationsEnabled}
@@ -268,7 +268,7 @@ export default function Profile() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Lembrete de Treino</Label>
-                  <p className="text-sm text-gray-500">Notificação diária às 18h</p>
+                  <p className="text-sm text-[var(--warm-gray)]">Notificação diária às 18h</p>
                 </div>
                 <Switch
                   checked={workoutReminders}
@@ -280,7 +280,7 @@ export default function Profile() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Lembrete de Refeições</Label>
-                  <p className="text-sm text-gray-500">Notificações nos horários das refeições</p>
+                  <p className="text-sm text-[var(--warm-gray)]">Notificações nos horários das refeições</p>
                 </div>
                 <Switch
                   checked={mealReminders}
@@ -292,7 +292,7 @@ export default function Profile() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Lembrete de Hidratação</Label>
-                  <p className="text-sm text-gray-500">Notificação a cada 2 horas</p>
+                  <p className="text-sm text-[var(--warm-gray)]">Notificação a cada 2 horas</p>
                 </div>
                 <Switch
                   checked={waterReminders}
@@ -303,13 +303,13 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 font-heading">
                 {theme === 'dark' ? (
-                  <Moon className="w-5 h-5 text-indigo-500" />
+                  <Moon className="w-5 h-5 text-[var(--lilac)]" />
                 ) : (
-                  <Sun className="w-5 h-5 text-yellow-500" />
+                  <Sun className="w-5 h-5 text-[var(--yellow-soft)]" />
                 )}
                 Aparência
               </CardTitle>
@@ -318,7 +318,7 @@ export default function Profile() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Modo Escuro</Label>
-                  <p className="text-sm text-gray-500">Ativar tema escuro</p>
+                  <p className="text-sm text-[var(--warm-gray)]">Ativar tema escuro</p>
                 </div>
                 <Switch
                   checked={theme === 'dark'}
@@ -328,10 +328,10 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lock className="w-5 h-5 text-red-500" />
+              <CardTitle className="flex items-center gap-2 font-heading">
+                <Lock className="w-5 h-5 text-[var(--coral)]" />
                 Segurança
               </CardTitle>
             </CardHeader>
@@ -340,7 +340,7 @@ export default function Profile() {
                 <Lock className="w-4 h-4 mr-2" />
                 Alterar Senha
               </Button>
-              <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
+              <Button variant="outline" className="w-full justify-start text-[var(--coral)] hover:text-[rgb(255,139,128)] hover:bg-[rgb(255,245,240)]">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sair da Conta
               </Button>
@@ -348,7 +348,7 @@ export default function Profile() {
           </Card>
 
           <Button
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+            className="w-full bg-[var(--lilac)] hover:bg-[rgb(166,135,181)] text-white font-heading-medium rounded-2xl py-6 shadow-md"
             onClick={handleSaveSettings}
           >
             <Save className="w-4 h-4 mr-2" />
@@ -358,8 +358,8 @@ export default function Profile() {
       </Tabs>
 
       {/* App Info */}
-      <Card>
-        <CardContent className="pt-6 text-center text-sm text-gray-500">
+      <Card className="shadow-lg">
+        <CardContent className="pt-6 text-center text-sm text-[var(--warm-gray)]">
           <p className="mb-1">Elas Fit - Fitness Adaptado Para Você</p>
           <p>Versão 1.0.0</p>
         </CardContent>

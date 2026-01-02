@@ -98,9 +98,9 @@ export default function CycleTracking() {
       return {
         name: 'Lútea',
         icon: Moon,
-        color: 'text-purple-500',
-        bgColor: 'bg-purple-50 dark:bg-purple-950',
-        borderColor: 'border-purple-200 dark:border-purple-800',
+        color: 'text-[var(--lilac)]',
+        bgColor: 'bg-[var(--tiffany-light)] dark:bg-purple-950',
+        borderColor: 'border-[var(--tiffany)] dark:border-purple-800',
         description: 'Fase de preparação',
         tips: [
           'Energia começa a diminuir',

@@ -215,20 +215,20 @@ export default function WorkoutsNew() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+      <div className="relative bg-gradient-to-br from-[rgb(176,235,229)] via-white to-[rgb(216,191,228)] rounded-3xl p-6 shadow-xl border border-[rgb(231,228,225)]">
+        <h2 className="text-3xl font-heading text-[rgb(51,51,51)]">
           Meus Treinos
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-[var(--warm-gray)] mt-1">
           Crie treinos personalizados com inteligência artificial
         </p>
       </div>
 
       {/* Configuração do Treino */}
-      <Card className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-800 dark:to-purple-900/20 border-2">
+      <Card className="border-2 border-[var(--tiffany)] shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-500" />
+          <CardTitle className="flex items-center gap-2 font-heading">
+            <Sparkles className="w-5 h-5 text-[var(--tiffany)]" />
             Configure seu Treino
           </CardTitle>
         </CardHeader>
@@ -236,7 +236,7 @@ export default function WorkoutsNew() {
           {/* Tempo Disponível */}
           <div className="space-y-3">
             <Label htmlFor="time" className="text-base font-medium flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-500" />
+              <Clock className="w-4 h-4 text-[var(--tiffany)]" />
               Quanto tempo você tem disponível hoje?
             </Label>
             <div className="flex items-center gap-4">
@@ -258,7 +258,7 @@ export default function WorkoutsNew() {
                   variant="outline"
                   size="sm"
                   onClick={() => setAvailableTime(time)}
-                  className={availableTime === time ? 'bg-purple-100 border-purple-300' : ''}
+                  className={availableTime === time ? 'bg-[var(--tiffany-light)] border-[var(--tiffany)]' : ''}
                 >
                   {time} min
                 </Button>
@@ -278,17 +278,17 @@ export default function WorkoutsNew() {
                     key={type.id}
                     className={`cursor-pointer transition-all hover:shadow-lg ${
                       isSelected
-                        ? 'ring-2 ring-purple-500 bg-gradient-to-br ' + type.color + ' text-white'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                        ? 'ring-2 ring-[var(--tiffany)] bg-gradient-to-br from-[var(--tiffany)] to-[var(--tiffany-dark)] text-white shadow-xl'
+                        : 'hover:bg-[var(--off-white)]'
                     }`}
                     onClick={() => setSelectedWorkoutType(type.id)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <Icon className={`w-8 h-8 ${isSelected ? 'text-white' : 'text-purple-500'}`} />
+                        <Icon className={`w-8 h-8 ${isSelected ? 'text-white' : 'text-[var(--tiffany)]'}`} />
                         <div className="flex-1">
                           <h3 className="font-semibold mb-1">{type.name}</h3>
-                          <p className={`text-sm ${isSelected ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'}`}>
+                          <p className={`text-sm ${isSelected ? 'text-white/90' : 'text-[var(--warm-gray)]'}`}>
                             {type.description}
                           </p>
                         </div>
@@ -303,11 +303,11 @@ export default function WorkoutsNew() {
           {/* Grupo Muscular */}
           <div className="space-y-3">
             <Label className="text-base font-medium flex items-center gap-2">
-              <Target className="w-4 h-4 text-orange-500" />
+              <Target className="w-4 h-4 text-[var(--coral)]" />
               Qual grupo muscular quer treinar hoje?
             </Label>
             {workoutSuggestion && (
-              <Alert className="bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200 dark:from-orange-900/20 dark:to-yellow-900/20">
+              <Alert className="bg-gradient-to-r from-[rgb(255,245,240)] to-[rgb(255,250,235)] border-[var(--coral)] border-opacity-30">
                 <AlertDescription className="text-sm">
                   <strong>💡 Sugestão da IA:</strong> {workoutSuggestion}
                 </AlertDescription>
@@ -321,15 +321,15 @@ export default function WorkoutsNew() {
                     key={group.id}
                     className={`cursor-pointer transition-all hover:shadow-md ${
                       isSelected
-                        ? 'ring-2 ring-orange-500 bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                        ? 'ring-2 ring-[var(--coral)] bg-gradient-to-br from-[rgb(255,240,235)] to-[rgb(255,250,235)] shadow-lg'
+                        : 'hover:bg-[var(--off-white)]'
                     }`}
                     onClick={() => setSelectedMuscleGroup(group.id)}
                   >
                     <CardContent className="p-3 text-center">
                       <div className="text-3xl mb-2">{group.emoji}</div>
                       <h4 className="font-medium text-sm mb-1">{group.name}</h4>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">{group.description}</p>
+                      <p className="text-xs text-[var(--warm-gray)]">{group.description}</p>
                     </CardContent>
                   </Card>
                 )
@@ -340,7 +340,7 @@ export default function WorkoutsNew() {
           {/* Mobilidade */}
           <div className="space-y-3">
             <Label className="text-base font-medium">Adicionar mobilidade?</Label>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-[var(--warm-gray)]">
               Exercícios de mobilidade melhoram flexibilidade e previnem lesões
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -352,17 +352,17 @@ export default function WorkoutsNew() {
                     key={option.id}
                     className={`cursor-pointer transition-all hover:shadow-md ${
                       isSelected
-                        ? 'ring-2 ring-pink-500 bg-pink-50 dark:bg-pink-900/20'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                        ? 'ring-2 ring-[var(--lilac)] bg-[var(--lilac-light)] shadow-lg'
+                        : 'hover:bg-[var(--off-white)]'
                     }`}
                     onClick={() => setSelectedMobility(option.id)}
                   >
                     <CardContent className="p-3">
                       <div className="flex items-center gap-3">
-                        {Icon && <Icon className={`w-5 h-5 ${isSelected ? 'text-pink-600' : 'text-gray-500'}`} />}
+                        {Icon && <Icon className={`w-5 h-5 ${isSelected ? 'text-[var(--lilac)]' : 'text-[var(--warm-gray)]'}`} />}
                         <div className="flex-1">
                           <h4 className="font-medium text-sm">{option.name}</h4>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">{option.description}</p>
+                          <p className="text-xs text-[var(--warm-gray)]">{option.description}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -376,7 +376,7 @@ export default function WorkoutsNew() {
           <Button
             onClick={handleGenerateWorkout}
             disabled={isGenerating}
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white h-12 text-lg"
+            className="w-full bg-[var(--coral)] hover:bg-[rgb(255,139,128)] text-white h-12 text-lg font-heading-medium rounded-2xl shadow-md hover:shadow-lg transition-all"
           >
             {isGenerating ? (
               <>
@@ -392,7 +392,7 @@ export default function WorkoutsNew() {
           </Button>
 
           {userProfile && (
-            <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20">
+            <Alert className="bg-gradient-to-br from-[var(--tiffany-light)] to-white border-[var(--tiffany)]">
               <AlertDescription className="text-sm">
                 <strong>Adaptado para você:</strong> Nível {userProfile.fitnessLevel === 'beginner' ? 'Iniciante' : userProfile.fitnessLevel === 'intermediate' ? 'Intermediário' : 'Avançado'} •
                 Fase: {userProfile.lifePhase === 'menstrual' ? 'Menstrual' : userProfile.lifePhase === 'pre-menopause' ? 'Pré-menopausa' : userProfile.lifePhase === 'menopause' ? 'Menopausa' : 'Pós-menopausa'}

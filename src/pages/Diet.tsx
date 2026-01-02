@@ -191,9 +191,9 @@ export default function Diet() {
                     <p className="text-xs text-gray-500">Proteínas</p>
                     <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{meal.protein}g</p>
                   </div>
-                  <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <div className="p-2 bg-[var(--tiffany-light)] dark:bg-purple-900/20 rounded-lg">
                     <p className="text-xs text-gray-500">Carbos</p>
-                    <p className="text-sm font-bold text-purple-600 dark:text-purple-400">{meal.carbs}g</p>
+                    <p className="text-sm font-bold text-[var(--lilac)] dark:text-purple-400">{meal.carbs}g</p>
                   </div>
                   <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                     <p className="text-xs text-gray-500">Gorduras</p>
@@ -219,7 +219,7 @@ export default function Diet() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-purple-500" />
+            <TrendingUp className="w-5 h-5 text-[var(--lilac)]" />
             Sugestões Saudáveis
           </CardTitle>
         </CardHeader>
@@ -262,7 +262,7 @@ export default function Diet() {
 
             <TabsContent value="carbs" className="space-y-2 mt-4">
               {['Batata doce (100g) - 86 kcal', 'Arroz integral (100g) - 123 kcal', 'Aveia (50g) - 190 kcal', 'Quinoa (100g) - 120 kcal', 'Pão integral (2 fatias) - 138 kcal'].map((item) => (
-                <div key={item} className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div key={item} className="flex items-center justify-between p-3 bg-[var(--tiffany-light)] dark:bg-purple-900/20 rounded-lg">
                   <span className="text-sm">{item}</span>
                   <Button size="sm" variant="ghost" onClick={() => {
                     toast({

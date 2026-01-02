@@ -135,7 +135,7 @@ export default function WeightProgress() {
           <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-purple-500 rounded-full">
+                <div className="p-3 bg-[var(--tiffany-light)]0 rounded-full">
                   <Dumbbell className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -163,7 +163,7 @@ export default function WeightProgress() {
           <Card className="bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900/20 dark:to-pink-800/20">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-pink-500 rounded-full">
+                <div className="p-3 bg-[var(--lilac-light)]0 rounded-full">
                   <Award className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -250,7 +250,7 @@ export default function WeightProgress() {
                               {exercise.previous_weight.toFixed(1)} kg
                             </span>
                           )}
-                          <span className="text-lg font-bold text-purple-600">
+                          <span className="text-lg font-bold text-[var(--lilac)]">
                             {exercise.current_weight.toFixed(1)} kg
                           </span>
                         </div>
@@ -287,7 +287,7 @@ export default function WeightProgress() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[var(--tiffany-light)]0 text-white flex items-center justify-center font-bold flex-shrink-0">
               1
             </div>
             <p className="text-sm">
@@ -295,7 +295,7 @@ export default function WeightProgress() {
             </p>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[var(--tiffany-light)]0 text-white flex items-center justify-center font-bold flex-shrink-0">
               2
             </div>
             <p className="text-sm">
@@ -303,7 +303,7 @@ export default function WeightProgress() {
             </p>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[var(--tiffany-light)]0 text-white flex items-center justify-center font-bold flex-shrink-0">
               3
             </div>
             <p className="text-sm">

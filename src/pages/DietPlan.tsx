@@ -236,7 +236,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
   return (
     <div className="space-y-6 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] rounded-2xl p-6 text-white shadow-lg">
         <h1 className="text-3xl font-bold mb-2">Seu Plano Alimentar</h1>
         <p className="text-pink-100">
           Dieta personalizada para alcançar seus objetivos com saúde
@@ -247,7 +247,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-purple-500" />
+            <Target className="w-5 h-5 text-[var(--lilac)]" />
             Resumo da Sua Meta
           </CardTitle>
         </CardHeader>
@@ -268,8 +268,8 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
               <p className="text-xs text-gray-500">A perder</p>
               <p className="text-xl font-bold">{weightDiff.toFixed(1)} kg</p>
             </div>
-            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <Calendar className="w-5 h-5 text-purple-500 mb-2" />
+            <div className="p-4 bg-[var(--tiffany-light)] dark:bg-purple-900/20 rounded-lg">
+              <Calendar className="w-5 h-5 text-[var(--lilac)] mb-2" />
               <p className="text-xs text-gray-500">Prazo</p>
               <p className="text-xl font-bold">{Math.floor(weeksToGoal / 4)}m</p>
             </div>
@@ -309,7 +309,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Utensils className="w-5 h-5 text-pink-500" />
+              <Utensils className="w-5 h-5 text-[var(--coral)]" />
               Dieta Escolhida
             </CardTitle>
           </CardHeader>
@@ -428,10 +428,10 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
 
       {/* Botão de Gerar Plano */}
       {!generatedPlan && (
-        <Card className="border-2 border-purple-200 dark:border-purple-800">
+        <Card className="border-2 border-[var(--tiffany)] dark:border-purple-800">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
-              <Sparkles className="w-16 h-16 mx-auto text-purple-500" />
+              <Sparkles className="w-16 h-16 mx-auto text-[var(--lilac)]" />
               <h3 className="text-xl font-bold">Pronta para o próximo passo?</h3>
               <p className="text-gray-600 dark:text-gray-400">
                 Clique no botão abaixo para gerar seu plano alimentar personalizado completo
@@ -440,7 +440,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
                 onClick={generateDietPlan}
                 disabled={isGenerating}
                 size="lg"
-                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+                className="bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] hover:from-pink-600 hover:to-purple-700"
               >
                 {isGenerating ? (
                   <>
@@ -471,7 +471,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-500" />
+                <Sparkles className="w-5 h-5 text-[var(--lilac)]" />
                 Seu Plano Alimentar Completo
               </CardTitle>
               <Button
@@ -494,7 +494,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
                 } else if (line.startsWith('### ')) {
                   return <h3 key={idx} className="text-lg font-semibold mt-4 mb-2">{line.substring(4)}</h3>
                 } else if (line.startsWith('- ')) {
-                  return <p key={idx} className="ml-4 my-1 flex items-start gap-2"><span className="text-purple-500 font-bold">•</span><span>{line.substring(2)}</span></p>
+                  return <p key={idx} className="ml-4 my-1 flex items-start gap-2"><span className="text-[var(--lilac)] font-bold">•</span><span>{line.substring(2)}</span></p>
                 } else if (line.startsWith('**') && line.endsWith('**')) {
                   return <p key={idx} className="font-bold my-2">{line.replace(/\*\*/g, '')}</p>
                 } else if (line.trim() === '---') {
@@ -512,7 +512,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
 
       {/* Call to Action */}
       {generatedPlan && (
-        <Card className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border-2 border-pink-200 dark:border-pink-800">
+        <Card className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border-2 border-[var(--lilac)] dark:border-pink-800">
           <CardContent className="pt-6">
             <div className="text-center space-y-3">
               <h3 className="text-lg font-bold">🎉 Seu plano está pronto!</h3>
@@ -524,7 +524,7 @@ Este é um plano alimentar educativo e não substitui a consulta com um nutricio
                   <Clock className="w-4 h-4 mr-2" />
                   Ver Plano Novamente
                 </Button>
-                <Button className="bg-gradient-to-r from-pink-500 to-purple-600">
+                <Button className="bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)]">
                   <Target className="w-4 h-4 mr-2" />
                   Começar Agora
                 </Button>

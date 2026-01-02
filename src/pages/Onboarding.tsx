@@ -155,7 +155,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] bg-clip-text text-transparent">
             Elas Fit
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -167,7 +167,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
         <div className="mb-6">
           <div className="flex justify-between text-sm mb-2">
             <span className="text-gray-600 dark:text-gray-400">Etapa {currentStep} de {TOTAL_STEPS}</span>
-            <span className="font-medium text-purple-600 dark:text-purple-400">{Math.round(progressPercentage)}%</span>
+            <span className="font-medium text-[var(--lilac)] dark:text-purple-400">{Math.round(progressPercentage)}%</span>
           </div>
           <Progress value={progressPercentage} className="h-2" />
         </div>
@@ -176,7 +176,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
         <Card className="shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
-              <Heart className="w-6 h-6 text-pink-500" />
+              <Heart className="w-6 h-6 text-[var(--coral)]" />
               {getStepTitle(currentStep)}
             </CardTitle>
           </CardHeader>
@@ -260,7 +260,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                     onValueChange={(value) => setFormData({ ...formData, lifePhase: value as LifePhase })}
                     className="space-y-3"
                   >
-                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <RadioGroupItem value="menstrual" id="menstrual" className="mt-1" />
                       <div className="flex-1">
                         <Label htmlFor="menstrual" className="font-medium cursor-pointer">
@@ -271,7 +271,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <RadioGroupItem value="pre-menopause" id="pre-menopause" className="mt-1" />
                       <div className="flex-1">
                         <Label htmlFor="pre-menopause" className="font-medium cursor-pointer">
@@ -282,7 +282,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <RadioGroupItem value="menopause" id="menopause" className="mt-1" />
                       <div className="flex-1">
                         <Label htmlFor="menopause" className="font-medium cursor-pointer">
@@ -293,7 +293,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <RadioGroupItem value="post-menopause" id="post-menopause" className="mt-1" />
                       <div className="flex-1">
                         <Label htmlFor="post-menopause" className="font-medium cursor-pointer">
@@ -304,7 +304,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                    <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--tiffany-light)] dark:hover:bg-purple-900/20 transition-colors">
                       <RadioGroupItem value="irregular-cycle" id="irregular-cycle" className="mt-1" />
                       <div className="flex-1">
                         <Label htmlFor="irregular-cycle" className="font-medium cursor-pointer">
@@ -361,7 +361,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         onValueChange={(value) => setFormData({ ...formData, irregularCycleReason: value as any })}
                         className="space-y-3"
                       >
-                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--tiffany-light)] dark:hover:bg-purple-900/20 transition-colors">
                           <RadioGroupItem value="iud" id="reason-iud" className="mt-1" />
                           <div className="flex-1">
                             <Label htmlFor="reason-iud" className="font-medium cursor-pointer">
@@ -372,7 +372,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--tiffany-light)] dark:hover:bg-purple-900/20 transition-colors">
                           <RadioGroupItem value="pcos" id="reason-pcos" className="mt-1" />
                           <div className="flex-1">
                             <Label htmlFor="reason-pcos" className="font-medium cursor-pointer">
@@ -383,7 +383,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--tiffany-light)] dark:hover:bg-purple-900/20 transition-colors">
                           <RadioGroupItem value="stress" id="reason-stress" className="mt-1" />
                           <div className="flex-1">
                             <Label htmlFor="reason-stress" className="font-medium cursor-pointer">
@@ -394,7 +394,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--tiffany-light)] dark:hover:bg-purple-900/20 transition-colors">
                           <RadioGroupItem value="health-condition" id="reason-health" className="mt-1" />
                           <div className="flex-1">
                             <Label htmlFor="reason-health" className="font-medium cursor-pointer">
@@ -405,7 +405,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                        <div className="flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--tiffany-light)] dark:hover:bg-purple-900/20 transition-colors">
                           <RadioGroupItem value="other" id="reason-other" className="mt-1" />
                           <div className="flex-1">
                             <Label htmlFor="reason-other" className="font-medium cursor-pointer">
@@ -418,7 +418,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         </div>
                       </RadioGroup>
                     </div>
-                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <div className="p-4 bg-[var(--tiffany-light)] dark:bg-purple-900/20 rounded-lg">
                       <p className="text-sm text-gray-700 dark:text-gray-300">
                         <strong>Personalização Especial:</strong> Vamos adaptar seus treinos e dieta com base em como você se sente a cada dia, sem depender de fases do ciclo hormonal.
                       </p>
@@ -426,8 +426,8 @@ EXECUTE-ESTE-SQL-AGORA.sql
                   </>
                 ) : (
                   <div className="space-y-3">
-                    <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-center">
-                      <Sparkles className="w-12 h-12 mx-auto mb-3 text-purple-500" />
+                    <div className="p-6 bg-[var(--tiffany-light)] dark:bg-purple-900/20 rounded-lg text-center">
+                      <Sparkles className="w-12 h-12 mx-auto mb-3 text-[var(--lilac)]" />
                       <h3 className="font-medium mb-2">Treinos Adaptados para Você</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Vamos criar treinos específicos para sua fase da vida, focando em:
@@ -482,7 +482,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                 <div>
                   <Label className="text-base mb-4 block">Quais são seus objetivos? (Pode escolher mais de um)</Label>
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="lose-weight"
                         checked={formData.goals.includes('lose-weight')}
@@ -499,7 +499,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         Perder peso e definir
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="gain-muscle"
                         checked={formData.goals.includes('gain-muscle')}
@@ -516,7 +516,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         Ganhar massa muscular
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="tone"
                         checked={formData.goals.includes('tone')}
@@ -533,7 +533,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         Tonificar o corpo
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="health"
                         checked={formData.goals.includes('health')}
@@ -550,7 +550,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         Saúde e bem-estar geral
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="flexibility"
                         checked={formData.goals.includes('flexibility')}
@@ -567,7 +567,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         Melhorar flexibilidade e mobilidade
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="energy"
                         checked={formData.goals.includes('energy')}
@@ -584,7 +584,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         Aumentar energia e disposição
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="reduce-stress"
                         checked={formData.goals.includes('reduce-stress')}
@@ -601,7 +601,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         Reduzir estresse e ansiedade
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="posture"
                         checked={formData.goals.includes('posture')}
@@ -618,7 +618,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                         Melhorar postura
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors">
+                    <div className="flex items-center space-x-3 p-4 border-2 rounded-lg hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-colors">
                       <Checkbox
                         id="maintain"
                         checked={formData.goals.includes('maintain')}
@@ -644,7 +644,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
             {currentStep === 6 && (
               <div className="space-y-4">
                 <div className="text-center mb-4">
-                  <HeartCrack className="w-12 h-12 mx-auto mb-3 text-pink-500" />
+                  <HeartCrack className="w-12 h-12 mx-auto mb-3 text-[var(--coral)]" />
                   <h3 className="text-lg font-medium mb-2">Você não está sozinha</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Queremos entender suas dificuldades para te apoiar melhor
@@ -665,7 +665,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                       'Alterações hormonais afetando o corpo',
                       'Pressão estética ou autoestima baixa'
                     ].map((challenge) => (
-                      <div key={challenge} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+                      <div key={challenge} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-[var(--tiffany-light)] dark:hover:bg-purple-900/20 transition-colors">
                         <Checkbox
                           id={challenge}
                           checked={formData.challenges.includes(challenge)}
@@ -682,7 +682,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                     ))}
                   </div>
                 </div>
-                <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+                <div className="p-4 bg-[var(--lilac-light)] dark:bg-pink-900/20 rounded-lg">
                   <p className="text-sm text-gray-700 dark:text-gray-300">
                     <strong>💜 Estamos aqui para você:</strong> Vamos personalizar seu plano considerando essas dificuldades, tornando sua jornada mais leve e real.
                   </p>
@@ -903,7 +903,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
             {/* Step 10: Hábitos Alimentares */}
             {currentStep === 10 && (
               <div className="space-y-6">
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg mb-4">
+                <div className="p-4 bg-[var(--tiffany-light)] dark:bg-purple-900/20 rounded-lg mb-4">
                   <p className="text-sm text-gray-700 dark:text-gray-300">
                     <strong>🍽️ Sobre sua alimentação:</strong> Vamos entender seus hábitos para criar uma dieta que funcione para VOCÊ!
                   </p>
@@ -1166,8 +1166,8 @@ EXECUTE-ESTE-SQL-AGORA.sql
                   </div>
                 )}
 
-                <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
-                  <Sparkles className="w-8 h-8 mx-auto mb-2 text-pink-500" />
+                <div className="p-4 bg-[var(--lilac-light)] dark:bg-pink-900/20 rounded-lg">
+                  <Sparkles className="w-8 h-8 mx-auto mb-2 text-[var(--coral)]" />
                   <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
                     <strong>Quase lá!</strong> Com todas essas informações, vamos criar um plano completamente personalizado para você!
                   </p>
@@ -1179,7 +1179,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
             {currentStep === 12 && (
               <div className="space-y-6">
                 <div className="text-center mb-4">
-                  <Calendar className="w-12 h-12 mx-auto mb-3 text-purple-500" />
+                  <Calendar className="w-12 h-12 mx-auto mb-3 text-[var(--lilac)]" />
                   <h3 className="text-lg font-medium mb-2">Seu prazo para alcançar a meta</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Vamos definir um prazo realista e saudável para você alcançar seu peso desejado
@@ -1215,7 +1215,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-gray-600">Semanas</span>
-                        <span className="text-lg font-bold text-purple-600">{formData.goalDeadlineWeeks} semanas</span>
+                        <span className="text-lg font-bold text-[var(--lilac)]">{formData.goalDeadlineWeeks} semanas</span>
                       </div>
                       <Input
                         id="goalDeadlineWeeks"
@@ -1273,7 +1273,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                   )
                 })()}
 
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="p-4 bg-[var(--tiffany-light)] dark:bg-purple-900/20 rounded-lg">
                   <p className="text-xs text-gray-700 dark:text-gray-300">
                     <strong>💡 Lembre-se:</strong> Uma perda de peso saudável é entre 0,5 a 1 kg por semana. Isso garante que você perca gordura e não músculo, além de ser mais sustentável a longo prazo.
                   </p>
@@ -1285,7 +1285,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
             {currentStep === 13 && (
               <div className="space-y-6">
                 <div className="text-center mb-4">
-                  <Utensils className="w-12 h-12 mx-auto mb-3 text-pink-500" />
+                  <Utensils className="w-12 h-12 mx-auto mb-3 text-[var(--coral)]" />
                   <h3 className="text-lg font-medium mb-2">Escolha sua dieta</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Selecione o tipo de alimentação que mais combina com você ou deixe a IA criar algo totalmente personalizado
@@ -1305,7 +1305,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                     <div className="flex items-start gap-3">
                       <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                         formData.selectedDietType === 'personalized'
-                          ? 'border-purple-500 bg-purple-500'
+                          ? 'border-purple-500 bg-[var(--tiffany-light)]0'
                           : 'border-gray-300'
                       }`}>
                         {formData.selectedDietType === 'personalized' && (
@@ -1314,7 +1314,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <Sparkles className="w-5 h-5 text-purple-500" />
+                          <Sparkles className="w-5 h-5 text-[var(--lilac)]" />
                           <h4 className="font-bold text-base">Criar a dieta que mais se encaixa para mim</h4>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -1481,9 +1481,9 @@ EXECUTE-ESTE-SQL-AGORA.sql
                 </div>
 
                 {formData.selectedDietType && (
-                  <div className="p-4 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-lg border-2 border-pink-200 dark:border-pink-800">
+                  <div className="p-4 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-lg border-2 border-[var(--lilac)] dark:border-pink-800">
                     <div className="flex items-start gap-3">
-                      <Sparkles className="w-5 h-5 text-pink-500 mt-0.5 flex-shrink-0" />
+                      <Sparkles className="w-5 h-5 text-[var(--coral)] mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">
                           {formData.selectedDietType === 'personalized'
@@ -1516,7 +1516,7 @@ EXECUTE-ESTE-SQL-AGORA.sql
               )}
               <Button
                 onClick={handleNext}
-                className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+                className="flex-1 bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] hover:from-pink-600 hover:to-purple-700"
                 disabled={!isStepValid(currentStep, formData) || isSaving}
               >
                 {isSaving ? (

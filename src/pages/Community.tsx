@@ -156,7 +156,7 @@ export default function Community() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] rounded-2xl p-6 text-white">
         <h1 className="text-3xl font-bold mb-2">Comunidade Elas Fit</h1>
         <p className="text-pink-100">
           Um espaço seguro para compartilhar, apoiar e crescer juntas 💜
@@ -184,7 +184,7 @@ export default function Community() {
                 />
                 <Button
                   onClick={handlePost}
-                  className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+                  className="w-full bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] hover:from-pink-600 hover:to-purple-700"
                   disabled={!newPost.trim()}
                 >
                   Publicar
@@ -227,7 +227,7 @@ export default function Community() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleLike(post.id)}
-                        className={post.liked ? 'text-pink-500' : ''}
+                        className={post.liked ? 'text-[var(--coral)]' : ''}
                       >
                         <Heart className={`w-4 h-4 mr-1 ${post.liked ? 'fill-current' : ''}`} />
                         {post.likes}
@@ -249,10 +249,10 @@ export default function Community() {
 
         {/* Recursos Personalizados Tab */}
         <TabsContent value="resources" className="space-y-4">
-          <Card className="border-2 border-pink-200 dark:border-pink-700">
+          <Card className="border-2 border-[var(--lilac)] dark:border-pink-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-pink-500" />
+                <Sparkles className="w-5 h-5 text-[var(--coral)]" />
                 Conteúdo Personalizado Para Você
               </CardTitle>
               <CardDescription>
@@ -266,11 +266,11 @@ export default function Community() {
                   return (
                     <div
                       key={index}
-                      className="p-4 border-2 rounded-lg hover:border-pink-300 hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-all cursor-pointer"
+                      className="p-4 border-2 rounded-lg hover:border-pink-300 hover:bg-[var(--lilac-light)] dark:hover:bg-pink-900/20 transition-all cursor-pointer"
                     >
                       <div className="flex items-start gap-3">
                         <div className="p-2 bg-pink-100 dark:bg-pink-900/30 rounded-lg">
-                          <Icon className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+                          <Icon className="w-5 h-5 text-[var(--coral)] dark:text-pink-400" />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold mb-1">{resource.title}</h3>

@@ -231,7 +231,7 @@ export default function Routine() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <Pill className="w-5 h-5 text-purple-500" />
+                    <Pill className="w-5 h-5 text-[var(--lilac)]" />
                     Suplementação
                   </CardTitle>
                   <CardDescription>Gerencie seus suplementos e vitaminas</CardDescription>

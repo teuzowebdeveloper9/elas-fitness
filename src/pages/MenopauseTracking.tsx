@@ -164,8 +164,8 @@ export default function MenopauseTracking() {
         return {
           title: 'Menopausa',
           description: 'Após 12 meses sem menstruação',
-          color: 'text-purple-500',
-          bgColor: 'bg-purple-50 dark:bg-purple-950',
+          color: 'text-[var(--lilac)]',
+          bgColor: 'bg-[var(--tiffany-light)] dark:bg-purple-950',
           tips: [
             'Hidratação é fundamental',
             'Evite cafeína e álcool se tiver ondas de calor',

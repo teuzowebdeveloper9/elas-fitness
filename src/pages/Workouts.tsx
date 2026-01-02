@@ -112,7 +112,7 @@ export default function Workouts() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] bg-clip-text text-transparent">
           Meus Treinos
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
@@ -249,7 +249,7 @@ function WorkoutCard({ workout, onSelect }: { workout: Workout; onSelect: () => 
             <span className="text-sm font-medium">{workout.calories} kcal</span>
           </div>
         </div>
-        <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700">
+        <Button className="w-full bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] hover:from-pink-600 hover:to-purple-700">
           <Play className="w-4 h-4 mr-2" />
           Iniciar Treino
         </Button>
@@ -360,7 +360,7 @@ function WorkoutDetailDialog({
             Fechar
           </Button>
           <Button
-            className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+            className="flex-1 bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] hover:from-pink-600 hover:to-purple-700"
             onClick={() => {
               alert('Treino iniciado! Boa sorte! 💪')
               setCompletedExercises(new Set())

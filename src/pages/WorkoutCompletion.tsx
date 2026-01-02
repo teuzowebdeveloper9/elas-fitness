@@ -154,7 +154,7 @@ export default function WorkoutCompletion() {
           <CardContent className="pt-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                <Clock className="w-8 h-8 mx-auto mb-2 text-purple-600 dark:text-purple-400" />
+                <Clock className="w-8 h-8 mx-auto mb-2 text-[var(--lilac)] dark:text-purple-400" />
                 <p className="text-2xl font-bold">{durationMinutes} min</p>
                 <p className="text-sm text-muted-foreground">Duração</p>
               </div>
@@ -265,7 +265,7 @@ export default function WorkoutCompletion() {
             {/* Opção de publicar no feed */}
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
               <div className="flex items-center gap-3">
-                <Share2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <Share2 className="w-5 h-5 text-[var(--lilac)] dark:text-purple-400" />
                 <div>
                   <Label htmlFor="publish" className="cursor-pointer">
                     Publicar na comunidade

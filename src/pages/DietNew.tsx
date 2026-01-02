@@ -362,11 +362,11 @@ export default function DietNew() {
 
       {/* Aviso se já tem dieta mas está editando */}
       {!isLoadingSavedDiet && generatedDiet && (
-        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200">
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-[var(--tiffany)]">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-500" />
+                <Sparkles className="w-5 h-5 text-[var(--lilac)]" />
                 Sua Dieta Personalizada
               </span>
               <Badge variant="secondary">Ativa</Badge>
@@ -472,7 +472,7 @@ export default function DietNew() {
                     <strong>Peso Ideal:</strong> {nutritionData.idealWeight.toFixed(1)} kg
                   </AlertDescription>
                 </Alert>
-                <Alert className="bg-purple-50 border-purple-200 dark:bg-purple-900/20">
+                <Alert className="bg-[var(--tiffany-light)] border-[var(--tiffany)] dark:bg-purple-900/20">
                   <AlertDescription>
                     <strong>IMC:</strong> {nutritionData.bmi.toFixed(1)} •
                     {nutritionData.bodyFatPercentage && (
@@ -724,7 +724,7 @@ function DietView({
                     <Card>
                       <CardHeader className="pb-3">
                         <CardTitle className="flex items-center gap-2 text-lg">
-                          <Sunrise className="w-5 h-5 text-purple-500" />
+                          <Sunrise className="w-5 h-5 text-[var(--lilac)]" />
                           Lanches
                         </CardTitle>
                       </CardHeader>

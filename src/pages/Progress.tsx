@@ -62,7 +62,7 @@ export default function Progress() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--tiffany)]"></div>
           <p className="mt-4 text-muted-foreground">Carregando...</p>
         </div>
       </div>
@@ -71,20 +71,20 @@ export default function Progress() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-500 to-pink-600 bg-clip-text text-transparent">
+      <div className="relative bg-gradient-to-br from-[rgb(176,235,229)] via-white to-[rgb(216,191,228)] rounded-3xl p-6 shadow-xl border border-[rgb(231,228,225)]">
+        <h2 className="text-3xl font-heading text-[rgb(51,51,51)]">
           Meu Progresso
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-[var(--warm-gray)] mt-1">
           Acompanhe sua evolução e conquistas
         </p>
       </div>
 
       {/* Weight Progress Overview */}
-      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-700">
+      <Card className="bg-gradient-to-br from-[rgb(220,245,243)] to-white border-2 border-[var(--tiffany)] shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Scale className="w-5 h-5 text-purple-600" />
+          <CardTitle className="flex items-center gap-2 font-heading">
+            <Scale className="w-5 h-5 text-[var(--tiffany)]" />
             Progresso de Peso
           </CardTitle>
         </CardHeader>
@@ -96,7 +96,7 @@ export default function Progress() {
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Peso Atual</p>
-              <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{currentWeight} kg</p>
+              <p className="text-3xl font-bold text-[var(--lilac)] dark:text-purple-400">{currentWeight} kg</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Meta</p>
@@ -107,7 +107,7 @@ export default function Progress() {
           <div className="space-y-2 mb-4">
             <div className="flex justify-between text-sm">
               <span className="font-medium">Progresso até a meta</span>
-              <span className="font-bold text-purple-600 dark:text-purple-400">
+              <span className="font-bold text-[var(--lilac)] dark:text-purple-400">
                 {startWeight !== goalWeight && startWeight > goalWeight
                   ? ((weightLost / (startWeight - goalWeight)) * 100).toFixed(1)
                   : '0.0'}%
@@ -239,7 +239,7 @@ export default function Progress() {
 
           <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
             <p className="text-sm text-center text-gray-700 dark:text-gray-300">
-              <span className="font-bold text-purple-600 dark:text-purple-400">0 de 7 dias</span> completados esta semana. Comece seu primeiro treino!
+              <span className="font-bold text-[var(--lilac)] dark:text-purple-400">0 de 7 dias</span> completados esta semana. Comece seu primeiro treino!
             </p>
           </div>
         </CardContent>
@@ -303,7 +303,7 @@ export default function Progress() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Camera className="w-5 h-5 text-pink-600" />
+            <Camera className="w-5 h-5 text-[var(--coral)]" />
             Fotos de Progresso
           </CardTitle>
         </CardHeader>
@@ -319,7 +319,7 @@ export default function Progress() {
             ))}
           </div>
           <Button
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+            className="w-full bg-gradient-to-r from-[var(--tiffany)] to-[var(--lilac)] hover:from-pink-600 hover:to-purple-700"
             onClick={() => {
               toast({
                 title: "Adicionar Foto",
