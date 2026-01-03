@@ -4,20 +4,28 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY
 
-console.log('[Supabase Config] Verificando variáveis...')
-console.log('[Supabase Config] URL:', supabaseUrl ? '✓ Configurada' : '✗ Faltando')
-console.log('[Supabase Config] Key:', supabaseAnonKey ? '✓ Configurada' : '✗ Faltando')
+console.log('[Supabase Config] Verificando variáveis de ambiente...')
+console.log('[Supabase Config] VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL ? '✓ Configurada' : '✗ Faltando')
+console.log('[Supabase Config] VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? '✓ Configurada' : '✗ Faltando')
+console.log('[Supabase Config] Todas as variáveis de ambiente disponíveis:', Object.keys(import.meta.env))
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('[Supabase Config Error] Missing environment variables')
-  console.error('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL)
-  console.error('SUPABASE_URL:', import.meta.env.SUPABASE_URL)
-  console.error('VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'presente' : 'faltando')
-  console.error('SUPABASE_ANON_KEY:', import.meta.env.SUPABASE_ANON_KEY ? 'presente' : 'faltando')
-  throw new Error('Missing Supabase environment variables. Check .env.local file.')
+  const errorMsg = `
+🔴 ERRO: Variáveis de ambiente do Supabase não encontradas!
+
+Variáveis checadas:
+- VITE_SUPABASE_URL: ${import.meta.env.VITE_SUPABASE_URL || 'NÃO ENCONTRADA'}
+- VITE_SUPABASE_ANON_KEY: ${import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Configurada' : 'NÃO ENCONTRADA'}
+
+Todas as variáveis disponíveis: ${Object.keys(import.meta.env).join(', ')}
+
+SOLUÇÃO: As variáveis precisam estar no arquivo .env ou .env.local com o prefixo VITE_
+  `
+  console.error(errorMsg)
+  throw new Error('Missing Supabase environment variables. Verifique o arquivo .env ou .env.local')
 }
 
-console.log('[Supabase Config] ✅ Configuração OK!')
+console.log('[Supabase Config] ✅ Configuração OK! Conectando ao Supabase...')
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
