@@ -734,14 +734,14 @@ Responda APENAS com JSON válido (sem texto adicional):
   "duration_minutes": number,
   "estimated_calories": number,
   "workout_plan": {
-    "warmup": [{"name": "string", "duration": "string", "description": "string"}],
+    "mobility_exercises": ${data.workoutPreferences.mobilityType !== 'none' ? '[{"name": "string", "duration": "string", "description": "string", "focus_area": "string"}]' : '[]'},
     "main_exercises": [{"name": "string", "sets": "string", "reps": "string", "rest": "string", "description": "string", "calories": number}],
-    "mobility_exercises": [],
-    "cooldown": [{"name": "string", "duration": "string", "description": "string"}]
+    "cardio": [{"name": "string", "duration": "string", "description": "string", "intensity": "string", "calories": number}]
   },
   "equipment_needed": ["string"],
   "tips": ["string"],
-  "adaptations": ["string"]
+  "adaptations": ["string"],
+  "cardio_importance": "string - mensagem sobre a importância do cardio para saúde cardiovascular"
 }`
 
     const completion = await openai!.chat.completions.create({
@@ -783,10 +783,10 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
   // Templates adaptados por nível
   const workoutTemplates: Record<string, any> = {
     musculacao: {
-      warmup: [
-        { name: "Esteira leve", duration: "5 min", description: "Caminhada ou trote leve para aquecer" },
-        { name: "Alongamento dinâmico", duration: "3 min", description: "Movimentos de braços e pernas" }
-      ],
+      mobility_exercises: data.workoutPreferences.mobilityType !== 'none' ? [
+        { name: "Rotação de quadril", duration: "2 min", description: "Círculos com o quadril", focus_area: data.workoutPreferences.mobilityType },
+        { name: "Alongamento de ombros", duration: "2 min", description: "Movimentos circulares dos ombros", focus_area: data.workoutPreferences.mobilityType }
+      ] : [],
       main_exercises: isIniciante ? [
         { name: "Leg Press 45°", sets: "3", reps: "15", rest: "90s", description: "Carga leve, empurre com os calcanhares", calories: 45 },
         { name: "Cadeira extensora", sets: "3", reps: "15", rest: "60s", description: "Trabalha frente da coxa", calories: 35 },
@@ -811,16 +811,16 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
         { name: "Supino reto", sets: "4", reps: "10", rest: "60s", description: "Barra, desça controlado", calories: 40 },
         { name: "Desenvolvimento militar", sets: "4", reps: "10", rest: "60s", description: "Barra em pé ou sentada", calories: 35 }
       ],
-      cooldown: [
-        { name: "Alongamento posterior", duration: "3 min", description: "Alongar pernas e glúteos" },
-        { name: "Alongamento superior", duration: "2 min", description: "Braços, ombros e costas" }
+      cardio: [
+        { name: "Esteira ou bicicleta", duration: "10-15 min", description: "Cardio moderado para saúde cardiovascular", intensity: "moderada", calories: 80 },
+        { name: "Elíptico", duration: "10 min", description: "Baixo impacto, ótimo para articulações", intensity: "leve a moderada", calories: 70 }
       ]
     },
     casa: {
-      warmup: [
-        { name: "Polichinelos", duration: "2 min", description: "Pular abrindo e fechando pernas e braços" },
-        { name: "Joelho alto", duration: "2 min", description: "Correr no lugar levantando os joelhos" }
-      ],
+      mobility_exercises: data.workoutPreferences.mobilityType !== 'none' ? [
+        { name: "Agachamento profundo", duration: "2 min", description: "Melhora mobilidade do quadril", focus_area: data.workoutPreferences.mobilityType },
+        { name: "Gato e vaca", duration: "2 min", description: "Mobilidade da coluna", focus_area: data.workoutPreferences.mobilityType }
+      ] : [],
       main_exercises: isIniciante ? [
         { name: "Agachamento", sets: "3", reps: "15", rest: "60s", description: "Peso corporal, desça devagar", calories: 35 },
         { name: "Flexão nos joelhos", sets: "3", reps: "10", rest: "60s", description: "Apoiando os joelhos no chão", calories: 25 },
@@ -835,16 +835,16 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
         { name: "Burpee", sets: "3", reps: "10", rest: "60s", description: "Movimento completo, pode pular no final", calories: 50 },
         { name: "Mountain climbers", sets: "3", reps: "20", rest: "45s", description: "Escalador, alterne as pernas rápido", calories: 35 }
       ],
-      cooldown: [
-        { name: "Alongamento de pernas", duration: "3 min", description: "Alongar frente e trás das coxas" },
-        { name: "Alongamento geral", duration: "2 min", description: "Braços, costas e quadril" }
+      cardio: [
+        { name: "Polichinelos", duration: "10 min", description: "Cardio em casa, ótimo para coração", intensity: "moderada", calories: 60 },
+        { name: "Pular corda (ou simulado)", duration: "5-10 min", description: "Exercício cardio completo", intensity: "alta", calories: 90 }
       ]
     },
     abdominal: {
-      warmup: [
-        { name: "Rotação de tronco", duration: "2 min", description: "Girar o corpo para os lados" },
-        { name: "Prancha leve", duration: "30s-1min", description: "Aquecer o abdômen" }
-      ],
+      mobility_exercises: data.workoutPreferences.mobilityType !== 'none' ? [
+        { name: "Rotação de tronco", duration: "2 min", description: "Mobilidade da coluna torácica", focus_area: data.workoutPreferences.mobilityType },
+        { name: "Gato e vaca", duration: "2 min", description: "Mobilidade lombar", focus_area: data.workoutPreferences.mobilityType }
+      ] : [],
       main_exercises: isIniciante ? [
         { name: "Abdominal crunch", sets: "3", reps: "15", rest: "45s", description: "Subir só até meia altura", calories: 20 },
         { name: "Prancha frontal", sets: "3", reps: "30s", rest: "45s", description: "Segure a posição", calories: 15 },
@@ -857,16 +857,16 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
         { name: "Elevação de pernas", sets: "3", reps: "15", rest: "30s", description: "Pernas retas, suba devagar", calories: 30 },
         { name: "Prancha lateral", sets: "3", reps: "30s cada lado", rest: "30s", description: "Segure firme de lado", calories: 20 }
       ],
-      cooldown: [
-        { name: "Gato e vaca", duration: "2 min", description: "Alongamento da coluna" },
-        { name: "Alongamento de quadril", duration: "2 min", description: "Relaxar a lombar" }
+      cardio: [
+        { name: "Corrida estacionária", duration: "10 min", description: "Correr no lugar, ótimo pós-abdominais", intensity: "moderada", calories: 70 },
+        { name: "Burpees cardio", duration: "5 min", description: "Cardio intenso, queima calorias rápido", intensity: "alta", calories: 85 }
       ]
     },
     funcional: {
-      warmup: [
-        { name: "Polichinelos", duration: "2 min", description: "Aquecer corpo todo" },
-        { name: "Mobilidade articular", duration: "2 min", description: "Girar braços, pernas e quadril" }
-      ],
+      mobility_exercises: data.workoutPreferences.mobilityType !== 'none' ? [
+        { name: "Mobilidade articular", duration: "3 min", description: "Movimentos circulares de todas as articulações", focus_area: data.workoutPreferences.mobilityType },
+        { name: "Alongamento dinâmico", duration: "2 min", description: "Movimentos amplos e controlados", focus_area: data.workoutPreferences.mobilityType }
+      ] : [],
       main_exercises: isIniciante ? [
         { name: "Agachamento", sets: "3", reps: "15", rest: "60s", description: "Movimento básico funcional", calories: 35 },
         { name: "Flexão nos joelhos", sets: "3", reps: "10", rest: "60s", description: "Força de empurrar", calories: 25 },
@@ -879,24 +879,24 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
         { name: "Afundo com salto", sets: "3", reps: "10 cada perna", rest: "60s", description: "Trocar de perna no ar", calories: 45 },
         { name: "Prancha com toque no ombro", sets: "3", reps: "20", rest: "45s", description: "Na prancha, toque ombro oposto", calories: 30 }
       ],
-      cooldown: [
-        { name: "Caminhada leve", duration: "3 min", description: "Baixar batimentos cardíacos" },
-        { name: "Alongamento dinâmico", duration: "2 min", description: "Movimentos suaves" }
+      cardio: [
+        { name: "Corrida ou trote", duration: "10-15 min", description: "Cardio essencial para saúde do coração", intensity: "moderada a alta", calories: 100 },
+        { name: "HIIT rápido", duration: "8 min", description: "30s intenso + 30s descanso, repita", intensity: "alta", calories: 90 }
       ]
     },
     danca: {
-      warmup: [
-        { name: "Marcha no lugar", duration: "2 min", description: "Começar devagar" },
-        { name: "Giros e movimentos de braço", duration: "2 min", description: "Soltar o corpo" }
-      ],
+      mobility_exercises: data.workoutPreferences.mobilityType !== 'none' ? [
+        { name: "Movimentos de quadril", duration: "2 min", description: "Círculos amplos de quadril", focus_area: data.workoutPreferences.mobilityType },
+        { name: "Rotação de tronco", duration: "2 min", description: "Girar suavemente para os lados", focus_area: data.workoutPreferences.mobilityType }
+      ] : [],
       main_exercises: [
         { name: "Sequência de dança cardio", sets: "3", reps: "5 min", rest: "90s", description: "Ritmo que você goste", calories: 60 },
         { name: "Passos laterais com agachamento", sets: "4", reps: "20", rest: "45s", description: "Lateral com descida", calories: 40 },
         { name: "Giros e saltos", sets: "3", reps: "1 min", rest: "60s", description: "Movimentos livres", calories: 35 }
       ],
-      cooldown: [
-        { name: "Dança suave", duration: "2 min", description: "Ritmo lento para desacelerar" },
-        { name: "Alongamento dinâmico", duration: "3 min", description: "Movimentos amplos e lentos" }
+      cardio: [
+        { name: "Dança contínua", duration: "15 min", description: "A dança já é cardio! Continue dançando para saúde cardiovascular", intensity: "moderada", calories: 110 },
+        { name: "Zumba ou ritmo livre", duration: "10 min", description: "Diversão + cardio = coração saudável", intensity: "moderada a alta", calories: 90 }
       ]
     }
   }
@@ -909,10 +909,9 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
     duration_minutes: data.workoutPreferences.availableTime,
     estimated_calories: estimatedCalories,
     workout_plan: {
-      warmup: template.warmup,
+      mobility_exercises: template.mobility_exercises || [],
       main_exercises: template.main_exercises.slice(0, Math.ceil(data.workoutPreferences.availableTime / 10)),
-      mobility_exercises: [],
-      cooldown: template.cooldown
+      cardio: template.cardio
     },
     equipment_needed: data.workoutPreferences.workoutType === 'casa' ? ['Nenhum'] : ['Academia completa'],
     tips: [
@@ -923,7 +922,8 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
     adaptations: [
       data.userProfile.fitnessLevel === 'beginner' ? 'Comece com cargas leves e foque na técnica' : 'Aumente a intensidade gradualmente',
       'Ajuste o peso conforme sua evolução'
-    ]
+    ],
+    cardio_importance: 'O cardio é essencial para manter a saúde cardiovascular, queimar calorias e melhorar o condicionamento físico. Inclua pelo menos 10-15 minutos após seu treino!'
   }
 }
 

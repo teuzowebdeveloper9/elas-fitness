@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   CheckCircle, Clock, Flame, Dumbbell,
-  ArrowLeft, Target, Timer, Award, Coffee, Moon, Zap, Video
+  ArrowLeft, Target, Timer, Award, Heart, Zap, Video
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase'
@@ -24,14 +24,14 @@ interface GeneratedWorkout {
   duration_minutes: number
   estimated_calories: number
   workout_plan: {
-    warmup: Array<{name: string; duration: string; description: string}>
-    main_exercises: Array<{name: string; sets: string; reps: string; rest: string; description: string; calories: number}>
     mobility_exercises?: Array<{name: string; duration: string; description: string; focus_area: string}>
-    cooldown: Array<{name: string; duration: string; description: string}>
+    main_exercises: Array<{name: string; sets: string; reps: string; rest: string; description: string; calories: number}>
+    cardio: Array<{name: string; duration: string; description: string; intensity: string; calories: number}>
   }
   equipment_needed: string[]
   tips: string[]
   adaptations: string[]
+  cardio_importance?: string
 }
 
 export default function ActiveWorkout() {
@@ -40,7 +40,7 @@ export default function ActiveWorkout() {
   const { toast } = useToast()
 
   const workout = location.state?.workout as GeneratedWorkout | null
-  const [currentTab, setCurrentTab] = useState('warmup')
+  const [currentTab, setCurrentTab] = useState(workout?.workout_plan?.mobility_exercises && workout.workout_plan.mobility_exercises.length > 0 ? 'mobility' : 'main')
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set())
   const [exerciseWeights, setExerciseWeights] = useState<Record<string, number>>({})
   const [startTime] = useState(Date.now())
@@ -112,10 +112,9 @@ export default function ActiveWorkout() {
   }
 
   const totalExercises =
-    workout.workout_plan.warmup.length +
-    workout.workout_plan.main_exercises.length +
     (workout.workout_plan.mobility_exercises?.length || 0) +
-    workout.workout_plan.cooldown.length
+    workout.workout_plan.main_exercises.length +
+    workout.workout_plan.cardio.length
 
   const progressPercentage = (completedExercises.size / totalExercises) * 100
 
@@ -218,7 +217,7 @@ export default function ActiveWorkout() {
 
   const renderExerciseCard = (
     exercise: any,
-    type: 'warmup' | 'main' | 'mobility' | 'cooldown',
+    type: 'mobility' | 'main' | 'cardio',
     icon: any
   ) => {
     const Icon = icon
@@ -251,8 +250,16 @@ export default function ActiveWorkout() {
                 </div>
               )}
 
-              {(type === 'warmup' || type === 'mobility' || type === 'cooldown') && (
-                <Badge variant="outline" className="mb-2">{exercise.duration}</Badge>
+              {(type === 'mobility' || type === 'cardio') && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  <Badge variant="outline">{exercise.duration}</Badge>
+                  {type === 'cardio' && exercise.intensity && (
+                    <Badge variant="secondary">Intensidade: {exercise.intensity}</Badge>
+                  )}
+                  {type === 'cardio' && exercise.calories && (
+                    <Badge className="bg-orange-500">{exercise.calories} kcal</Badge>
+                  )}
+                </div>
               )}
 
               {type === 'main' && (
@@ -368,41 +375,25 @@ export default function ActiveWorkout() {
         <Card>
           <CardContent className="p-4">
             <Tabs value={currentTab} onValueChange={setCurrentTab}>
-              <TabsList className={`grid w-full ${workout.workout_plan.mobility_exercises && workout.workout_plan.mobility_exercises.length > 0 ? 'grid-cols-4' : 'grid-cols-3'}`}>
-                <TabsTrigger value="warmup" className="text-xs">
-                  <Coffee className="w-3 h-3 mr-1" />
-                  Aquecimento
-                </TabsTrigger>
-                <TabsTrigger value="main" className="text-xs">
-                  <Dumbbell className="w-3 h-3 mr-1" />
-                  Principal
-                </TabsTrigger>
+              <TabsList className={`grid w-full ${workout.workout_plan.mobility_exercises && workout.workout_plan.mobility_exercises.length > 0 ? 'grid-cols-3' : 'grid-cols-2'}`}>
                 {workout.workout_plan.mobility_exercises && workout.workout_plan.mobility_exercises.length > 0 && (
                   <TabsTrigger value="mobility" className="text-xs">
                     <Zap className="w-3 h-3 mr-1" />
                     Mobilidade
                   </TabsTrigger>
                 )}
-                <TabsTrigger value="cooldown" className="text-xs">
-                  <Moon className="w-3 h-3 mr-1" />
-                  Alongamento
+                <TabsTrigger value="main" className="text-xs">
+                  <Dumbbell className="w-3 h-3 mr-1" />
+                  Principal
+                </TabsTrigger>
+                <TabsTrigger value="cardio" className="text-xs">
+                  <Heart className="w-3 h-3 mr-1" />
+                  Cardio
                 </TabsTrigger>
               </TabsList>
 
               <ScrollArea className="h-[calc(100vh-400px)] mt-4">
-                <TabsContent value="warmup" className="space-y-3 mt-0">
-                  {workout.workout_plan.warmup.map((exercise) =>
-                    renderExerciseCard(exercise, 'warmup', Coffee)
-                  )}
-                </TabsContent>
-
-                <TabsContent value="main" className="space-y-3 mt-0">
-                  {workout.workout_plan.main_exercises.map((exercise) =>
-                    renderExerciseCard(exercise, 'main', Dumbbell)
-                  )}
-                </TabsContent>
-
-                {workout.workout_plan.mobility_exercises && (
+                {workout.workout_plan.mobility_exercises && workout.workout_plan.mobility_exercises.length > 0 && (
                   <TabsContent value="mobility" className="space-y-3 mt-0">
                     {workout.workout_plan.mobility_exercises.map((exercise) =>
                       renderExerciseCard(exercise, 'mobility', Zap)
@@ -410,9 +401,23 @@ export default function ActiveWorkout() {
                   </TabsContent>
                 )}
 
-                <TabsContent value="cooldown" className="space-y-3 mt-0">
-                  {workout.workout_plan.cooldown.map((exercise) =>
-                    renderExerciseCard(exercise, 'cooldown', Moon)
+                <TabsContent value="main" className="space-y-3 mt-0">
+                  {workout.workout_plan.main_exercises.map((exercise) =>
+                    renderExerciseCard(exercise, 'main', Dumbbell)
+                  )}
+                </TabsContent>
+
+                <TabsContent value="cardio" className="space-y-3 mt-0">
+                  {workout.workout_plan.cardio_importance && (
+                    <Alert className="bg-gradient-to-r from-red-50 to-orange-50 border-red-200 mb-4">
+                      <Heart className="w-4 h-4 text-red-500" />
+                      <AlertDescription className="text-sm">
+                        <strong>💪 Importância do Cardio:</strong> {workout.cardio_importance}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {workout.workout_plan.cardio.map((exercise) =>
+                    renderExerciseCard(exercise, 'cardio', Heart)
                   )}
                 </TabsContent>
               </ScrollArea>
