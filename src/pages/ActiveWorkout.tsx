@@ -101,26 +101,15 @@ export default function ActiveWorkout() {
   }
 
   const handleWatchVideo = async (exerciseName: string) => {
-    setSelectedExercise(exerciseName)
-    setExerciseVideos([]) // Limpar vídeos anteriores
-    setLoadingVideos(true)
-    setVideoModalOpen(true)
+    // Temporariamente desabilitado devido a restrições CORS
+    toast({
+      title: 'Vídeos em breve!',
+      description: 'A funcionalidade de vídeos será ativada em breve. Por enquanto, busque no YouTube: ' + exerciseName,
+    })
 
-    try {
-      console.log('🔍 Buscando vídeos para:', exerciseName)
-      const videos = await searchExerciseVideo(exerciseName, 5)
-      console.log('✅ Vídeos encontrados:', videos.length, videos.map(v => v.title))
-      setExerciseVideos(videos)
-    } catch (error) {
-      console.error('❌ Erro ao buscar vídeos:', error)
-      toast({
-        title: 'Erro ao buscar vídeos',
-        description: 'Não foi possível carregar os vídeos neste momento.',
-        variant: 'destructive'
-      })
-    } finally {
-      setLoadingVideos(false)
-    }
+    // Abrir YouTube em nova aba como alternativa
+    const searchQuery = encodeURIComponent(exerciseName + ' execução correta musculação')
+    window.open(`https://www.youtube.com/results?search_query=${searchQuery}`, '_blank')
   }
 
   const totalExercises =
