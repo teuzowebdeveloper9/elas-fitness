@@ -23,6 +23,7 @@ import { supabase } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 interface BodyMeasurement {
   id: string
@@ -274,6 +275,19 @@ export default function BodyMeasurements() {
 
   const latestMeasurement = measurements[0]
   const previousMeasurement = measurements[1]
+
+  // Preparar dados para os gráficos (ordenar por data crescente)
+  const chartData = [...measurements]
+    .reverse()
+    .map(m => ({
+      date: format(new Date(m.measured_at), 'dd/MMM', { locale: ptBR }),
+      peso: m.weight || null,
+      cintura: m.waist || null,
+      quadril: m.hips || null,
+      busto: m.chest || null,
+      gordura: m.body_fat_percentage || null,
+      musculo: m.muscle_mass || null
+    }))
 
   return (
     <div className="space-y-6">
@@ -650,6 +664,146 @@ export default function BodyMeasurements() {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* Gráficos de Evolução */}
+      {measurements.length >= 2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Evolução ao Longo do Tempo</CardTitle>
+            <CardDescription>
+              Visualize seu progresso através de gráficos
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="weight" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="weight">Peso & Composição</TabsTrigger>
+                <TabsTrigger value="body">Medidas Corporais</TabsTrigger>
+                <TabsTrigger value="limbs">Membros</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="weight" className="space-y-4">
+                {/* Gráfico de Peso */}
+                {chartData.some(d => d.peso !== null) && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Peso (kg)</h4>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="peso"
+                          stroke="#8b5cf6"
+                          strokeWidth={2}
+                          name="Peso (kg)"
+                          dot={{ fill: '#8b5cf6', r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                {/* Gráfico de Gordura e Músculo */}
+                {(chartData.some(d => d.gordura !== null) || chartData.some(d => d.musculo !== null)) && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Composição Corporal</h4>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        {chartData.some(d => d.gordura !== null) && (
+                          <Line
+                            type="monotone"
+                            dataKey="gordura"
+                            stroke="#f59e0b"
+                            strokeWidth={2}
+                            name="% Gordura"
+                            dot={{ fill: '#f59e0b', r: 4 }}
+                          />
+                        )}
+                        {chartData.some(d => d.musculo !== null) && (
+                          <Line
+                            type="monotone"
+                            dataKey="musculo"
+                            stroke="#10b981"
+                            strokeWidth={2}
+                            name="Massa Muscular (kg)"
+                            dot={{ fill: '#10b981', r: 4 }}
+                          />
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="body" className="space-y-4">
+                {/* Gráfico de Cintura, Quadril e Busto */}
+                {(chartData.some(d => d.cintura !== null) || chartData.some(d => d.quadril !== null) || chartData.some(d => d.busto !== null)) && (
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Medidas do Corpo (cm)</h4>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        {chartData.some(d => d.cintura !== null) && (
+                          <Line
+                            type="monotone"
+                            dataKey="cintura"
+                            stroke="#ec4899"
+                            strokeWidth={2}
+                            name="Cintura"
+                            dot={{ fill: '#ec4899', r: 4 }}
+                          />
+                        )}
+                        {chartData.some(d => d.quadril !== null) && (
+                          <Line
+                            type="monotone"
+                            dataKey="quadril"
+                            stroke="#8b5cf6"
+                            strokeWidth={2}
+                            name="Quadril"
+                            dot={{ fill: '#8b5cf6', r: 4 }}
+                          />
+                        )}
+                        {chartData.some(d => d.busto !== null) && (
+                          <Line
+                            type="monotone"
+                            dataKey="busto"
+                            stroke="#06b6d4"
+                            strokeWidth={2}
+                            name="Busto"
+                            dot={{ fill: '#06b6d4', r: 4 }}
+                          />
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="limbs" className="space-y-4">
+                <Alert>
+                  <AlertDescription className="text-sm">
+                    💡 <strong>Dica:</strong> Gráficos de membros aparecem quando você tiver pelo menos 2 medições de braços, coxas ou panturrilhas registradas.
+                  </AlertDescription>
+                </Alert>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       )}
 
       {/* Histórico */}
