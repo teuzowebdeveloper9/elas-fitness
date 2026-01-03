@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog'
 import {
   Ruler, TrendingDown, TrendingUp, Plus, Calendar,
-  Scale, Activity, Eye, Trash2, Edit
+  Scale, Activity, Trash2, Edit
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
@@ -261,16 +261,6 @@ export default function BodyMeasurements() {
       muscle_mass: '',
       notes: ''
     })
-  }
-
-  const calculateDifference = (current: number | undefined, previous: number | undefined) => {
-    if (!current || !previous) return null
-    const diff = current - previous
-    return {
-      value: Math.abs(diff),
-      isPositive: diff > 0,
-      isNegative: diff < 0
-    }
   }
 
   const latestMeasurement = measurements[0]
