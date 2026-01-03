@@ -9,9 +9,10 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   CheckCircle, Clock, Flame, Dumbbell,
-  ArrowLeft, Target, Timer, Award, Heart, Zap, Video
+  ArrowLeft, Target, Timer, Award, Heart, Zap, Video, Bike
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase'
@@ -52,6 +53,24 @@ export default function ActiveWorkout() {
   const [videoModalOpen, setVideoModalOpen] = useState(false)
   const [expandedVideoExercise, setExpandedVideoExercise] = useState<string | null>(null)
   const [exerciseVideoCache, setExerciseVideoCache] = useState<Map<string, string>>(new Map())
+
+  // Cardio em aparelhos de academia
+  const [gymCardioMachines, setGymCardioMachines] = useState<Record<string, { selected: boolean; minutes: number }>>({
+    'Esteira': { selected: false, minutes: 0 },
+    'Bicicleta Ergométrica': { selected: false, minutes: 0 },
+    'Elíptico': { selected: false, minutes: 0 },
+    'Transport': { selected: false, minutes: 0 },
+    'Escada/Stairmaster': { selected: false, minutes: 0 }
+  })
+
+  // Calorias por minuto para cada aparelho (valores médios para mulheres)
+  const caloriesPerMinute: Record<string, number> = {
+    'Esteira': 8.5, // ~510 kcal/hora
+    'Bicicleta Ergométrica': 7, // ~420 kcal/hora
+    'Elíptico': 9, // ~540 kcal/hora
+    'Transport': 10, // ~600 kcal/hora (intenso)
+    'Escada/Stairmaster': 9.5 // ~570 kcal/hora
+  }
 
   useEffect(() => {
     if (!workout) {
@@ -100,6 +119,36 @@ export default function ActiveWorkout() {
 
   const handleCardioTimeChange = (exerciseName: string, minutes: number) => {
     setCardioTimes(prev => ({ ...prev, [exerciseName]: minutes }))
+  }
+
+  const handleGymCardioToggle = (machineName: string) => {
+    setGymCardioMachines(prev => ({
+      ...prev,
+      [machineName]: {
+        ...prev[machineName],
+        selected: !prev[machineName].selected
+      }
+    }))
+  }
+
+  const handleGymCardioTimeChange = (machineName: string, minutes: number) => {
+    setGymCardioMachines(prev => ({
+      ...prev,
+      [machineName]: {
+        ...prev[machineName],
+        minutes: minutes
+      }
+    }))
+  }
+
+  // Calcular calorias totais dos aparelhos de academia
+  const calculateGymCardioCalories = () => {
+    return Object.entries(gymCardioMachines).reduce((total, [machine, data]) => {
+      if (data.selected && data.minutes > 0) {
+        return total + (data.minutes * caloriesPerMinute[machine])
+      }
+      return total
+    }, 0)
   }
 
   const handleWatchVideo = async (exerciseName: string, exerciseId: string) => {
@@ -159,6 +208,9 @@ export default function ActiveWorkout() {
       if (!user) {
         // Se não tiver usuário, apenas navega
         const duration = Math.floor(elapsedTime / 60)
+        const gymCardioCalories = calculateGymCardioCalories()
+        const totalCaloriesBurned = Math.round(workout.estimated_calories * (duration / workout.duration_minutes)) + Math.round(gymCardioCalories)
+
         toast({
           title: '🎉 Treino Concluído!',
           description: `Parabéns! Você treinou por ${duration} minutos.`
@@ -167,7 +219,7 @@ export default function ActiveWorkout() {
           state: {
             workout,
             duration,
-            caloriesBurned: Math.round(workout.estimated_calories * (duration / workout.duration_minutes))
+            caloriesBurned: totalCaloriesBurned
           }
         })
         return
@@ -178,6 +230,10 @@ export default function ActiveWorkout() {
       // Calcular tempo total de cardio realizado
       const totalCardioMinutes = Object.values(cardioTimes).reduce((sum, time) => sum + time, 0)
 
+      // Calcular calorias extras dos aparelhos de academia
+      const gymCardioCalories = calculateGymCardioCalories()
+      const totalCaloriesBurned = Math.round(workout.estimated_calories * (duration / workout.duration_minutes)) + Math.round(gymCardioCalories)
+
       // Tentar salvar treino completado (sem bloquear se falhar)
       try {
         await supabase
@@ -187,7 +243,7 @@ export default function ActiveWorkout() {
             workout_name: workout.workout_name,
             workout_type: 'personalizado',
             duration_minutes: duration,
-            calories_burned: Math.round(workout.estimated_calories * (duration / workout.duration_minutes)),
+            calories_burned: totalCaloriesBurned,
             completed_at: new Date().toISOString(),
             cardio_minutes: totalCardioMinutes || null
           })
@@ -227,13 +283,16 @@ export default function ActiveWorkout() {
         state: {
           workout,
           duration,
-          caloriesBurned: Math.round(workout.estimated_calories * (duration / workout.duration_minutes))
+          caloriesBurned: totalCaloriesBurned
         }
       })
     } catch (error) {
       console.error('Erro ao finalizar treino:', error)
       // Mesmo com erro, permite finalizar
       const duration = Math.floor(elapsedTime / 60)
+      const gymCardioCalories = calculateGymCardioCalories()
+      const totalCaloriesBurned = Math.round(workout.estimated_calories * (duration / workout.duration_minutes)) + Math.round(gymCardioCalories)
+
       toast({
         title: '🎉 Treino Concluído!',
         description: `Você treinou por ${duration} minutos.`
@@ -242,7 +301,7 @@ export default function ActiveWorkout() {
         state: {
           workout,
           duration,
-          caloriesBurned: Math.round(workout.estimated_calories * (duration / workout.duration_minutes))
+          caloriesBurned: totalCaloriesBurned
         }
       })
     }
@@ -445,7 +504,12 @@ export default function ActiveWorkout() {
           <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
             <CardContent className="p-4 text-center">
               <Flame className="w-5 h-5 mx-auto mb-1 text-orange-500" />
-              <p className="text-lg font-bold">{workout.estimated_calories}</p>
+              <p className="text-lg font-bold">
+                {workout.estimated_calories}
+                {calculateGymCardioCalories() > 0 && (
+                  <span className="text-sm text-orange-600"> +{Math.round(calculateGymCardioCalories())}</span>
+                )}
+              </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">Calorias</p>
             </CardContent>
           </Card>
@@ -504,6 +568,75 @@ export default function ActiveWorkout() {
                       </AlertDescription>
                     </Alert>
                   )}
+
+                  {/* Aparelhos de Academia */}
+                  <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200">
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Bike className="w-5 h-5 text-blue-600" />
+                        <h3 className="font-semibold text-sm sm:text-base">Aparelhos de Academia</h3>
+                      </div>
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Marque os aparelhos que você usou e quanto tempo:
+                      </p>
+
+                      <div className="space-y-3">
+                        {Object.entries(gymCardioMachines).map(([machine, data]) => (
+                          <div key={machine} className="bg-white dark:bg-gray-800 rounded-lg p-3 border">
+                            <div className="flex items-start gap-3">
+                              <Checkbox
+                                id={`machine-${machine}`}
+                                checked={data.selected}
+                                onCheckedChange={() => handleGymCardioToggle(machine)}
+                                className="mt-1"
+                              />
+                              <div className="flex-1 space-y-2">
+                                <Label htmlFor={`machine-${machine}`} className="text-sm font-medium cursor-pointer">
+                                  {machine}
+                                </Label>
+                                {data.selected && (
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="number"
+                                      placeholder="Minutos"
+                                      value={data.minutes || ''}
+                                      onChange={(e) => handleGymCardioTimeChange(machine, parseFloat(e.target.value) || 0)}
+                                      className="w-24 h-8 text-sm"
+                                      min="0"
+                                      step="1"
+                                    />
+                                    <span className="text-xs text-gray-500">minutos</span>
+                                    {data.minutes > 0 && (
+                                      <Badge variant="secondary" className="text-xs ml-auto">
+                                        ~{Math.round(data.minutes * caloriesPerMinute[machine])} kcal
+                                      </Badge>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Total de calorias dos aparelhos */}
+                      {calculateGymCardioCalories() > 0 && (
+                        <div className="mt-4 p-3 bg-gradient-to-r from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-lg border border-orange-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Calorias dos aparelhos:</span>
+                            <div className="flex items-center gap-2">
+                              <Flame className="w-4 h-4 text-orange-500" />
+                              <span className="text-lg font-bold text-orange-600">
+                                +{Math.round(calculateGymCardioCalories())} kcal
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Exercícios de Cardio do Plano */}
                   {workout.workout_plan.cardio.map((exercise) =>
                     renderExerciseCard(exercise, 'cardio', Heart)
                   )}
