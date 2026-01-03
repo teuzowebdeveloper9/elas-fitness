@@ -12,7 +12,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   CheckCircle, Clock, Flame, Dumbbell,
-  ArrowLeft, Target, Timer, Award, Heart, Zap, Video, Bike
+  ArrowLeft, Target, Timer, Award, Heart, Zap, Video, Bike,
+  Activity, Footprints, TrendingUp
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase'
@@ -70,6 +71,15 @@ export default function ActiveWorkout() {
     'Elíptico': 9, // ~540 kcal/hora
     'Transport': 10, // ~600 kcal/hora (intenso)
     'Escada/Stairmaster': 9.5 // ~570 kcal/hora
+  }
+
+  // Ícones para cada aparelho
+  const machineIcons: Record<string, any> = {
+    'Esteira': Footprints,
+    'Bicicleta Ergométrica': Bike,
+    'Elíptico': Activity,
+    'Transport': Zap,
+    'Escada/Stairmaster': TrendingUp
   }
 
   useEffect(() => {
@@ -580,43 +590,60 @@ export default function ActiveWorkout() {
                         Marque os aparelhos que você usou e quanto tempo:
                       </p>
 
-                      <div className="space-y-3">
-                        {Object.entries(gymCardioMachines).map(([machine, data]) => (
-                          <div key={machine} className="bg-white dark:bg-gray-800 rounded-lg p-3 border">
-                            <div className="flex items-start gap-3">
-                              <Checkbox
-                                id={`machine-${machine}`}
-                                checked={data.selected}
-                                onCheckedChange={() => handleGymCardioToggle(machine)}
-                                className="mt-1"
-                              />
-                              <div className="flex-1 space-y-2">
-                                <Label htmlFor={`machine-${machine}`} className="text-sm font-medium cursor-pointer">
-                                  {machine}
-                                </Label>
-                                {data.selected && (
-                                  <div className="flex items-center gap-2">
-                                    <Input
-                                      type="number"
-                                      placeholder="Minutos"
-                                      value={data.minutes || ''}
-                                      onChange={(e) => handleGymCardioTimeChange(machine, parseFloat(e.target.value) || 0)}
-                                      className="w-24 h-8 text-sm"
-                                      min="0"
-                                      step="1"
-                                    />
-                                    <span className="text-xs text-gray-500">minutos</span>
-                                    {data.minutes > 0 && (
-                                      <Badge variant="secondary" className="text-xs ml-auto">
-                                        ~{Math.round(data.minutes * caloriesPerMinute[machine])} kcal
-                                      </Badge>
-                                    )}
-                                  </div>
-                                )}
+                      <div className="space-y-2.5">
+                        {Object.entries(gymCardioMachines).map(([machine, data]) => {
+                          const MachineIcon = machineIcons[machine] || Bike
+                          return (
+                            <div
+                              key={machine}
+                              className={`bg-white dark:bg-gray-800 rounded-lg p-3 border transition-all ${
+                                data.selected
+                                  ? 'border-blue-400 bg-blue-50/50 dark:bg-blue-900/20 shadow-sm'
+                                  : 'border-gray-200 hover:border-blue-200'
+                              }`}
+                            >
+                              <div className="flex items-start gap-2.5">
+                                <Checkbox
+                                  id={`machine-${machine}`}
+                                  checked={data.selected}
+                                  onCheckedChange={() => handleGymCardioToggle(machine)}
+                                  className="mt-0.5"
+                                />
+                                <div className="flex-1 space-y-2 min-w-0">
+                                  <Label
+                                    htmlFor={`machine-${machine}`}
+                                    className="text-sm font-medium cursor-pointer flex items-center gap-2"
+                                  >
+                                    <MachineIcon className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                                    <span className="truncate">{machine}</span>
+                                  </Label>
+                                  {data.selected && (
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                                      <div className="flex items-center gap-2">
+                                        <Input
+                                          type="number"
+                                          placeholder="0"
+                                          value={data.minutes || ''}
+                                          onChange={(e) => handleGymCardioTimeChange(machine, parseFloat(e.target.value) || 0)}
+                                          className="w-20 h-8 text-sm"
+                                          min="0"
+                                          step="1"
+                                        />
+                                        <span className="text-xs text-gray-500 whitespace-nowrap">min</span>
+                                      </div>
+                                      {data.minutes > 0 && (
+                                        <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                                          <Flame className="w-3 h-3 mr-1" />
+                                          {Math.round(data.minutes * caloriesPerMinute[machine])} kcal
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
 
                       {/* Total de calorias dos aparelhos */}
