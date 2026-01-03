@@ -40,7 +40,7 @@ export default function ActiveWorkout() {
   const { toast } = useToast()
 
   const workout = location.state?.workout as GeneratedWorkout | null
-  const [currentTab, setCurrentTab] = useState(workout?.workout_plan?.mobility_exercises && workout.workout_plan.mobility_exercises.length > 0 ? 'mobility' : 'main')
+  const [currentTab, setCurrentTab] = useState('main')
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set())
   const [exerciseWeights, setExerciseWeights] = useState<Record<string, number>>({})
   const [startTime] = useState(Date.now())
@@ -54,6 +54,13 @@ export default function ActiveWorkout() {
     if (!workout) {
       navigate('/workouts', { replace: true })
       return
+    }
+
+    // Definir tab inicial baseado na presença de mobilidade
+    if (workout.workout_plan?.mobility_exercises && workout.workout_plan.mobility_exercises.length > 0) {
+      setCurrentTab('mobility')
+    } else {
+      setCurrentTab('main')
     }
 
     const interval = setInterval(() => {
