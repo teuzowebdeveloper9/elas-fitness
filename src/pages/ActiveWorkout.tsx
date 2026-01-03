@@ -408,7 +408,7 @@ export default function ActiveWorkout() {
                 </TabsContent>
 
                 <TabsContent value="cardio" className="space-y-3 mt-0">
-                  {workout.workout_plan.cardio_importance && (
+                  {workout.cardio_importance && (
                     <Alert className="bg-gradient-to-r from-red-50 to-orange-50 border-red-200 mb-4">
                       <Heart className="w-4 h-4 text-red-500" />
                       <AlertDescription className="text-sm">
