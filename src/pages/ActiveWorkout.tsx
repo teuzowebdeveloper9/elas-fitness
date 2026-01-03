@@ -43,6 +43,7 @@ export default function ActiveWorkout() {
   const [currentTab, setCurrentTab] = useState('main')
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set())
   const [exerciseWeights, setExerciseWeights] = useState<Record<string, number>>({})
+  const [cardioTimes, setCardioTimes] = useState<Record<string, number>>({})
   const [startTime] = useState(Date.now())
   const [elapsedTime, setElapsedTime] = useState(0)
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null)
@@ -93,6 +94,10 @@ export default function ActiveWorkout() {
 
   const handleWeightChange = (exerciseName: string, weight: number) => {
     setExerciseWeights(prev => ({ ...prev, [exerciseName]: weight }))
+  }
+
+  const handleCardioTimeChange = (exerciseName: string, minutes: number) => {
+    setCardioTimes(prev => ({ ...prev, [exerciseName]: minutes }))
   }
 
   const handleWatchVideo = async (exerciseName: string) => {
@@ -153,6 +158,9 @@ export default function ActiveWorkout() {
 
       const duration = Math.floor(elapsedTime / 60)
 
+      // Calcular tempo total de cardio realizado
+      const totalCardioMinutes = Object.values(cardioTimes).reduce((sum, time) => sum + time, 0)
+
       // Tentar salvar treino completado (sem bloquear se falhar)
       try {
         await supabase
@@ -163,7 +171,8 @@ export default function ActiveWorkout() {
             workout_type: 'personalizado',
             duration_minutes: duration,
             calories_burned: Math.round(workout.estimated_calories * (duration / workout.duration_minutes)),
-            completed_at: new Date().toISOString()
+            completed_at: new Date().toISOString(),
+            cardio_minutes: totalCardioMinutes || null
           })
       } catch (workoutError) {
         console.error('Erro ao salvar treino (continuando):', workoutError)
@@ -257,15 +266,35 @@ export default function ActiveWorkout() {
                 </div>
               )}
 
-              {(type === 'mobility' || type === 'cardio') && (
+              {type === 'mobility' && (
                 <div className="flex flex-wrap gap-2 mb-2">
                   <Badge variant="outline">{exercise.duration}</Badge>
-                  {type === 'cardio' && exercise.intensity && (
-                    <Badge variant="secondary">Intensidade: {exercise.intensity}</Badge>
-                  )}
-                  {type === 'cardio' && exercise.calories && (
-                    <Badge className="bg-orange-500">{exercise.calories} kcal</Badge>
-                  )}
+                </div>
+              )}
+
+              {type === 'cardio' && (
+                <div className="space-y-2 mb-3">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline">Sugestão: {exercise.duration}</Badge>
+                    {exercise.intensity && (
+                      <Badge variant="secondary">Intensidade: {exercise.intensity}</Badge>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor={`cardio-time-${exerciseId}`} className="text-xs">
+                      Quanto tempo você fez? (minutos)
+                    </Label>
+                    <Input
+                      id={`cardio-time-${exerciseId}`}
+                      type="number"
+                      placeholder="Ex: 15"
+                      value={cardioTimes[exercise.name] || ''}
+                      onChange={(e) => handleCardioTimeChange(exercise.name, parseFloat(e.target.value) || 0)}
+                      className="w-32 h-8 text-sm"
+                      step="1"
+                      min="0"
+                    />
+                  </div>
                 </div>
               )}
 
