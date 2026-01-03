@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Dumbbell, Apple } from 'lucide-react'
+import { Flame, Droplets, Heart, TrendingUp, Calendar, Clock, Activity, Dumbbell, Apple, Ruler } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUser } from '@/contexts/UserContext'
 import { useEffect, useState } from 'react'
@@ -299,6 +299,17 @@ export default function Home() {
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <p className="font-heading-medium text-sm text-[rgb(51,51,51)]">Progresso</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link to="/body-measurements">
+          <Card className="hover:shadow-xl transition-all cursor-pointer bg-gradient-to-br from-white to-[rgb(240,248,255)] border-[rgb(176,235,229)] border-opacity-40">
+            <CardContent className="pt-6 pb-4 text-center">
+              <div className="inline-flex p-3 bg-[rgb(176,235,229)] rounded-2xl mb-2 shadow-md">
+                <Ruler className="w-6 h-6 text-white" />
+              </div>
+              <p className="font-heading-medium text-sm text-[rgb(51,51,51)]">Medidas</p>
             </CardContent>
           </Card>
         </Link>
