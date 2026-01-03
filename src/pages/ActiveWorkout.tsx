@@ -50,6 +50,7 @@ export default function ActiveWorkout() {
   const [exerciseVideos, setExerciseVideos] = useState<YouTubeVideo[]>([])
   const [loadingVideos, setLoadingVideos] = useState(false)
   const [videoModalOpen, setVideoModalOpen] = useState(false)
+  const [expandedVideoExercise, setExpandedVideoExercise] = useState<string | null>(null)
 
   useEffect(() => {
     if (!workout) {
@@ -100,16 +101,13 @@ export default function ActiveWorkout() {
     setCardioTimes(prev => ({ ...prev, [exerciseName]: minutes }))
   }
 
-  const handleWatchVideo = async (exerciseName: string) => {
-    // Temporariamente desabilitado devido a restrições CORS
-    toast({
-      title: 'Vídeos em breve!',
-      description: 'A funcionalidade de vídeos será ativada em breve. Por enquanto, busque no YouTube: ' + exerciseName,
-    })
-
-    // Abrir YouTube em nova aba como alternativa
-    const searchQuery = encodeURIComponent(exerciseName + ' execução correta musculação')
-    window.open(`https://www.youtube.com/results?search_query=${searchQuery}`, '_blank')
+  const handleWatchVideo = async (exerciseName: string, exerciseId: string) => {
+    // Toggle: se já está expandido, colapsa; se não, expande
+    if (expandedVideoExercise === exerciseId) {
+      setExpandedVideoExercise(null)
+    } else {
+      setExpandedVideoExercise(exerciseId)
+    }
   }
 
   const totalExercises =
@@ -228,11 +226,34 @@ export default function ActiveWorkout() {
     const Icon = icon
     const exerciseId = `${type}-${exercise.name}`
     const isCompleted = completedExercises.has(exerciseId)
+    const isVideoExpanded = expandedVideoExercise === exerciseId
+
+    // Gerar URL do YouTube embed (busca pelo nome do exercício)
+    const searchQuery = encodeURIComponent(exercise.name + ' execução correta tutorial')
+    const youtubeEmbedUrl = `https://www.youtube.com/embed?listType=search&list=${searchQuery}`
 
     return (
       <Card key={exerciseId} className={`transition-all ${isCompleted ? 'bg-green-50 border-green-300' : ''}`}>
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
+            {/* Lado Esquerdo: Vídeo (se expandido) */}
+            {isVideoExpanded && (
+              <div className="w-48 flex-shrink-0">
+                <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={youtubeEmbedUrl}
+                    title={`Vídeo: ${exercise.name}`}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+            )}
+
+            {/* Meio: Informações do exercício */}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <Icon className="w-5 h-5 text-[var(--lilac)]" />
@@ -305,15 +326,16 @@ export default function ActiveWorkout() {
               )}
             </div>
 
+            {/* Lado Direito: Botões */}
             <div className="flex flex-col gap-2">
               <Button
                 size="sm"
-                variant="outline"
-                onClick={() => handleWatchVideo(exercise.name)}
+                variant={isVideoExpanded ? 'default' : 'outline'}
+                onClick={() => handleWatchVideo(exercise.name, exerciseId)}
                 className="whitespace-nowrap"
               >
                 <Video className="w-4 h-4 mr-1" />
-                Ver vídeo
+                {isVideoExpanded ? 'Ocultar' : 'Ver vídeo'}
               </Button>
               <Button
                 size="sm"
