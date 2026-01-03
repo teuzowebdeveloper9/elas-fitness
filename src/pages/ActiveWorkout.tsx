@@ -51,6 +51,7 @@ export default function ActiveWorkout() {
   const [loadingVideos, setLoadingVideos] = useState(false)
   const [videoModalOpen, setVideoModalOpen] = useState(false)
   const [expandedVideoExercise, setExpandedVideoExercise] = useState<string | null>(null)
+  const [exerciseVideoCache, setExerciseVideoCache] = useState<Map<string, string>>(new Map())
 
   useEffect(() => {
     if (!workout) {
@@ -102,12 +103,41 @@ export default function ActiveWorkout() {
   }
 
   const handleWatchVideo = async (exerciseName: string, exerciseId: string) => {
-    // Toggle: se já está expandido, colapsa; se não, expande
+    // Se já está expandido, colapsa
     if (expandedVideoExercise === exerciseId) {
       setExpandedVideoExercise(null)
-    } else {
-      setExpandedVideoExercise(exerciseId)
+      return
     }
+
+    // Se não tem vídeo em cache, buscar
+    if (!exerciseVideoCache.has(exerciseId)) {
+      try {
+        const videos = await searchExerciseVideo(exerciseName, 1)
+        if (videos.length > 0) {
+          const newCache = new Map(exerciseVideoCache)
+          newCache.set(exerciseId, videos[0].embedUrl)
+          setExerciseVideoCache(newCache)
+        } else {
+          toast({
+            title: 'Vídeo não encontrado',
+            description: 'Não foi possível encontrar um vídeo para este exercício.',
+            variant: 'destructive'
+          })
+          return
+        }
+      } catch (error) {
+        console.error('Erro ao buscar vídeo:', error)
+        toast({
+          title: 'Erro ao carregar vídeo',
+          description: 'Tente novamente em alguns instantes.',
+          variant: 'destructive'
+        })
+        return
+      }
+    }
+
+    // Expandir o vídeo
+    setExpandedVideoExercise(exerciseId)
   }
 
   const totalExercises =
@@ -227,23 +257,20 @@ export default function ActiveWorkout() {
     const exerciseId = `${type}-${exercise.name}`
     const isCompleted = completedExercises.has(exerciseId)
     const isVideoExpanded = expandedVideoExercise === exerciseId
-
-    // Gerar URL do YouTube embed (busca pelo nome do exercício)
-    const searchQuery = encodeURIComponent(exercise.name + ' execução correta tutorial')
-    const youtubeEmbedUrl = `https://www.youtube.com/embed?listType=search&list=${searchQuery}`
+    const videoUrl = exerciseVideoCache.get(exerciseId)
 
     return (
       <Card key={exerciseId} className={`transition-all ${isCompleted ? 'bg-green-50 border-green-300' : ''}`}>
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
-            {/* Lado Esquerdo: Vídeo (se expandido) */}
-            {isVideoExpanded && (
+            {/* Lado Esquerdo: Vídeo (se expandido e disponível) */}
+            {isVideoExpanded && videoUrl && (
               <div className="w-48 flex-shrink-0">
-                <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
                   <iframe
                     width="100%"
                     height="100%"
-                    src={youtubeEmbedUrl}
+                    src={videoUrl}
                     title={`Vídeo: ${exercise.name}`}
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
