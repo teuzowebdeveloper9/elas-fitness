@@ -1,14 +1,14 @@
 /**
  * Serviço de integração com YouTube Data API v3
- * Busca vídeos de execução CORRETA de exercícios de musculação
+ * PRIORIZA vídeos do canal "Queslo Sistemas"
  *
  * Estratégia de busca:
- * - Prioriza vídeos com técnica correta e padronizada
- * - Foca em instrutoras femininas em academias
- * - Usa termos como "execução correta", "técnica oficial", "forma correta"
- * - Prefere vídeos curtos e instrucionais (sem distrações)
- * - Filtra por alta definição para melhor visualização da técnica
+ * 1. Primeiro tenta buscar no mapeamento estático do Queslo Sistemas
+ * 2. Se não encontrar, busca dinamicamente no canal Queslo Sistemas
+ * 3. Fallback para busca geral apenas se necessário
  */
+
+import { getQuesloVideo, type ExerciseVideo } from './queslo-videos'
 
 export interface YouTubeVideo {
   videoId: string
@@ -21,33 +21,48 @@ export interface YouTubeVideo {
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || 'AIzaSyAMXQlOmy0Z0UF3hNqnbYYHiI4ARymrYGY'
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3'
 
-// Canais priorizados com conteúdo de musculação feminina com boa técnica
-// Para adicionar mais canais: busque no YouTube e copie o ID do canal da URL
+// CANAL OFICIAL: Queslo Sistemas
+const QUESLO_CHANNEL_ID = 'UC3TlBoi5CrGaabOhAipWPsw' // ID do canal Queslo Sistemas
+
+// Canais priorizados (apenas como fallback)
 const PREFERRED_CHANNELS = [
-  'UCqjwF8rxRsotnojGl4gM0Zw', // Treino Feminino (exemplo)
-  'UC-pVYlGfYTTzW_g7nCzc7IQ', // Instrutora Carol Borba
-  'UCcuWDWwKW2PzZvh2yKKHitg', // Treino em Foco
-  // Adicione mais IDs de canais confiáveis aqui
+  QUESLO_CHANNEL_ID, // Queslo Sistemas (prioridade máxima)
 ]
 
 /**
  * Busca vídeos de exercício no YouTube
- * Prioriza canais específicos se configurados
+ * PRIORIZA 100% o canal Queslo Sistemas
  */
 export async function searchExerciseVideo(
   exerciseName: string,
   maxResults: number = 5
 ): Promise<YouTubeVideo[]> {
   try {
-    // Primeira tentativa: buscar em canais priorizados
-    if (PREFERRED_CHANNELS.length > 0) {
-      const preferredResults = await searchInPreferredChannels(exerciseName, maxResults)
-      if (preferredResults.length > 0) {
-        return preferredResults
-      }
+    // PRIORIDADE 1: Buscar no mapeamento estático do Queslo Sistemas
+    console.log(`🎯 Buscando vídeo do Queslo Sistemas para: "${exerciseName}"`)
+    const quesloVideo = getQuesloVideo(exerciseName)
+
+    if (quesloVideo) {
+      console.log(`✅ Vídeo do Queslo encontrado no mapeamento: ${quesloVideo.videoId}`)
+      return [{
+        videoId: quesloVideo.videoId,
+        title: quesloVideo.exerciseName,
+        channelTitle: quesloVideo.channelName,
+        thumbnail: `https://img.youtube.com/vi/${quesloVideo.videoId}/mqdefault.jpg`,
+        embedUrl: quesloVideo.embedUrl
+      }]
     }
 
-    // Segunda tentativa: busca geral com melhor relevância
+    // PRIORIDADE 2: Buscar dinamicamente no canal Queslo Sistemas
+    console.log(`🔍 Buscando dinamicamente no canal Queslo Sistemas...`)
+    const quesloResults = await searchInQuesloChannel(exerciseName, maxResults)
+    if (quesloResults.length > 0) {
+      console.log(`✅ Encontrado ${quesloResults.length} vídeo(s) do Queslo Sistemas`)
+      return quesloResults
+    }
+
+    // FALLBACK: Busca geral (não recomendado)
+    console.warn(`⚠️ Vídeo não encontrado no Queslo Sistemas. Usando busca geral...`)
     return await searchGeneralVideos(exerciseName, maxResults)
   } catch (error) {
     console.error('Erro ao buscar vídeo do YouTube:', error)
@@ -56,45 +71,57 @@ export async function searchExerciseVideo(
 }
 
 /**
- * Busca vídeos em canais priorizados
+ * Busca vídeos ESPECIFICAMENTE no canal Queslo Sistemas
  */
-async function searchInPreferredChannels(
+async function searchInQuesloChannel(
   exerciseName: string,
   maxResults: number
 ): Promise<YouTubeVideo[]> {
   try {
-    // Buscar em cada canal prioritário
-    for (const channelId of PREFERRED_CHANNELS) {
-      const query = buildSearchQuery(exerciseName)
-      const url = `${YOUTUBE_API_BASE}/search?` + new URLSearchParams({
-        part: 'snippet',
-        channelId: channelId,
-        q: query,
-        type: 'video',
-        maxResults: String(maxResults),
-        order: 'relevance',
-        key: YOUTUBE_API_KEY,
-        relevanceLanguage: 'pt',
-        regionCode: 'BR'
+    // Buscar usando o nome exato do exercício no canal Queslo Sistemas
+    const query = exerciseName // Usar nome exato, sem adicionar termos extras
+    const url = `${YOUTUBE_API_BASE}/search?` + new URLSearchParams({
+      part: 'snippet',
+      channelId: QUESLO_CHANNEL_ID,
+      q: query,
+      type: 'video',
+      maxResults: String(maxResults * 2), // Buscar mais para filtrar Shorts
+      order: 'relevance',
+      key: YOUTUBE_API_KEY,
+      relevanceLanguage: 'pt',
+      regionCode: 'BR',
+      videoDuration: 'short' // Priorizar Shorts
+    })
+
+    const response = await fetch(url)
+
+    if (!response.ok) {
+      console.warn(`Erro ao buscar no canal Queslo Sistemas:`, response.status)
+      return []
+    }
+
+    const data = await response.json()
+
+    if (data.items && data.items.length > 0) {
+      console.log(`📹 Encontrados ${data.items.length} vídeos do Queslo Sistemas`)
+      const videos = parseYouTubeResponse(data)
+
+      // Priorizar vídeos que contenham o nome do exercício no título
+      const sortedVideos = videos.sort((a, b) => {
+        const aHasExercise = a.title.toLowerCase().includes(exerciseName.toLowerCase())
+        const bHasExercise = b.title.toLowerCase().includes(exerciseName.toLowerCase())
+
+        if (aHasExercise && !bHasExercise) return -1
+        if (!aHasExercise && bHasExercise) return 1
+        return 0
       })
 
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        console.warn(`Erro ao buscar no canal ${channelId}:`, response.status)
-        continue
-      }
-
-      const data = await response.json()
-
-      if (data.items && data.items.length > 0) {
-        return parseYouTubeResponse(data)
-      }
+      return sortedVideos.slice(0, maxResults)
     }
 
     return []
   } catch (error) {
-    console.error('Erro ao buscar em canais priorizados:', error)
+    console.error('Erro ao buscar no canal Queslo Sistemas:', error)
     return []
   }
 }
@@ -143,11 +170,16 @@ async function searchGeneralVideos(
 }
 
 /**
- * Constrói query de busca otimizada para vídeos de musculação
- * Prioriza vídeos com instrutoras femininas e técnica correta
+ * Constrói query de busca otimizada
+ * Para o canal Queslo, usa o nome exato do exercício
  */
-function buildSearchQuery(exerciseName: string): string {
-  // Palavras-chave focadas em técnica correta e musculação feminina
+function buildSearchQuery(exerciseName: string, isQuesloChannel: boolean = false): string {
+  // Se for busca no Queslo, usar apenas o nome do exercício
+  if (isQuesloChannel) {
+    return exerciseName
+  }
+
+  // Para busca geral, adicionar contexto
   const keywords = [
     'execução correta',
     'técnica correta',
@@ -158,9 +190,7 @@ function buildSearchQuery(exerciseName: string): string {
     'técnica oficial'
   ]
 
-  // Escolher uma palavra-chave aleatória para variar resultados
   const keyword = keywords[Math.floor(Math.random() * keywords.length)]
-
   const query = `${exerciseName} ${keyword} musculação`
   console.log('🔎 Query de busca:', query)
 
