@@ -261,11 +261,47 @@ export default function ActiveWorkout() {
 
     return (
       <Card key={exerciseId} className={`transition-all ${isCompleted ? 'bg-green-50 border-green-300' : ''}`}>
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-3">
-            {/* Lado Esquerdo: Vídeo (se expandido e disponível) */}
+        <CardContent className="p-3 sm:p-4">
+          {/* Layout mobile: tudo em coluna vertical */}
+          <div className="space-y-3">
+            {/* Cabeçalho com título e botões (lado a lado no mobile) */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--lilac)] flex-shrink-0" />
+                  <h4 className="font-semibold text-sm sm:text-base">{exercise.name}</h4>
+                </div>
+                <Badge variant="outline" className="text-xs gap-1">
+                  <Video className="w-3 h-3" />
+                  Vídeo disponível
+                </Badge>
+              </div>
+
+              {/* Botões de ação (sempre visíveis no mobile) */}
+              <div className="flex flex-col gap-1.5 flex-shrink-0">
+                <Button
+                  size="sm"
+                  variant={isVideoExpanded ? 'default' : 'outline'}
+                  onClick={() => handleWatchVideo(exercise.name, exerciseId)}
+                  className="whitespace-nowrap text-xs h-8 px-2"
+                >
+                  <Video className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+                  <span className="hidden sm:inline">{isVideoExpanded ? 'Ocultar' : 'Ver vídeo'}</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant={isCompleted ? 'default' : 'outline'}
+                  onClick={() => toggleExerciseComplete(exerciseId)}
+                  className={`whitespace-nowrap text-xs h-8 px-2 ${isCompleted ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                >
+                  {isCompleted ? <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" /> : <span className="text-xs">Concluir</span>}
+                </Button>
+              </div>
+            </div>
+
+            {/* Vídeo (fullwidth no mobile quando expandido) */}
             {isVideoExpanded && videoUrl && (
-              <div className="w-48 flex-shrink-0">
+              <div className="w-full">
                 <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
                   <iframe
                     width="100%"
@@ -280,65 +316,64 @@ export default function ActiveWorkout() {
               </div>
             )}
 
-            {/* Meio: Informações do exercício */}
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <Icon className="w-5 h-5 text-[var(--lilac)]" />
-                <h4 className="font-semibold">{exercise.name}</h4>
-                <Badge variant="outline" className="text-xs gap-1">
-                  <Video className="w-3 h-3" />
-                  Vídeo disponível
-                </Badge>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            {/* Descrição do exercício */}
+            <div>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                 {exercise.description}
               </p>
+            </div>
 
-              {type === 'main' && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <Badge variant="outline">{exercise.sets} séries</Badge>
-                  <Badge variant="outline">{exercise.reps} reps</Badge>
-                  <Badge variant="outline">Descanso: {exercise.rest}</Badge>
-                  <Badge variant="secondary">{exercise.calories} kcal</Badge>
+            {/* Badges com informações do exercício */}
+            {type === 'main' && (
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                <Badge variant="outline" className="text-xs">{exercise.sets} séries</Badge>
+                <Badge variant="outline" className="text-xs">{exercise.reps} reps</Badge>
+                <Badge variant="outline" className="text-xs">Descanso: {exercise.rest}</Badge>
+                <Badge variant="secondary" className="text-xs">{exercise.calories} kcal</Badge>
+              </div>
+            )}
+
+            {type === 'mobility' && (
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                <Badge variant="outline" className="text-xs">{exercise.duration}</Badge>
+              </div>
+            )}
+
+            {type === 'cardio' && (
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  <Badge variant="outline" className="text-xs">Sugestão: {exercise.duration}</Badge>
+                  {exercise.intensity && (
+                    <Badge variant="secondary" className="text-xs">Intensidade: {exercise.intensity}</Badge>
+                  )}
                 </div>
-              )}
+              </div>
+            )}
 
-              {type === 'mobility' && (
-                <div className="flex flex-wrap gap-2 mb-2">
-                  <Badge variant="outline">{exercise.duration}</Badge>
-                </div>
-              )}
-
+            {/* Inputs de peso ou tempo de cardio */}
+            <div className="flex flex-wrap gap-3">
               {type === 'cardio' && (
-                <div className="space-y-2 mb-3">
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">Sugestão: {exercise.duration}</Badge>
-                    {exercise.intensity && (
-                      <Badge variant="secondary">Intensidade: {exercise.intensity}</Badge>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor={`cardio-time-${exerciseId}`} className="text-xs">
-                      Quanto tempo você fez? (minutos)
-                    </Label>
-                    <Input
-                      id={`cardio-time-${exerciseId}`}
-                      type="number"
-                      placeholder="Ex: 15"
-                      value={cardioTimes[exercise.name] || ''}
-                      onChange={(e) => handleCardioTimeChange(exercise.name, parseFloat(e.target.value) || 0)}
-                      className="w-32 h-8 text-sm"
-                      step="1"
-                      min="0"
-                    />
-                  </div>
+                <div className="space-y-1 flex-1 min-w-[140px]">
+                  <Label htmlFor={`cardio-time-${exerciseId}`} className="text-xs">
+                    Quanto tempo fez? (min)
+                  </Label>
+                  <Input
+                    id={`cardio-time-${exerciseId}`}
+                    type="number"
+                    placeholder="Ex: 15"
+                    value={cardioTimes[exercise.name] || ''}
+                    onChange={(e) => handleCardioTimeChange(exercise.name, parseFloat(e.target.value) || 0)}
+                    className="w-full h-8 text-sm"
+                    step="1"
+                    min="0"
+                  />
                 </div>
               )}
 
               {type === 'main' && (
-                <div className="space-y-2">
+                <div className="space-y-1 flex-1 min-w-[140px]">
                   <Label htmlFor={`weight-${exerciseId}`} className="text-xs">
-                    Peso utilizado (kg) - opcional
+                    Peso usado (kg) - opcional
                   </Label>
                   <Input
                     id={`weight-${exerciseId}`}
@@ -346,32 +381,11 @@ export default function ActiveWorkout() {
                     placeholder="0.0"
                     value={exerciseWeights[exercise.name] || ''}
                     onChange={(e) => handleWeightChange(exercise.name, parseFloat(e.target.value) || 0)}
-                    className="w-32 h-8 text-sm"
+                    className="w-full h-8 text-sm"
                     step="0.5"
                   />
                 </div>
               )}
-            </div>
-
-            {/* Lado Direito: Botões */}
-            <div className="flex flex-col gap-2">
-              <Button
-                size="sm"
-                variant={isVideoExpanded ? 'default' : 'outline'}
-                onClick={() => handleWatchVideo(exercise.name, exerciseId)}
-                className="whitespace-nowrap"
-              >
-                <Video className="w-4 h-4 mr-1" />
-                {isVideoExpanded ? 'Ocultar' : 'Ver vídeo'}
-              </Button>
-              <Button
-                size="sm"
-                variant={isCompleted ? 'default' : 'outline'}
-                onClick={() => toggleExerciseComplete(exerciseId)}
-                className={isCompleted ? 'bg-green-500 hover:bg-green-600' : ''}
-              >
-                {isCompleted ? <CheckCircle className="w-4 h-4" /> : 'Concluir'}
-              </Button>
             </div>
           </div>
         </CardContent>
