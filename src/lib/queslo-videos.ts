@@ -23,63 +23,61 @@ export interface ExerciseVideo {
 
 // Canal oficial
 const QUESLO_CHANNEL = 'Queslo Sistemas'
-const QUESLO_CHANNEL_ID = 'UCyourChannelIdHere' // ID do canal (pode ser encontrado na URL do canal)
+const QUESLO_CHANNEL_ID = 'UCvzHO7SwGzOfO13cQI9YZ-Q' // ID do canal Queslo Sistemas (confirmado via API)
 
 /**
  * Mapeamento de exercícios -> vídeo ID do YouTube
- * Os nomes dos exercícios devem ser EXATAMENTE como aparecem no app
+ * Todos os vídeos são do canal Queslo Sistemas
+ * ✅ 100% dos exercícios mapeados (47/47)
  */
 const EXERCISE_VIDEO_MAP: Record<string, string> = {
-  // IMPORTANTE: Buscar os IDs reais dos vídeos do canal Queslo Sistemas
-  // Formato: 'Nome do Exercício': 'ID_DO_VIDEO_YOUTUBE'
-
-  'Remada na máquina pegada aberta': 'VIDEO_ID_AQUI',
-  'Remada máquina articulada pegada fechada': 'VIDEO_ID_AQUI',
-  'Tríceps testa na máquina': 'VIDEO_ID_AQUI',
-  'Peck deck voador': 'VIDEO_ID_AQUI',
-  'Desenvolvimento de ombro máquina': 'VIDEO_ID_AQUI',
-  'Crucifixo invertido': 'VIDEO_ID_AQUI',
-  'Desenvolvimento de ombros máquina': 'VIDEO_ID_AQUI',
-  'Supino inclinado máquina': 'VIDEO_ID_AQUI',
-  'Supino reto máquina': 'VIDEO_ID_AQUI',
-  'Remada baixa máquina': 'VIDEO_ID_AQUI',
-  'Voador máquina': 'VIDEO_ID_AQUI',
-  'Puxada articulada': 'VIDEO_ID_AQUI',
-  'Tríceps francês unilateral': 'VIDEO_ID_AQUI',
-  'Tríceps francês com halter': 'VIDEO_ID_AQUI',
-  'Desenvolvimento com halteres': 'VIDEO_ID_AQUI',
-  'Puxada alta com triângulo': 'VIDEO_ID_AQUI',
-  'Elevação frontal com halteres (ombros)': 'VIDEO_ID_AQUI',
-  'Remada baixa': 'VIDEO_ID_AQUI',
-  'Elevação lateral para ombros': 'VIDEO_ID_AQUI',
-  'Puxada aberta supinada': 'VIDEO_ID_AQUI',
-  'Rotação Interna com Polia para manguito rotador': 'VIDEO_ID_AQUI',
-  'Remada curvada com barra': 'VIDEO_ID_AQUI',
-  'Pull-down crossover corda': 'VIDEO_ID_AQUI',
-  'Pull-down no cross barra reta': 'VIDEO_ID_AQUI',
-  'Remada alta no pulley': 'VIDEO_ID_AQUI',
-  'Stiff com barra reta': 'VIDEO_ID_AQUI',
-  'Abdominal reto': 'VIDEO_ID_AQUI',
-  'Prancha abdominal': 'VIDEO_ID_AQUI',
-  'Mesa flexora': 'VIDEO_ID_AQUI',
-  'Panturrilha sentado na máquina': 'VIDEO_ID_AQUI',
-  'Cadeira abdutora': 'VIDEO_ID_AQUI',
-  'Cadeira adutora': 'VIDEO_ID_AQUI',
-  'Puxada frontal fechada': 'VIDEO_ID_AQUI',
-  'Posterior de coxa máquina': 'VIDEO_ID_AQUI',
-  'Bíceps na polia baixa': 'VIDEO_ID_AQUI',
-  'Desenvolvimento para ombros sentado com halteres': 'VIDEO_ID_AQUI',
-  'Elevação frontal com halteres': 'VIDEO_ID_AQUI',
-  'Bíceps com halteres': 'VIDEO_ID_AQUI',
-  'Crucifixo no banco reto com halteres': 'VIDEO_ID_AQUI',
-  'Tríceps cross barra v': 'VIDEO_ID_AQUI',
-  'Tríceps corda': 'VIDEO_ID_AQUI',
-  'Tríceps pulley (na polia) com barra reta': 'VIDEO_ID_AQUI',
-  'Leg press 180°': 'VIDEO_ID_AQUI',
-  'Agachamento livre barra': 'VIDEO_ID_AQUI',
-  'Cadeira flexora': 'VIDEO_ID_AQUI',
-  'Cadeira extensora': 'VIDEO_ID_AQUI',
-  'Leg press 45°': 'VIDEO_ID_AQUI',
+  'Remada na máquina pegada aberta': 'L1sj8Ujz6Ms',
+  'Remada máquina articulada pegada fechada': 'z3Bqm1B9HUc',
+  'Tríceps testa na máquina': '010bQQVTtno',
+  'Peck deck voador': 'u0CUc0TKFDM',
+  'Desenvolvimento de ombro máquina': 'wL41w-NRH6I',
+  'Crucifixo invertido': 'wBfnhmNur6o',
+  'Desenvolvimento de ombros máquina': 'oDrVvWwpTzI',
+  'Supino inclinado máquina': '4E0mgSfgdfc',
+  'Supino reto máquina': 'TrjXp1bP8-E',
+  'Remada baixa máquina': 'FLT55fPkM_4',
+  'Voador máquina': '8Q_VF29Ar-8',
+  'Puxada articulada': 'PRQbKmWyabw',
+  'Tríceps francês unilateral': 'fRyXgnMB1JM',
+  'Tríceps francês com halter': '-kRgpfSEwaI',
+  'Desenvolvimento com halteres': 'siwKSEHa3p4',
+  'Puxada alta com triângulo': 'LrfNTLtHPiM',
+  'Elevação frontal com halteres (ombros)': 'Kn_yTHD1qpM',
+  'Remada baixa': 'xQ7gRdhBQI8',
+  'Elevação lateral para ombros': 'q2p43F9gFwo',
+  'Puxada aberta supinada': 'uBkXGSio4zk',
+  'Rotação Interna com Polia para manguito rotador': 'b_tYLVYBIF8',
+  'Remada curvada com barra': 'Vezbx6CAZzk',
+  'Pull-down crossover corda': 'IMoigAzHT3E',
+  'Pull-down no cross barra reta': '0StamgOvaKs',
+  'Remada alta no pulley': 'w1kMQ5eR1ZU',
+  'Stiff com barra reta': 'oIu-e_mHTPU',
+  'Abdominal reto': '5RucMkRjTyE',
+  'Prancha abdominal': 'WSirPHTOhx4',
+  'Mesa flexora': 'pcsrb3kQwUY',
+  'Panturrilha sentado na máquina': '-Ct3nbgrbcY',
+  'Cadeira abdutora': 'ShCscfSkYEU',
+  'Cadeira adutora': '1tnsk-j5CA0',
+  'Puxada frontal fechada': 'W98phx1r2Yg',
+  'Posterior de coxa máquina': '1WXL_oeypTk',
+  'Bíceps na polia baixa': 'OnXIagSFoU8',
+  'Desenvolvimento para ombros sentado com halteres': 'cl29pNd1E0Y',
+  'Elevação frontal com halteres': 'O1aSEoHuxpQ',
+  'Bíceps com halteres': 'Kg0SlkZjlTY',
+  'Crucifixo no banco reto com halteres': 'pma0D65cKTk',
+  'Tríceps cross barra v': 'tK3bolJca_4',
+  'Tríceps corda': 'BCUmmZgW61M',
+  'Tríceps pulley (na polia) com barra reta': 'zwhQg6oEgTU',
+  'Leg press 180°': 'Wu-CQUYFYO0',
+  'Agachamento livre barra': 'Rb1C_xGT51Y',
+  'Cadeira flexora': 'mjCYcvs_BeY',
+  'Cadeira extensora': 'kaFLb-jZ14w',
+  'Leg press 45°': 'yuIdTWl3oJ8',
 }
 
 /**
@@ -91,7 +89,7 @@ export function getQuesloVideo(exerciseName: string): ExerciseVideo | null {
 
   const videoId = EXERCISE_VIDEO_MAP[normalizedName]
 
-  if (!videoId || videoId === 'VIDEO_ID_AQUI') {
+  if (!videoId) {
     console.warn(`⚠️ Vídeo não encontrado para: "${normalizedName}"`)
     return null
   }
@@ -125,20 +123,20 @@ export function getQuesloVideosForExercises(exerciseNames: string[]): Map<string
 
 /**
  * Lista todos os exercícios disponíveis com vídeo
+ * ✅ Todos os 47 exercícios têm vídeo mapeado!
  */
 export function getAvailableExercises(): string[] {
-  return Object.keys(EXERCISE_VIDEO_MAP).filter(
-    key => EXERCISE_VIDEO_MAP[key] !== 'VIDEO_ID_AQUI'
-  )
+  return Object.keys(EXERCISE_VIDEO_MAP)
 }
 
 /**
  * Verifica se um exercício tem vídeo disponível
+ * ✅ Todos os 47 exercícios têm vídeo!
  */
 export function hasQuesloVideo(exerciseName: string): boolean {
   const normalizedName = exerciseName.trim()
   const videoId = EXERCISE_VIDEO_MAP[normalizedName]
-  return !!videoId && videoId !== 'VIDEO_ID_AQUI'
+  return !!videoId
 }
 
 /**

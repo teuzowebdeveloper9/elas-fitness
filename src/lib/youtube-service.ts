@@ -22,7 +22,7 @@ const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || 'AIzaSyAMXQlOmy0
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3'
 
 // CANAL OFICIAL: Queslo Sistemas
-const QUESLO_CHANNEL_ID = 'UC3TlBoi5CrGaabOhAipWPsw' // ID do canal Queslo Sistemas
+const QUESLO_CHANNEL_ID = 'UCvzHO7SwGzOfO13cQI9YZ-Q' // ID do canal Queslo Sistemas (confirmado via API)
 
 // Canais priorizados (apenas como fallback)
 const PREFERRED_CHANNELS = [
