@@ -55,41 +55,7 @@ export default function Profile() {
   const [waterReminders, setWaterReminders] = useState(true)
 
   // Measurements state
-  const [measurements, setMeasurements] = useState<Measurement[]>([
-    {
-      id: '1',
-      date: '2024-12-01',
-      weight: 75.5,
-      chest: 95,
-      waist: 78,
-      hips: 102,
-      arms: 32,
-      thighs: 58,
-      calves: 37
-    },
-    {
-      id: '2',
-      date: '2024-12-15',
-      weight: 74.2,
-      chest: 94,
-      waist: 76,
-      hips: 100,
-      arms: 31.5,
-      thighs: 57,
-      calves: 36.5
-    },
-    {
-      id: '3',
-      date: '2025-01-01',
-      weight: 73.0,
-      chest: 93,
-      waist: 74,
-      hips: 99,
-      arms: 31,
-      thighs: 56,
-      calves: 36
-    }
-  ])
+  const [measurements, setMeasurements] = useState<Measurement[]>([])
 
   const [newMeasurement, setNewMeasurement] = useState<Partial<Measurement>>({
     date: new Date().toISOString().split('T')[0],
