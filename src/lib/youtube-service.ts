@@ -24,11 +24,7 @@ const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3'
 // CANAL OFICIAL: Queslo Sistemas
 const QUESLO_CHANNEL_ID = 'UCvzHO7SwGzOfO13cQI9YZ-Q' // ID do canal Queslo Sistemas (confirmado via API)
 
-// Canais priorizados (apenas como fallback)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _PREFERRED_CHANNELS = [
-  QUESLO_CHANNEL_ID, // Queslo Sistemas (prioridade máxima)
-]
+// Canal principal é QUESLO_CHANNEL_ID definido acima
 
 /**
  * Busca vídeos de exercício no YouTube

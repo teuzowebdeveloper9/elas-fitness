@@ -32,9 +32,6 @@ function AnalyzingLoader({ image }: { image: string }) {
 
   useEffect(() => {
     let totalTime = 0
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _totalDuration = LOADING_PHRASES.reduce((acc, p) => acc + p.duration, 0)
-    
     const timers: NodeJS.Timeout[] = []
     
     LOADING_PHRASES.forEach((phrase, index) => {
