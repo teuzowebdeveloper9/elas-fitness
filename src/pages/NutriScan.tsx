@@ -100,17 +100,28 @@ export default function NutriScan() {
 
   const openCamera = async () => {
     try {
+      // Primeiro, abre o estado da câmera para renderizar o video element
+      setIsCameraOpen(true)
+      
+      // Aguarda um pouco para o DOM atualizar
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
       })
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream
-        videoRef.current.play()
-        setIsCameraOpen(true)
+        await videoRef.current.play()
+        console.log('📸 Câmera aberta com sucesso!')
       }
     } catch (error) {
       console.error('Erro ao abrir câmera:', error)
+      setIsCameraOpen(false)
       toast({
         title: 'Erro ao abrir câmera',
         description: 'Não foi possível acessar a câmera. Tente fazer upload de uma imagem.',
@@ -359,28 +370,45 @@ export default function NutriScan() {
       {isCameraOpen && (
         <Card>
           <CardContent className="p-4">
-            <div className="relative rounded-lg overflow-hidden bg-black">
+            <div className="relative rounded-2xl overflow-hidden bg-black aspect-[4/3] shadow-xl">
               <video
                 ref={videoRef}
-                className="w-full h-auto"
+                autoPlay
                 playsInline
+                muted
+                className="w-full h-full object-cover"
               />
+              {/* Overlay com guia de enquadramento */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-4 border-2 border-white/50 rounded-xl" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16">
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white rounded-tl" />
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white rounded-tr" />
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-white rounded-bl" />
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white rounded-br" />
+                </div>
+              </div>
+              {/* Label */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 px-4 py-2 rounded-full">
+                <p className="text-white text-sm font-medium">📸 Enquadre sua refeição</p>
+              </div>
             </div>
             <div className="flex gap-3 mt-4">
               <Button
                 onClick={capturePhoto}
-                className="flex-1 bg-orange-500 hover:bg-orange-600"
+                size="lg"
+                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 h-14 text-lg"
               >
-                <Camera className="w-4 h-4 mr-2" />
-                Capturar
+                <Camera className="w-6 h-6 mr-2" />
+                Capturar Foto
               </Button>
               <Button
                 onClick={closeCamera}
                 variant="outline"
-                className="flex-1"
+                size="lg"
+                className="h-14"
               >
-                <X className="w-4 h-4 mr-2" />
-                Cancelar
+                <X className="w-6 h-6" />
               </Button>
             </div>
           </CardContent>

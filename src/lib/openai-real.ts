@@ -139,10 +139,12 @@ Responda APENAS com JSON:
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 200
+        max_tokens: 200,
+        response_format: { type: 'json_object' }
       })
 
-      const aiResponse = JSON.parse(completion.choices[0].message.content || '{}')
+      const content = completion.choices[0].message.content || '{}'
+      const aiResponse = JSON.parse(content)
 
       // Atualizar com valores refinados pela IA
       if (aiResponse.protein) result.protein = aiResponse.protein
@@ -188,10 +190,10 @@ export interface DietGenerationData {
  * Gera plano alimentar personalizado usando OpenAI com fallback
  */
 export async function generatePersonalizedDiet(data: DietGenerationData) {
-  // Se OpenAI não estiver configurada, pular direto para fallback
+  // Se OpenAI não estiver configurada, usar fallback direto
   if (!hasOpenAI || !openai) {
     console.log('📝 Gerando plano alimentar básico (OpenAI não configurada)')
-    throw new Error('OpenAI not configured - usando fallback')
+    return generateDietFallback(data)
   }
 
   // Tentar gerar com IA
@@ -258,6 +260,8 @@ Formato JSON (sem texto extra):
 }
 Repita para tuesday, wednesday, thursday, friday, saturday, sunday.`
 
+    console.log('🤖 Chamando OpenAI para gerar dieta...')
+    
     const completion = await openai!.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -269,16 +273,23 @@ Repita para tuesday, wednesday, thursday, friday, saturday, sunday.`
       response_format: { type: 'json_object' }
     })
 
+    console.log('✅ Resposta recebida da OpenAI')
+    
     const content = completion.choices[0].message.content || '{}'
+    console.log('📝 Parseando resposta JSON...')
+    
     const response = JSON.parse(content)
 
     if (!response.meal_plan) {
-      throw new Error('Resposta inválida')
+      console.warn('⚠️ Resposta sem meal_plan, usando fallback')
+      return generateDietFallback(data)
     }
 
+    console.log('✅ Dieta gerada com sucesso pela IA!')
     return response
-  } catch (error) {
-    console.error('Erro ao gerar dieta com IA, usando fallback:', error)
+  } catch (error: any) {
+    console.error('❌ Erro ao gerar dieta com IA:', error?.message || error)
+    console.log('🔄 Usando fallback local para gerar dieta...')
     return generateDietFallback(data)
   }
 }
@@ -931,10 +942,18 @@ function generateWorkoutFallback(data: WorkoutGenerationData) {
  * Analisa imagem de comida usando OpenAI Vision
  */
 export async function analyzeFoodImage(imageBase64: string) {
-  const prompt = `Analise esta imagem de comida e identifique todos os alimentos presentes.
+  const prompt = `Analise esta imagem e determine se contém alimentos/comida. Responda APENAS em formato JSON válido.
 
-Forneça as informações nutricionais TOTAIS do prato completo em JSON:
+PRIMEIRO: Verifique se a imagem contém alimentos. Se NÃO for comida, retorne este JSON:
 {
+  "is_food": false,
+  "detected_content": "descrição do que você vê na imagem",
+  "funny_message": "uma mensagem engraçada e amigável explicando que isso não é comida"
+}
+
+Se FOR comida, identifique todos os alimentos e forneça este JSON:
+{
+  "is_food": true,
   "meal_name": "nome do prato/refeição completa",
   "meal_type": "cafe-da-manha|almoco|jantar|lanche",
   "foods_detected": ["alimento1", "alimento2", "alimento3"],
@@ -948,10 +967,12 @@ Forneça as informações nutricionais TOTAIS do prato completo em JSON:
 }
 
 IMPORTANTE:
-- Os valores nutricionais devem ser do PRATO COMPLETO (soma de todos alimentos)
+- Responda SOMENTE com JSON válido, sem texto adicional
+- Primeiro SEMPRE verifique se é comida ou não
+- Os valores nutricionais devem ser do PRATO COMPLETO
 - Use estimativas realistas baseadas nas porções visíveis
 - Seja preciso nos valores numéricos
-- Liste todos os alimentos detectados no array foods_detected`
+- Se for algo parcialmente comestível (bebida, etc), considere como comida`
 
   try {
     const completion = await openai!.chat.completions.create({
@@ -974,12 +995,24 @@ IMPORTANTE:
 
     const response = JSON.parse(completion.choices[0].message.content || '{}')
 
-    // Validar resposta
+    // Se não for comida, retornar resposta específica
+    if (response.is_food === false) {
+      return {
+        is_food: false,
+        detected_content: response.detected_content || 'Objeto não identificado',
+        funny_message: response.funny_message || 'Hmm... isso não parece ser comida! 🤔'
+      }
+    }
+
+    // Validar resposta de comida
     if (!response.meal_name || !response.nutrition) {
       throw new Error('Resposta inválida da IA')
     }
 
-    return response
+    return {
+      is_food: true,
+      ...response
+    }
   } catch (error) {
     console.error('Erro ao analisar imagem:', error)
     throw new Error('Não foi possível analisar a imagem. Tente novamente.')

@@ -4,13 +4,193 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { useToast } from '@/hooks/use-toast'
-import { Camera, Image as ImageIcon, Flame, Apple, Coffee, Loader2, ArrowLeft } from 'lucide-react'
+import { Camera, Image as ImageIcon, Flame, Apple, Coffee, Loader2, ArrowLeft, AlertTriangle, Sparkles } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { analyzeFoodImage } from '@/lib/openai-real'
 import { supabase } from '@/lib/supabase'
 import { format } from 'date-fns'
 import { FoxMascot } from '@/components/mascot/fox-mascot'
 import { useNavigate } from 'react-router-dom'
+
+// Frases do loading animado
+const LOADING_PHRASES = [
+  { emoji: '👀', text: 'Olhando para sua refeição...', duration: 1500 },
+  { emoji: '🔍', text: 'Identificando os alimentos...', duration: 2000 },
+  { emoji: '🥗', text: 'Analisando vegetais e proteínas...', duration: 1800 },
+  { emoji: '⚖️', text: 'Estimando as porções...', duration: 1500 },
+  { emoji: '🧮', text: 'Calculando calorias...', duration: 1700 },
+  { emoji: '💪', text: 'Contando as proteínas...', duration: 1500 },
+  { emoji: '🍞', text: 'Medindo carboidratos...', duration: 1400 },
+  { emoji: '🥑', text: 'Verificando gorduras boas...', duration: 1600 },
+  { emoji: '✨', text: 'Finalizando análise...', duration: 2000 },
+]
+
+// Componente de Loading Animado
+function AnalyzingLoader({ image }: { image: string }) {
+  const [currentPhrase, setCurrentPhrase] = useState(0)
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    let totalTime = 0
+    const totalDuration = LOADING_PHRASES.reduce((acc, p) => acc + p.duration, 0)
+    
+    const timers: NodeJS.Timeout[] = []
+    
+    LOADING_PHRASES.forEach((phrase, index) => {
+      const timer = setTimeout(() => {
+        setCurrentPhrase(index)
+        setProgress(((index + 1) / LOADING_PHRASES.length) * 100)
+      }, totalTime)
+      timers.push(timer)
+      totalTime += phrase.duration
+    })
+
+    // Progress animation
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 95) return prev
+        return prev + 0.5
+      })
+    }, 100)
+
+    return () => {
+      timers.forEach(t => clearTimeout(t))
+      clearInterval(progressInterval)
+    }
+  }, [])
+
+  const phrase = LOADING_PHRASES[currentPhrase]
+
+  return (
+    <Card className="border-2 border-[var(--tiffany)] shadow-xl overflow-hidden">
+      <CardContent className="p-0">
+        {/* Imagem com overlay */}
+        <div className="relative">
+          <img 
+            src={image} 
+            alt="Analisando" 
+            className="w-full h-48 object-cover opacity-50"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          
+          {/* Scan animation */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div 
+              className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--tiffany)] to-transparent animate-pulse"
+              style={{ 
+                top: `${(currentPhrase / LOADING_PHRASES.length) * 100}%`,
+                boxShadow: '0 0 20px var(--tiffany), 0 0 40px var(--tiffany)'
+              }}
+            />
+          </div>
+          
+          {/* Central loading indicator */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl text-center min-w-[280px]">
+              <div className="relative">
+                <div className="text-5xl mb-3 animate-bounce">{phrase.emoji}</div>
+                <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-yellow-400 animate-pulse" />
+              </div>
+              <p className="text-lg font-heading text-[rgb(51,51,51)] mb-4">
+                {phrase.text}
+              </p>
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-[var(--tiffany)] to-[var(--coral)] rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="text-xs text-[var(--warm-gray)] mt-2">
+                {Math.round(progress)}% concluído
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Steps indicator */}
+        <div className="p-4 bg-gradient-to-r from-[var(--tiffany-light)] to-white">
+          <div className="flex justify-center gap-1">
+            {LOADING_PHRASES.map((_, index) => (
+              <div 
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index <= currentPhrase 
+                    ? 'bg-[var(--tiffany)] scale-110' 
+                    : 'bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Componente de "Não é Comida"
+function NotFoodResult({ 
+  detectedContent, 
+  funnyMessage, 
+  onReset 
+}: { 
+  detectedContent: string
+  funnyMessage: string
+  onReset: () => void 
+}) {
+  const funnyEmojis = ['🤔', '😅', '🙈', '😂', '🤷‍♀️', '👀']
+  const randomEmoji = funnyEmojis[Math.floor(Math.random() * funnyEmojis.length)]
+
+  return (
+    <Card className="border-2 border-[var(--coral)] shadow-xl overflow-hidden">
+      <CardContent className="pt-6 space-y-6">
+        {/* Ilustração divertida */}
+        <div className="text-center py-6">
+          <div className="relative inline-block">
+            <div className="text-8xl animate-bounce">{randomEmoji}</div>
+            <AlertTriangle className="absolute -bottom-2 -right-2 w-10 h-10 text-[var(--coral)] animate-pulse" />
+          </div>
+        </div>
+
+        {/* Mensagem principal */}
+        <div className="text-center space-y-3">
+          <h3 className="text-2xl font-heading text-[var(--coral)]">
+            Opa! Isso não é comida!
+          </h3>
+          <p className="text-lg text-[rgb(51,51,51)]">
+            {funnyMessage}
+          </p>
+          <div className="bg-[var(--coral)]/10 rounded-2xl p-4">
+            <p className="text-sm text-[var(--warm-gray)]">
+              <span className="font-medium">Detectei:</span> {detectedContent}
+            </p>
+          </div>
+        </div>
+
+        {/* Dicas */}
+        <div className="bg-gradient-to-br from-[var(--tiffany-light)] to-white rounded-2xl p-4 space-y-2">
+          <h4 className="font-heading-medium text-sm text-[var(--tiffany)]">
+            💡 Dicas para uma boa foto:
+          </h4>
+          <ul className="text-sm text-[var(--warm-gray)] space-y-1">
+            <li>📸 Fotografe seu prato de cima</li>
+            <li>💡 Use boa iluminação</li>
+            <li>🍽️ Inclua todo o prato na foto</li>
+            <li>🎯 Foque nos alimentos</li>
+          </ul>
+        </div>
+
+        {/* Botão de tentar novamente */}
+        <Button
+          onClick={onReset}
+          className="w-full bg-[var(--coral)] hover:bg-[rgb(255,139,128)] text-white font-heading-medium py-6 rounded-2xl text-lg"
+        >
+          <Camera className="w-5 h-5 mr-2" />
+          Tentar novamente
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}
 
 interface MealData {
   id: string
@@ -45,6 +225,7 @@ export default function NutriScanRedesign() {
   const [isCameraOpen, setIsCameraOpen] = useState(false)
   const [capturedImage, setCapturedImage] = useState<string | null>(null)
   const [analysisResult, setAnalysisResult] = useState<any>(null)
+  const [notFoodResult, setNotFoodResult] = useState<{ detectedContent: string; funnyMessage: string } | null>(null)
   const [todayMeals, setTodayMeals] = useState<MealData[]>([])
   const [dailySummary, setDailySummary] = useState<DailySummary>({
     total_calories: 0,
@@ -100,16 +281,28 @@ export default function NutriScanRedesign() {
 
   const openCamera = async () => {
     try {
+      // Primeiro abre o estado para renderizar o video element
+      setIsCameraOpen(true)
+      
+      // Aguarda o DOM atualizar
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
       })
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream
-        setIsCameraOpen(true)
+        await videoRef.current.play()
+        console.log('📸 Câmera aberta com sucesso!')
       }
     } catch (error) {
       console.error('Erro ao acessar câmera:', error)
+      setIsCameraOpen(false)
       toast({
         title: 'Erro ao abrir câmera',
         description: 'Verifique as permissões do navegador.',
@@ -161,9 +354,21 @@ export default function NutriScanRedesign() {
     if (!capturedImage) return
 
     setIsAnalyzing(true)
+    setNotFoodResult(null)
 
     try {
       const result = await analyzeFoodImage(capturedImage)
+      
+      // Verificar se não é comida
+      if (result.is_food === false) {
+        setNotFoodResult({
+          detectedContent: result.detected_content,
+          funnyMessage: result.funny_message
+        })
+        setIsAnalyzing(false)
+        return
+      }
+
       setAnalysisResult(result)
 
       const { data: { user } } = await supabase.auth.getUser()
@@ -171,16 +376,19 @@ export default function NutriScanRedesign() {
 
       const today = format(new Date(), 'yyyy-MM-dd')
 
+      // Extrair valores nutrition
+      const nutrition = result.nutrition || {}
+      
       const { error: insertError } = await supabase
         .from('meals')
         .insert({
           user_id: user.id,
           meal_name: result.meal_name,
           meal_type: result.meal_type,
-          calories: result.calories,
-          protein: result.protein,
-          carbs: result.carbs,
-          fats: result.fats,
+          calories: nutrition.calories || result.calories,
+          protein: nutrition.protein || result.protein,
+          carbs: nutrition.carbs || result.carbs,
+          fats: nutrition.fats || result.fats,
           foods_detected: result.foods_detected,
           date: today
         })
@@ -208,6 +416,7 @@ export default function NutriScanRedesign() {
   const resetScan = () => {
     setCapturedImage(null)
     setAnalysisResult(null)
+    setNotFoodResult(null)
   }
 
   const calorieGoal = userProfile?.dailyCalories || 2000
@@ -320,13 +529,22 @@ export default function NutriScanRedesign() {
       {isCameraOpen && (
         <Card className="border-2 border-[var(--tiffany)] shadow-lg overflow-hidden">
           <CardContent className="p-0">
-            <div className="relative">
+            <div className="relative bg-black aspect-[4/3]">
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
-                className="w-full rounded-t-2xl"
+                muted
+                className="w-full h-full object-cover rounded-t-2xl"
               />
+              {/* Guia de enquadramento */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-4 border-2 border-white/40 rounded-xl" />
+                <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/60 px-4 py-2 rounded-full">
+                  <p className="text-white text-sm font-medium">📸 Enquadre sua refeição</p>
+                </div>
+              </div>
+              {/* Botões */}
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
                 <Button
                   onClick={capturePhoto}
@@ -349,8 +567,22 @@ export default function NutriScanRedesign() {
         </Card>
       )}
 
+      {/* Loading animado durante análise */}
+      {isAnalyzing && capturedImage && (
+        <AnalyzingLoader image={capturedImage} />
+      )}
+
+      {/* Resultado: Não é comida */}
+      {notFoodResult && !isAnalyzing && (
+        <NotFoodResult 
+          detectedContent={notFoodResult.detectedContent}
+          funnyMessage={notFoodResult.funnyMessage}
+          onReset={resetScan}
+        />
+      )}
+
       {/* Imagem capturada - antes de analisar */}
-      {capturedImage && !analysisResult && (
+      {capturedImage && !analysisResult && !isAnalyzing && !notFoodResult && (
         <Card className="border-2 border-[var(--tiffany)] shadow-lg">
           <CardContent className="pt-6 space-y-4">
             <img
@@ -365,14 +597,8 @@ export default function NutriScanRedesign() {
                 disabled={isAnalyzing}
                 className="w-full bg-[var(--tiffany)] hover:bg-[var(--tiffany-dark)] text-white font-heading-medium py-6 rounded-2xl"
               >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Analisando...
-                  </>
-                ) : (
-                  'Analisar refeição'
-                )}
+                <Sparkles className="w-5 h-5 mr-2" />
+                Analisar refeição
               </Button>
 
               <Button
@@ -389,15 +615,22 @@ export default function NutriScanRedesign() {
       )}
 
       {/* Resultado da análise */}
-      {analysisResult && (
-        <Card className="border-2 border-[var(--tiffany)] shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-heading flex items-center gap-2">
-              <Apple className="w-5 h-5 text-[var(--tiffany)]" />
-              {analysisResult.meal_name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      {analysisResult && analysisResult.is_food !== false && (
+        <Card className="border-2 border-[var(--tiffany)] shadow-lg overflow-hidden">
+          {/* Header com sucesso */}
+          <div className="bg-gradient-to-r from-[var(--tiffany)] to-[var(--tiffany-dark)] p-4 text-white">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 rounded-full p-2">
+                <Apple className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading text-lg">{analysisResult.meal_name}</h3>
+                <p className="text-sm opacity-90">Análise concluída com sucesso! ✨</p>
+              </div>
+            </div>
+          </div>
+          
+          <CardContent className="pt-4 space-y-4">
             {capturedImage && (
               <img
                 src={capturedImage}
@@ -407,44 +640,55 @@ export default function NutriScanRedesign() {
             )}
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gradient-to-br from-[rgb(255,240,235)] to-white p-4 rounded-2xl border border-[var(--warm-gray-light)] text-center">
-                <p className="text-2xl font-bold text-[rgb(51,51,51)]">{analysisResult.calories}</p>
-                <p className="text-xs text-[var(--warm-gray)]">Calorias</p>
+              <div className="bg-gradient-to-br from-[rgb(255,240,235)] to-white p-4 rounded-2xl border border-[var(--warm-gray-light)] text-center transform hover:scale-105 transition-transform">
+                <p className="text-3xl font-bold text-[var(--coral)]">
+                  {analysisResult.nutrition?.calories || analysisResult.calories}
+                </p>
+                <p className="text-xs text-[var(--warm-gray)] font-medium">Calorias</p>
               </div>
-              <div className="bg-gradient-to-br from-[rgb(220,245,243)] to-white p-4 rounded-2xl border border-[var(--warm-gray-light)] text-center">
-                <p className="text-2xl font-bold text-[rgb(51,51,51)]">{analysisResult.protein}g</p>
-                <p className="text-xs text-[var(--warm-gray)]">Proteínas</p>
+              <div className="bg-gradient-to-br from-[rgb(220,245,243)] to-white p-4 rounded-2xl border border-[var(--warm-gray-light)] text-center transform hover:scale-105 transition-transform">
+                <p className="text-3xl font-bold text-[var(--tiffany)]">
+                  {analysisResult.nutrition?.protein || analysisResult.protein}g
+                </p>
+                <p className="text-xs text-[var(--warm-gray)] font-medium">Proteínas</p>
               </div>
-              <div className="bg-gradient-to-br from-[rgb(255,250,235)] to-white p-4 rounded-2xl border border-[var(--warm-gray-light)] text-center">
-                <p className="text-2xl font-bold text-[rgb(51,51,51)]">{analysisResult.carbs}g</p>
-                <p className="text-xs text-[var(--warm-gray)]">Carboidratos</p>
+              <div className="bg-gradient-to-br from-[rgb(255,250,235)] to-white p-4 rounded-2xl border border-[var(--warm-gray-light)] text-center transform hover:scale-105 transition-transform">
+                <p className="text-3xl font-bold text-yellow-600">
+                  {analysisResult.nutrition?.carbs || analysisResult.carbs}g
+                </p>
+                <p className="text-xs text-[var(--warm-gray)] font-medium">Carboidratos</p>
               </div>
-              <div className="bg-gradient-to-br from-[rgb(255,245,240)] to-white p-4 rounded-2xl border border-[var(--warm-gray-light)] text-center">
-                <p className="text-2xl font-bold text-[rgb(51,51,51)]">{analysisResult.fats}g</p>
-                <p className="text-xs text-[var(--warm-gray)]">Gorduras</p>
+              <div className="bg-gradient-to-br from-[rgb(255,245,240)] to-white p-4 rounded-2xl border border-[var(--warm-gray-light)] text-center transform hover:scale-105 transition-transform">
+                <p className="text-3xl font-bold text-orange-500">
+                  {analysisResult.nutrition?.fats || analysisResult.fats}g
+                </p>
+                <p className="text-xs text-[var(--warm-gray)] font-medium">Gorduras</p>
               </div>
             </div>
 
             {analysisResult.foods_detected && analysisResult.foods_detected.length > 0 && (
-              <div className="bg-[var(--tiffany-light)] p-4 rounded-2xl">
-                <h4 className="font-heading-medium text-sm text-[rgb(51,51,51)] mb-2">
-                  Alimentos detectados:
+              <div className="bg-gradient-to-br from-[var(--tiffany-light)] to-white p-4 rounded-2xl">
+                <h4 className="font-heading-medium text-sm text-[var(--tiffany)] mb-3 flex items-center gap-2">
+                  <span>🍽️</span> Alimentos detectados:
                 </h4>
-                <ul className="space-y-1">
+                <div className="flex flex-wrap gap-2">
                   {analysisResult.foods_detected.map((food: string, i: number) => (
-                    <li key={i} className="text-sm flex items-center gap-2">
-                      <span className="text-[var(--tiffany)]">•</span>
-                      <span className="text-[rgb(51,51,51)]">{food}</span>
-                    </li>
+                    <Badge 
+                      key={i} 
+                      className="bg-white border border-[var(--tiffany)] text-[rgb(51,51,51)] hover:bg-[var(--tiffany-light)]"
+                    >
+                      {food}
+                    </Badge>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 
             <Button
               onClick={resetScan}
-              className="w-full bg-[var(--coral)] hover:bg-[rgb(255,139,128)] text-white font-heading-medium py-6 rounded-2xl"
+              className="w-full bg-gradient-to-r from-[var(--coral)] to-[rgb(255,139,128)] hover:from-[rgb(255,139,128)] hover:to-[var(--coral)] text-white font-heading-medium py-6 rounded-2xl text-lg shadow-lg"
             >
+              <Camera className="w-5 h-5 mr-2" />
               Escanear outra refeição
             </Button>
           </CardContent>
