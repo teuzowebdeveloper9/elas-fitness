@@ -2,6 +2,13 @@
 node_modules
 package-lock.json
 
+# Environment variables (SECRETS)
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
 # Build outputs
 dist
 build
