@@ -48,9 +48,12 @@ export default function ActiveWorkout() {
   const [cardioTimes, setCardioTimes] = useState<Record<string, number>>({})
   const [startTime] = useState(Date.now())
   const [elapsedTime, setElapsedTime] = useState(0)
-  const [selectedExercise, setSelectedExercise] = useState<string | null>(null)
-  const [exerciseVideos, setExerciseVideos] = useState<YouTubeVideo[]>([])
-  const [loadingVideos, setLoadingVideos] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedExercise, _setSelectedExercise] = useState<string | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [exerciseVideos, _setExerciseVideos] = useState<YouTubeVideo[]>([])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loadingVideos, _setLoadingVideos] = useState(false)
   const [videoModalOpen, setVideoModalOpen] = useState(false)
   const [expandedVideoExercise, setExpandedVideoExercise] = useState<string | null>(null)
   const [exerciseVideoCache, setExerciseVideoCache] = useState<Map<string, string>>(new Map())

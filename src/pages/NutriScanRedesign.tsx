@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { useToast } from '@/hooks/use-toast'
-import { Camera, Image as ImageIcon, Flame, Apple, Coffee, Loader2, ArrowLeft, AlertTriangle, Sparkles } from 'lucide-react'
+import { Camera, Image as ImageIcon, Flame, Apple, Coffee, ArrowLeft, AlertTriangle, Sparkles } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { analyzeFoodImage } from '@/lib/openai-real'
 import { supabase } from '@/lib/supabase'
@@ -32,7 +32,8 @@ function AnalyzingLoader({ image }: { image: string }) {
 
   useEffect(() => {
     let totalTime = 0
-    const totalDuration = LOADING_PHRASES.reduce((acc, p) => acc + p.duration, 0)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _totalDuration = LOADING_PHRASES.reduce((acc, p) => acc + p.duration, 0)
     
     const timers: NodeJS.Timeout[] = []
     

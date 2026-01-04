@@ -10,13 +10,9 @@ import { supabase } from '@/lib/supabase'
 import {
   Scale,
   Ruler,
-  Target,
   Award,
-  Calendar as CalendarIcon,
   Camera,
-  ChevronRight,
   CheckCircle2,
-  Sparkles,
   Plus,
   TrendingDown,
   TrendingUp,
@@ -300,7 +296,7 @@ function CelebrationModal({
 
 export default function Progress() {
   const { toast } = useToast()
-  const { userProfile, setUserProfile } = useUser()
+  const { userProfile, updateUserProfile } = useUser()
   const [loading, setLoading] = useState(true)
   const [showWeightModal, setShowWeightModal] = useState(false)
   const [showMeasurementsModal, setShowMeasurementsModal] = useState(false)
@@ -348,7 +344,7 @@ export default function Progress() {
   // Dados do usuário
   const currentWeight = weightHistory.length > 0 ? weightHistory[0].weight : (userProfile?.weight || 0)
   const startWeight = userProfile?.weight || 0
-  const goalWeight = userProfile?.goalWeight || userProfile?.goal_weight || 0
+  const goalWeight = userProfile?.goalWeight || 0
 
   // Calcular progresso
   const isLosingWeight = goalWeight < startWeight
@@ -377,7 +373,7 @@ export default function Progress() {
       if (error) throw error
 
       // Atualizar perfil
-      await setUserProfile({ weight: newWeight })
+      await updateUserProfile({ weight: newWeight })
 
       // Verificar se atingiu a meta
       const newProgressPercentage = totalToLose > 0 

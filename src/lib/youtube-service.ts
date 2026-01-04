@@ -8,7 +8,7 @@
  * 3. Fallback para busca geral apenas se necessário
  */
 
-import { getQuesloVideo, type ExerciseVideo } from './queslo-videos'
+import { getQuesloVideo } from './queslo-videos'
 
 export interface YouTubeVideo {
   videoId: string
@@ -25,7 +25,8 @@ const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3'
 const QUESLO_CHANNEL_ID = 'UCvzHO7SwGzOfO13cQI9YZ-Q' // ID do canal Queslo Sistemas (confirmado via API)
 
 // Canais priorizados (apenas como fallback)
-const PREFERRED_CHANNELS = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _PREFERRED_CHANNELS = [
   QUESLO_CHANNEL_ID, // Queslo Sistemas (prioridade máxima)
 ]
 
