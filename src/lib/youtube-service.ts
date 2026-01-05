@@ -1,14 +1,16 @@
 /**
  * Serviço de integração com YouTube Data API v3
- * PRIORIZA vídeos do canal "Queslo Sistemas"
+ * PRIORIZA vídeos do banco de dados (gerenciados pelo admin)
  *
  * Estratégia de busca:
- * 1. Primeiro tenta buscar no mapeamento estático do Queslo Sistemas
- * 2. Se não encontrar, busca dinamicamente no canal Queslo Sistemas
- * 3. Fallback para busca geral apenas se necessário
+ * 1. Primeiro tenta buscar no banco de dados (exercise_videos)
+ * 2. Se não encontrar, busca no mapeamento estático do Queslo Sistemas
+ * 3. Se não encontrar, busca dinamicamente no canal Queslo Sistemas
+ * 4. Fallback para busca geral apenas se necessário
  */
 
 import { getQuesloVideo } from './queslo-videos'
+import { getVideoByExerciseName } from './video-database-service'
 
 export interface YouTubeVideo {
   videoId: string
@@ -28,15 +30,33 @@ const QUESLO_CHANNEL_ID = 'UCvzHO7SwGzOfO13cQI9YZ-Q' // ID do canal Queslo Siste
 
 /**
  * Busca vídeos de exercício no YouTube
- * PRIORIZA 100% o canal Queslo Sistemas
+ * PRIORIZA banco de dados > mapeamento estático > API YouTube
  */
 export async function searchExerciseVideo(
   exerciseName: string,
   maxResults: number = 5
 ): Promise<YouTubeVideo[]> {
   try {
-    // PRIORIDADE 1: Buscar no mapeamento estático do Queslo Sistemas
-    console.log(`🎯 Buscando vídeo do Queslo Sistemas para: "${exerciseName}"`)
+    // PRIORIDADE 1: Buscar no banco de dados (gerenciado pelo admin)
+    console.log(`🗄️ Buscando vídeo no banco de dados para: "${exerciseName}"`)
+    try {
+      const dbVideo = await getVideoByExerciseName(exerciseName)
+      if (dbVideo) {
+        console.log(`✅ Vídeo encontrado no banco: ${dbVideo.youtube_video_id}`)
+        return [{
+          videoId: dbVideo.youtube_video_id,
+          title: dbVideo.exercise_name,
+          channelTitle: dbVideo.channel_name,
+          thumbnail: dbVideo.thumbnail_url,
+          embedUrl: dbVideo.embed_url
+        }]
+      }
+    } catch (dbError) {
+      console.warn('⚠️ Erro ao buscar no banco, tentando fallback...', dbError)
+    }
+
+    // PRIORIDADE 2: Buscar no mapeamento estático do Queslo Sistemas
+    console.log(`🎯 Buscando vídeo no mapeamento estático para: "${exerciseName}"`)
     const quesloVideo = getQuesloVideo(exerciseName)
 
     if (quesloVideo) {
@@ -50,7 +70,7 @@ export async function searchExerciseVideo(
       }]
     }
 
-    // PRIORIDADE 2: Buscar dinamicamente no canal Queslo Sistemas
+    // PRIORIDADE 3: Buscar dinamicamente no canal Queslo Sistemas
     console.log(`🔍 Buscando dinamicamente no canal Queslo Sistemas...`)
     const quesloResults = await searchInQuesloChannel(exerciseName, maxResults)
     if (quesloResults.length > 0) {

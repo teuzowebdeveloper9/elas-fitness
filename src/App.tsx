@@ -21,6 +21,7 @@ import Community from '@/pages/Community'
 import Routine from '@/pages/Routine'
 import DietPlan from '@/pages/DietPlan'
 import BodyMeasurements from '@/pages/BodyMeasurements'
+import AdminVideos from '@/pages/AdminVideos'
 
 function AppRoutes() {
   const { user, loading: authLoading } = useAuth()
@@ -61,6 +62,10 @@ function AppRoutes() {
   // If authenticated and onboarding completed, show main app
   return (
     <Routes>
+      {/* Admin route - fora do Layout principal */}
+      <Route path="/admin" element={<AdminVideos />} />
+      <Route path="/admin/videos" element={<AdminVideos />} />
+      
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="workouts" element={<Workouts />} />
