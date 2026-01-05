@@ -23,9 +23,15 @@ import DietPlan from '@/pages/DietPlan'
 import BodyMeasurements from '@/pages/BodyMeasurements'
 import AdminVideos from '@/pages/AdminVideos'
 
+// Email do admin - não precisa de onboarding
+const ADMIN_EMAIL = 'RealAdmin@admin.real'
+
 function AppRoutes() {
   const { user, loading: authLoading } = useAuth()
   const { userProfile, loading: profileLoading } = useUser()
+
+  // Verifica se é admin pelo email
+  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
 
   // Show loading while checking auth or loading profile
   if (authLoading || profileLoading) {
@@ -45,6 +51,17 @@ function AppRoutes() {
       <Routes>
         <Route path="/auth" element={<Auth />} />
         <Route path="*" element={<Navigate to="/auth" replace />} />
+      </Routes>
+    )
+  }
+
+  // Se é admin, vai direto pro painel admin (sem onboarding)
+  if (isAdmin) {
+    return (
+      <Routes>
+        <Route path="/admin" element={<AdminVideos />} />
+        <Route path="/admin/videos" element={<AdminVideos />} />
+        <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     )
   }
