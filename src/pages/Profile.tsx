@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
 import { useTheme } from 'next-themes'
 import { useUser } from '@/contexts/UserContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { getLifePhaseLabel } from '@/utils/workoutAdaptations'
 import {
   User,
@@ -31,6 +32,7 @@ export default function Profile() {
   const { toast } = useToast()
   const { theme, setTheme } = useTheme()
   const { userProfile, clearUserProfile } = useUser()
+  const { signOut } = useAuth()
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [workoutReminders, setWorkoutReminders] = useState(true)
   const [mealReminders, setMealReminders] = useState(true)
@@ -340,7 +342,19 @@ export default function Profile() {
                 <Lock className="w-4 h-4 mr-2" />
                 Alterar Senha
               </Button>
-              <Button variant="outline" className="w-full justify-start text-[var(--coral)] hover:text-[rgb(255,139,128)] hover:bg-[rgb(255,245,240)]">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-[var(--coral)] hover:text-[rgb(255,139,128)] hover:bg-[rgb(255,245,240)]"
+                onClick={async () => {
+                  await signOut()
+                  clearUserProfile()
+                  navigate('/auth')
+                  toast({
+                    title: "Até logo! 👋",
+                    description: "Você saiu da sua conta com sucesso"
+                  })
+                }}
+              >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sair da Conta
               </Button>
