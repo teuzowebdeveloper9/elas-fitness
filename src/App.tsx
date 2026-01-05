@@ -23,15 +23,15 @@ import DietPlan from '@/pages/DietPlan'
 import BodyMeasurements from '@/pages/BodyMeasurements'
 import AdminVideos from '@/pages/AdminVideos'
 
-// Email do admin - não precisa de onboarding
-const ADMIN_EMAIL = 'RealAdmin@admin.real'
+// Email do admin vem do .env (segurança)
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || ''
 
 function AppRoutes() {
   const { user, loading: authLoading } = useAuth()
   const { userProfile, loading: profileLoading } = useUser()
 
-  // Verifica se é admin pelo email
-  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+  // Verifica se é admin pelo email (case insensitive)
+  const isAdmin = ADMIN_EMAIL && user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
 
   // Show loading while checking auth or loading profile
   if (authLoading || profileLoading) {
