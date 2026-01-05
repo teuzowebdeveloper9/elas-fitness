@@ -1,4 +1,4 @@
--- =====================================================
+ -- =====================================================
 -- SISTEMA DE ADMIN E VÍDEOS DE EXERCÍCIOS
 -- Execute este SQL no Supabase SQL Editor
 -- =====================================================
@@ -202,17 +202,113 @@ WHERE is_active = TRUE
 ORDER BY exercise_name;
 
 -- =====================================================
--- INSTRUÇÕES:
--- 1. Execute este SQL no Supabase SQL Editor
--- 2. Depois crie o usuário admin no Auth do Supabase:
---    Email: RealAdmin@admin.real
---    Senha: ADMINVERDADEIRO(ADMIN)123456789*&^%$#@!sss
--- 3. Depois execute o SQL abaixo para registrar como admin:
+-- 11. CRIAR USUÁRIO ADMIN AUTOMATICAMENTE
 -- =====================================================
 
--- EXECUTE DEPOIS DE CRIAR O USUÁRIO NO AUTH:
--- INSERT INTO admin_users (user_id, email, role)
--- SELECT id, email, 'super_admin'
--- FROM auth.users
--- WHERE email = 'RealAdmin@admin.real';
+-- Criar o usuário admin diretamente no auth.users
+-- Senha: ADMINVERDADEIRO(ADMIN)123456789*&^%$#@!sss
+DO $$
+DECLARE
+    admin_uid UUID;
+BEGIN
+    -- Verificar se já existe
+    SELECT id INTO admin_uid FROM auth.users WHERE email = 'RealAdmin@admin.real';
+    
+    IF admin_uid IS NULL THEN
+        -- Criar usuário admin
+        INSERT INTO auth.users (
+            instance_id,
+            id,
+            aud,
+            role,
+            email,
+            encrypted_password,
+            email_confirmed_at,
+            confirmation_sent_at,
+            recovery_sent_at,
+            email_change_sent_at,
+            last_sign_in_at,
+            raw_app_meta_data,
+            raw_user_meta_data,
+            is_super_admin,
+            created_at,
+            updated_at,
+            phone,
+            phone_confirmed_at,
+            confirmation_token,
+            recovery_token,
+            email_change_token_new,
+            email_change
+        ) VALUES (
+            '00000000-0000-0000-0000-000000000000',
+            gen_random_uuid(),
+            'authenticated',
+            'authenticated',
+            'RealAdmin@admin.real',
+            crypt('ADMINVERDADEIRO(ADMIN)123456789*&^%$#@!sss', gen_salt('bf')),
+            NOW(),
+            NOW(),
+            NULL,
+            NULL,
+            NOW(),
+            '{"provider": "email", "providers": ["email"]}',
+            '{"name": "Admin Master"}',
+            FALSE,
+            NOW(),
+            NOW(),
+            NULL,
+            NULL,
+            '',
+            '',
+            '',
+            ''
+        )
+        RETURNING id INTO admin_uid;
+        
+        RAISE NOTICE 'Usuário admin criado com ID: %', admin_uid;
+    ELSE
+        RAISE NOTICE 'Usuário admin já existe com ID: %', admin_uid;
+    END IF;
+    
+    -- Registrar como admin na tabela admin_users
+    INSERT INTO admin_users (user_id, email, role)
+    VALUES (admin_uid, 'RealAdmin@admin.real', 'super_admin')
+    ON CONFLICT (email) DO UPDATE SET role = 'super_admin';
+    
+    RAISE NOTICE '✅ Admin registrado com sucesso!';
+END $$;
+
+-- Criar identidade para o admin (necessário para login)
+INSERT INTO auth.identities (
+    id,
+    user_id,
+    identity_data,
+    provider,
+    provider_id,
+    last_sign_in_at,
+    created_at,
+    updated_at
+)
+SELECT 
+    gen_random_uuid(),
+    id,
+    jsonb_build_object('sub', id::text, 'email', email),
+    'email',
+    id::text,
+    NOW(),
+    NOW(),
+    NOW()
+FROM auth.users 
+WHERE email = 'RealAdmin@admin.real'
+ON CONFLICT (provider, provider_id) DO NOTHING;
+
+-- =====================================================
+-- ✅ PRONTO! TUDO FEITO AUTOMATICAMENTE
+-- 
+-- Agora basta:
+-- 1. Fazer login com:
+--    Email: RealAdmin@admin.real
+--    Senha: ADMINVERDADEIRO(ADMIN)123456789*&^%$#@!sss
+-- 2. Acessar: /admin
+-- =====================================================
 
