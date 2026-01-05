@@ -376,7 +376,7 @@ export default function NutriScanRedesign() {
 
       // Extrair valores nutrition
       const nutrition = result.nutrition || {}
-      
+
       const { error: insertError } = await supabase
         .from('meals')
         .insert({

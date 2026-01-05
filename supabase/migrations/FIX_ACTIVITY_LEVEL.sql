@@ -15,3 +15,6 @@ WHERE table_name = 'user_profiles' AND column_name = 'activity_level';
 
 SELECT '✅ Coluna activity_level adicionada com sucesso!' AS status;
 
+
+
+

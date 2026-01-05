@@ -504,12 +504,12 @@ export default function Progress() {
       <div className="relative bg-gradient-to-br from-[rgb(176,235,229)] via-white to-[rgb(216,191,228)] rounded-3xl p-6 shadow-xl border border-[rgb(231,228,225)]">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-heading text-[rgb(51,51,51)]">
-              Meu Progresso
-            </h2>
-            <p className="text-sm text-[var(--warm-gray)] mt-1">
-              Acompanhe sua evolução e conquistas
-            </p>
+        <h2 className="text-3xl font-heading text-[rgb(51,51,51)]">
+          Meu Progresso
+        </h2>
+        <p className="text-sm text-[var(--warm-gray)] mt-1">
+          Acompanhe sua evolução e conquistas
+        </p>
           </div>
           {goalReached && (
             <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full p-3 animate-pulse">
@@ -529,7 +529,7 @@ export default function Progress() {
           <CardTitle className="flex items-center justify-between font-heading">
             <div className="flex items-center gap-2">
               <Scale className={`w-6 h-6 ${goalReached ? 'text-yellow-500' : 'text-[var(--tiffany)]'}`} />
-              Progresso de Peso
+            Progresso de Peso
             </div>
             {goalReached && (
               <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white animate-pulse">
@@ -559,7 +559,7 @@ export default function Progress() {
                     <TrendingUp className="w-4 h-4" />
                   )}
                   {Math.abs(currentWeight - weightHistory[1]?.weight).toFixed(1)}
-                </div>
+            </div>
               )}
             </div>
           </div>
@@ -642,9 +642,9 @@ export default function Progress() {
             <CardTitle className="flex items-center gap-2 font-heading text-lg">
               <TrendingDown className="w-5 h-5 text-[var(--lilac)]" />
               Histórico Recente
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
             <div className="flex items-end justify-between h-24 gap-2">
               {weightHistory.slice(0, 7).reverse().map((entry, index) => {
                 const maxWeight = Math.max(...weightHistory.map(e => e.weight))
@@ -680,15 +680,15 @@ export default function Progress() {
               <Ruler className="w-5 h-5 text-[var(--coral)]" />
               Medidas Corporais
             </div>
-            <Button 
-              variant="outline" 
+          <Button
+            variant="outline"
               size="sm"
               onClick={() => setShowMeasurementsModal(true)}
               className="border-[var(--coral)] text-[var(--coral)] hover:bg-[var(--coral)] hover:text-white"
-            >
+          >
               <Plus className="w-4 h-4 mr-1" />
               Adicionar
-            </Button>
+          </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -704,9 +704,9 @@ export default function Progress() {
                   <span className="text-2xl">{measurement.emoji}</span>
                   <p className="text-2xl font-bold text-[rgb(51,51,51)]">{measurement.value}cm</p>
                   <p className="text-xs text-[var(--warm-gray)]">{measurement.label}</p>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
           ) : (
             <div className="text-center py-8">
               <Ruler className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -721,7 +721,7 @@ export default function Progress() {
                 <Plus className="w-4 h-4 mr-2" />
                 Registrar Medidas
               </Button>
-            </div>
+          </div>
           )}
         </CardContent>
       </Card>

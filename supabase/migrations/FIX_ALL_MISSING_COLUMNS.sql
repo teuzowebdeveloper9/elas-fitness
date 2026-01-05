@@ -65,3 +65,6 @@ ORDER BY ordinal_position;
 
 SELECT '✅ Todas as colunas adicionadas com sucesso!' AS status;
 
+
+
+

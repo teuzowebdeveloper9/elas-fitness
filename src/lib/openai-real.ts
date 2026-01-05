@@ -261,7 +261,7 @@ Formato JSON (sem texto extra):
 Repita para tuesday, wednesday, thursday, friday, saturday, sunday.`
 
     console.log('🤖 Chamando OpenAI para gerar dieta...')
-    
+
     const completion = await openai!.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -274,7 +274,7 @@ Repita para tuesday, wednesday, thursday, friday, saturday, sunday.`
     })
 
     console.log('✅ Resposta recebida da OpenAI')
-    
+
     const content = completion.choices[0].message.content || '{}'
     console.log('📝 Parseando resposta JSON...')
     
