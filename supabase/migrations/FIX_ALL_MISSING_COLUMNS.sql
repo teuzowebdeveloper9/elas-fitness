@@ -68,3 +68,5 @@ SELECT '✅ Todas as colunas adicionadas com sucesso!' AS status;
 
 
 
+
+

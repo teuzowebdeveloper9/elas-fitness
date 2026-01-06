@@ -18,3 +18,5 @@ SELECT '✅ Coluna activity_level adicionada com sucesso!' AS status;
 
 
 
+
+
